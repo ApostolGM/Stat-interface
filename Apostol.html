@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Терминал Гефест v1.3</title>
+    <style>
+        body {
+            background-color: #0a0a0a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+        }
+
+        /* Эффект старого монитора */
+        .crt {
+            background: #0b1a0b;
+            border: 20px solid #2a2a2a;
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.2), inset 0 0 100px rgba(0, 0, 0, 0.8);
+            padding: 30px;
+            width: 600px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Линии развертки */
+        .crt::after {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* Мерцание */
+        .crt::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: rgba(18, 16, 16, 0.1);
+            opacity: 0;
+            z-index: 10;
+            pointer-events: none;
+            animation: flicker 0.15s infinite;
+        }
+
+        @keyframes flicker {
+            0% { opacity: 0.1; }
+            50% { opacity: 0.3; }
+            100% { opacity: 0.05; }
+        }
+
+        .screen {
+            position: relative;
+            z-index: 20;
+            color: #20C20E;
+            text-shadow: 0 0 10px #20C20E;
+            min-height: 300px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 28px;
+            letter-spacing: 4px;
+            border-bottom: 2px dashed #20C20E;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        .balance {
+            text-align: right;
+            font-size: 20px;
+            margin-bottom: 30px;
+            background: #0d200d;
+            padding: 10px;
+            border: 1px solid #20C20E;
+        }
+
+        .output-box {
+            background: #051005;
+            border: 1px solid #20C20E;
+            padding: 20px;
+            min-height: 100px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .item-name {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .item-rarity {
+            font-size: 14px;
+            opacity: 0.7;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        button {
+            background: #0d200d;
+            color: #20C20E;
+            border: 2px solid #20C20E;
+            padding: 15px 25px;
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: 0 0 15px rgba(32, 194, 14, 0.4);
+            transition: 0.2s;
+            flex: 1;
+        }
+
+        button:hover {
+            background: #20C20E;
+            color: #0a0a0a;
+            box-shadow: 0 0 30px #20C20E;
+        }
+
+        button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            box-shadow: none;
+            background: #0d200d;
+            color: #20C20E;
+        }
+
+        .log {
+            margin-top: 20px;
+            font-size: 14px;
+            opacity: 0.8;
+            height: 40px;
+            border-top: 1px dotted #20C20E;
+            padding-top: 10px;
+        }
+
+        .blink {
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
+        .glitch {
+            animation: glitch 0.3s infinite;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="crt">
+        <div class="screen">
+            <h1>⚡ Гефест v.217 ⚡</h1>
+            <div class="balance">
+                БАЛАНС: <span id="tokenCount">3</span> ЖЕТ.
+            </div>
+
+            <div class="output-box" id="output">
+                <div class="item-name">ОЖИДАНИЕ...</div>
+                <div class="item-rarity">Нажмите кнопку для открытия капсулы</div>
+            </div>
+
+            <div class="buttons">
+                <button id="rollButton" onclick="rollLootbox()">🔴 КРУТИТЬ</button>
+            </div>
+
+            <div class="log" id="log">
+                > СИСТЕМА ГОТОВА. УДАЧИ, ВЫЖИВШИЙ.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ================= НАСТРОЙКИ =================
+        let tokens = 3; // Стартовый баланс игрока
+
+        // Таблицы лута (ты можешь менять предметы как хочешь!)
+        const commonItems = [
+            "Банка тушенки (просрочка)", "Фляга с водой", "Бинт стерильный",
+            "Батарейки АА", "Пачка галет", "Моток лески",
+            "Резиновый пупс", "Ненужная флешка", "Ржавый гвоздь",
+            "Довоенная газета"
+        ];
+
+        const rareItems = [
+            "Набор отмычек", "Фонарь с динамо-машиной", "Карта местности",
+            "Сигнальная ракетница", "Универсальный глушитель", "Доза антирадина",
+            "Прочный рюкзак", "Когти крота"
+        ];
+
+        const legendaryItems = [
+            "Портативный очиститель воды", "Генератор белого шума", "Силовая батарея МП-8",
+            "Имплант 'Зоркий глаз'", "Чертеж экзоскелета", "Ключ-пропуск в Убежище 17"
+        ];
+
+        // ================= ФУНКЦИЯ БРОСКА =================
+        function rollLootbox() {
+            if (tokens <= 0) {
+                updateLog("ОШИБКА: НЕДОСТАТОЧНО ЖЕТОНОВ.");
+                document.getElementById('output').innerHTML = `
+                    <div class="item-name glitch">НЕТ ЖЕТОНОВ</div>
+                    <div class="item-rarity">Найдите жетоны в Пустоши</div>
+                `;
+                return;
+            }
+
+            // Списываем жетон
+            tokens--;
+            document.getElementById('tokenCount').innerText = tokens;
+
+            // Эффект загрузки
+            document.getElementById('output').innerHTML = `
+                <div class="item-name blink">АНАЛИЗ КАПСУЛЫ...</div>
+                <div class="item-rarity">Пожалуйста, подождите</div>
+            `;
+            document.getElementById('rollButton').disabled = true;
+
+            // Имитация задержки (1.5 секунды)
+            setTimeout(() => {
+                const roll = Math.ceil(Math.random() * 100);
+                let itemName = "";
+                let rarity = "";
+                let color = "#20C20E"; // Обычный зеленый
+
+                if (roll <= 60) {
+                    // Обычный предмет
+                    itemName = commonItems[Math.floor(Math.random() * commonItems.length)];
+                    rarity = "[ОБЫЧНЫЙ]";
+                    color = "#A0A0A0";
+                } else if (roll <= 90) {
+                    // Редкий предмет
+                    itemName = rareItems[Math.floor(Math.random() * rareItems.length)];
+                    rarity = "[РЕДКИЙ]";
+                    color = "#4A90E2";
+                } else {
+                    // Легендарный предмет
+                    itemName = legendaryItems[Math.floor(Math.random() * legendaryItems.length)];
+                    rarity = "[ЛЕГЕНДАРНЫЙ]";
+                    color = "#F5A623";
+                }
+
+                // Обновляем экран
+                document.getElementById('output').innerHTML = `
+                    <div class="item-name" style="color: ${color};">${itemName}</div>
+                    <div class="item-rarity">${rarity} | Бросок d100: ${roll}</div>
+                `;
+
+                updateLog(`Выдан предмет: ${itemName}`);
+                document.getElementById('rollButton').disabled = false;
+
+                // Если жетоны кончились
+                if (tokens <= 0) {
+                    updateLog("ВНИМАНИЕ: БАЛАНС ИСТОЩЕН.");
+                }
+            }, 1500);
+        }
+
+        function updateLog(message) {
+            document.getElementById('log').innerHTML = `> ${message}`;
+        }
+    </script>
+</body>
+</html>
