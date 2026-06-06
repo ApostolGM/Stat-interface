@@ -3,32 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Терминал Гефест v1.3</title>
+    <title>Гефест v2.0 — Торговый автомат</title>
     <style>
         body {
             background-color: #0a0a0a;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
             font-family: 'Courier New', monospace;
-            overflow: hidden;
+            overflow-x: hidden;
         }
 
-        /* Эффект старого монитора */
+        /* Корпус статуи */
         .crt {
             background: #0b1a0b;
             border: 20px solid #2a2a2a;
             border-radius: 20px;
             box-shadow: 0 0 30px rgba(0, 255, 0, 0.2), inset 0 0 100px rgba(0, 0, 0, 0.8);
-            padding: 30px;
-            width: 600px;
+            padding: 25px;
+            width: 650px;
+            max-width: 95vw;
             position: relative;
             overflow: hidden;
         }
 
-        /* Линии развертки */
+        /* Линии развёртки */
         .crt::after {
             content: " ";
             display: block;
@@ -70,95 +71,139 @@
             z-index: 20;
             color: #20C20E;
             text-shadow: 0 0 10px #20C20E;
-            min-height: 300px;
+            min-height: 350px;
+            display: flex;
+            flex-direction: column;
         }
 
         h1 {
             text-align: center;
-            font-size: 28px;
-            letter-spacing: 4px;
+            font-size: 24px;
+            letter-spacing: 3px;
             border-bottom: 2px dashed #20C20E;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
+            padding-bottom: 8px;
+            margin-bottom: 15px;
             text-transform: uppercase;
         }
 
         .balance {
-            text-align: right;
-            font-size: 20px;
-            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             background: #0d200d;
-            padding: 10px;
+            padding: 10px 15px;
             border: 1px solid #20C20E;
+            margin-bottom: 15px;
+            font-size: 18px;
         }
 
-        .output-box {
+        .nav {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .nav button {
+            flex: 1;
+            background: #0d200d;
+            color: #20C20E;
+            border: 2px solid #20C20E;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: 0.2s;
+        }
+
+        .nav button:hover {
+            background: #20C20E;
+            color: #0a0a0a;
+        }
+
+        .content {
             background: #051005;
             border: 1px solid #20C20E;
-            padding: 20px;
-            min-height: 100px;
-            margin-bottom: 20px;
+            padding: 15px;
+            flex-grow: 1;
+            margin-bottom: 15px;
+            overflow-y: auto;
+            max-height: 300px;
+        }
+
+        .item-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .item-card {
+            background: #0b1a0b;
+            border: 1px solid #20C20E;
+            padding: 10px;
+            width: calc(33% - 14px);
+            box-sizing: border-box;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 14px;
+        }
+
+        .item-card:hover {
+            background: #1a3a1a;
+            border-color: #fff;
+        }
+
+        .loot-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .loot-btn {
+            background: #0d200d;
+            color: #20C20E;
+            border: 2px solid #20C20E;
+            padding: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .loot-btn:hover {
+            background: #20C20E;
+            color: #0a0a0a;
+        }
+
+        .result-box {
+            background: #051005;
+            border: 1px solid #20C20E;
+            padding: 15px;
+            text-align: center;
+            min-height: 80px;
+            margin-bottom: 15px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            text-align: center;
         }
 
-        .item-name {
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-
-        .item-rarity {
+        .log {
             font-size: 14px;
-            opacity: 0.7;
-        }
-
-        .buttons {
-            display: flex;
-            justify-content: space-between;
-            gap: 10px;
-        }
-
-        button {
-            background: #0d200d;
-            color: #20C20E;
-            border: 2px solid #20C20E;
-            padding: 15px 25px;
-            font-family: 'Courier New', monospace;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            box-shadow: 0 0 15px rgba(32, 194, 14, 0.4);
-            transition: 0.2s;
-            flex: 1;
-        }
-
-        button:hover {
-            background: #20C20E;
-            color: #0a0a0a;
-            box-shadow: 0 0 30px #20C20E;
+            opacity: 0.8;
+            border-top: 1px dotted #20C20E;
+            padding-top: 8px;
+            margin-top: auto;
+            min-height: 20px;
         }
 
         button:disabled {
             opacity: 0.4;
             cursor: not-allowed;
-            box-shadow: none;
-            background: #0d200d;
-            color: #20C20E;
-        }
-
-        .log {
-            margin-top: 20px;
-            font-size: 14px;
-            opacity: 0.8;
-            height: 40px;
-            border-top: 1px dotted #20C20E;
-            padding-top: 10px;
         }
 
         .blink {
@@ -172,120 +217,275 @@
         .glitch {
             animation: glitch 0.3s infinite;
         }
+
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
 
     <div class="crt">
         <div class="screen">
-            <h1>⚡ Гефест v.217 ⚡</h1>
+            <h1>⚡ ГЕФЕСТ v.2 ⚡</h1>
             <div class="balance">
-                БАЛАНС: <span id="tokenCount">3</span> ЖЕТ.
+                <span>БАЛАНС:</span>
+                <span id="tokenDisplay">3 ЖЕТОНА</span>
             </div>
 
-            <div class="output-box" id="output">
-                <div class="item-name">ОЖИДАНИЕ...</div>
-                <div class="item-rarity">Нажмите кнопку для открытия капсулы</div>
+            <!-- Навигация -->
+            <div class="nav">
+                <button id="shopTab" onclick="showTab('shop')">🏪 МАГАЗИН</button>
+                <button id="lootTab" onclick="showTab('loot')">🎲 ЛУТБОКСЫ</button>
             </div>
 
-            <div class="buttons">
-                <button id="rollButton" onclick="rollLootbox()">🔴 КРУТИТЬ</button>
+            <!-- Контент -->
+            <div id="shopContent" class="content">
+                <div class="item-grid">
+                    <div class="item-card" onclick="buyItem('patrons', 1)">
+                        🔫 ПАТРОНЫ<br><small>1 жетон</small>
+                    </div>
+                    <div class="item-card" onclick="buyItem('medkit', 2)">
+                        🏥 АПТЕЧКА<br><small>2 жетона</small>
+                    </div>
+                    <div class="item-card" onclick="buyItem('battery', 1)">
+                        🔋 БАТАРЕЯ<br><small>1 жетон</small>
+                    </div>
+                    <div class="item-card" onclick="buyItem('water', 1)">
+                        💧 ВОДА<br><small>1 жетон</small>
+                    </div>
+                </div>
+                <p style="text-align:center; margin-top:15px; opacity:0.7;">
+                    [ Жетоны можно найти в Пустоши ]
+                </p>
             </div>
 
-            <div class="log" id="log">
-                > СИСТЕМА ГОТОВА. УДАЧИ, ВЫЖИВШИЙ.
+            <div id="lootContent" class="content hidden">
+                <div class="result-box" id="lootResult">
+                    <span>Выберите капсулу</span>
+                </div>
+                <div class="loot-options">
+                    <button class="loot-btn" onclick="openLootbox(1)">
+                        <span>📦 ГУМАНИТАРКА</span>
+                        <span>1 ЖЕТОН</span>
+                    </button>
+                    <button class="loot-btn" onclick="openLootbox(2)">
+                        <span>📦 БАРАХЛО-Х</span>
+                        <span>2 ЖЕТОНА</span>
+                    </button>
+                    <button class="loot-btn" onclick="openLootbox(3)">
+                        <span>📦 СПЕЦИАЛИСТ</span>
+                        <span>3 ЖЕТОНА</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Лог -->
+            <div class="log" id="logMessage">
+                > СИСТЕМА ГОТОВА. ВЫБЕРИТЕ ДЕЙСТВИЕ.
             </div>
         </div>
     </div>
 
     <script>
-        // ================= НАСТРОЙКИ =================
-        let tokens = 3; // Стартовый баланс игрока
+        // ==================== ОСНОВНЫЕ ПЕРЕМЕННЫЕ ====================
+        let tokens = 3; // Баланс жетонов
 
-        // Таблицы лута (ты можешь менять предметы как хочешь!)
-        const commonItems = [
+        // Таблицы лута
+        const commonLoot = [
             "Банка тушенки (просрочка)", "Фляга с водой", "Бинт стерильный",
             "Батарейки АА", "Пачка галет", "Моток лески",
             "Резиновый пупс", "Ненужная флешка", "Ржавый гвоздь",
             "Довоенная газета"
         ];
 
-        const rareItems = [
+        const rareLoot = [
             "Набор отмычек", "Фонарь с динамо-машиной", "Карта местности",
             "Сигнальная ракетница", "Универсальный глушитель", "Доза антирадина",
             "Прочный рюкзак", "Когти крота"
         ];
 
-        const legendaryItems = [
+        const legendaryLoot = [
             "Портативный очиститель воды", "Генератор белого шума", "Силовая батарея МП-8",
             "Имплант 'Зоркий глаз'", "Чертеж экзоскелета", "Ключ-пропуск в Убежище 17"
         ];
 
-        // ================= ФУНКЦИЯ БРОСКА =================
-        function rollLootbox() {
-            if (tokens <= 0) {
-                updateLog("ОШИБКА: НЕДОСТАТОЧНО ЖЕТОНОВ.");
-                document.getElementById('output').innerHTML = `
-                    <div class="item-name glitch">НЕТ ЖЕТОНОВ</div>
-                    <div class="item-rarity">Найдите жетоны в Пустоши</div>
-                `;
+        // Купленные предметы (для лога)
+        const inventory = [];
+
+        // ==================== ФУНКЦИИ ИНТЕРФЕЙСА ====================
+        function updateDisplay() {
+            document.getElementById('tokenDisplay').innerText = tokens + ' ЖЕТОН' + (tokens == 1 ? '' : 'А');
+            // Блокировка кнопок при 0 жетонов не полная, но можно сделать
+        }
+
+        function log(text) {
+            document.getElementById('logMessage').innerHTML = '> ' + text;
+        }
+
+        function showTab(tab) {
+            document.getElementById('shopContent').classList.add('hidden');
+            document.getElementById('lootContent').classList.add('hidden');
+            if (tab === 'shop') {
+                document.getElementById('shopContent').classList.remove('hidden');
+                log('МАГАЗИН. ВЫБЕРИТЕ ТОВАР.');
+            } else {
+                document.getElementById('lootContent').classList.remove('hidden');
+                log('ЛУТБОКСЫ. ВЫБЕРИТЕ ТИП КАПСУЛЫ.');
+            }
+            updateDisplay();
+        }
+
+        // ==================== ПОКУПКА ПРИПАСОВ ====================
+        function buyItem(item, cost) {
+            if (tokens < cost) {
+                log('ОШИБКА: НЕДОСТАТОЧНО ЖЕТОНОВ.');
+                playSound('error');
+                return;
+            }
+            tokens -= cost;
+            inventory.push(item);
+            updateDisplay();
+            let itemName = '';
+            switch(item) {
+                case 'patrons': itemName = 'Патроны (10 шт.)'; break;
+                case 'medkit': itemName = 'Аптечка'; break;
+                case 'battery': itemName = 'Батарея'; break;
+                case 'water': itemName = 'Фляга с водой'; break;
+            }
+            log('КУПЛЕНО: ' + itemName + '. -' + cost + ' ЖЕТОН.');
+            playSound('buy');
+        }
+
+        // ==================== ЛУТБОКСЫ ====================
+        function openLootbox(type) {
+            let cost = 0;
+            let table = [];
+            let boxName = '';
+
+            switch(type) {
+                case 1:
+                    cost = 1;
+                    table = commonLoot;
+                    boxName = 'ГУМАНИТАРКА';
+                    break;
+                case 2:
+                    cost = 2;
+                    // Барахло-Х: смесь обычного и редкого
+                    table = [...commonLoot, ...rareLoot];
+                    boxName = 'БАРАХЛО-Х';
+                    break;
+                case 3:
+                    cost = 3;
+                    // Специалист: только редкое и легендарное
+                    table = [...rareLoot, ...legendaryLoot];
+                    boxName = 'СПЕЦИАЛИСТ';
+                    break;
+            }
+
+            if (tokens < cost) {
+                log('ОШИБКА: НЕ ХВАТАЕТ ЖЕТОНОВ ДЛЯ ' + boxName + '.');
+                playSound('error');
                 return;
             }
 
-            // Списываем жетон
-            tokens--;
-            document.getElementById('tokenCount').innerText = tokens;
+            tokens -= cost;
+            updateDisplay();
+            document.getElementById('lootResult').innerHTML = '<span class="blink">АНАЛИЗ КАПСУЛЫ...</span>';
+            log('ОТКРЫВАЕТСЯ ' + boxName + '...');
+            playSound('loot');
 
-            // Эффект загрузки
-            document.getElementById('output').innerHTML = `
-                <div class="item-name blink">АНАЛИЗ КАПСУЛЫ...</div>
-                <div class="item-rarity">Пожалуйста, подождите</div>
-            `;
-            document.getElementById('rollButton').disabled = true;
-
-            // Имитация задержки (1.5 секунды)
+            // Задержка для эффекта
             setTimeout(() => {
-                const roll = Math.ceil(Math.random() * 100);
-                let itemName = "";
-                let rarity = "";
-                let color = "#20C20E"; // Обычный зеленый
+                const roll = Math.floor(Math.random() * 100) + 1;
+                let item = '';
+                let rarityText = '';
+                let color = '#20C20E';
 
-                if (roll <= 60) {
-                    // Обычный предмет
-                    itemName = commonItems[Math.floor(Math.random() * commonItems.length)];
-                    rarity = "[ОБЫЧНЫЙ]";
-                    color = "#A0A0A0";
-                } else if (roll <= 90) {
-                    // Редкий предмет
-                    itemName = rareItems[Math.floor(Math.random() * rareItems.length)];
-                    rarity = "[РЕДКИЙ]";
-                    color = "#4A90E2";
-                } else {
-                    // Легендарный предмет
-                    itemName = legendaryItems[Math.floor(Math.random() * legendaryItems.length)];
-                    rarity = "[ЛЕГЕНДАРНЫЙ]";
-                    color = "#F5A623";
+                // Определяем редкость на основе броска
+                if (type === 1) {
+                    // Только обычное
+                    item = commonLoot[Math.floor(Math.random() * commonLoot.length)];
+                    rarityText = '[ОБЫЧНЫЙ]';
+                } else if (type === 2) {
+                    if (roll <= 70) {
+                        item = commonLoot[Math.floor(Math.random() * commonLoot.length)];
+                        rarityText = '[ОБЫЧНЫЙ]';
+                    } else {
+                        item = rareLoot[Math.floor(Math.random() * rareLoot.length)];
+                        rarityText = '[РЕДКИЙ]';
+                        color = '#4A90E2';
+                    }
+                } else if (type === 3) {
+                    if (roll <= 60) {
+                        item = rareLoot[Math.floor(Math.random() * rareLoot.length)];
+                        rarityText = '[РЕДКИЙ]';
+                        color = '#4A90E2';
+                    } else {
+                        item = legendaryLoot[Math.floor(Math.random() * legendaryLoot.length)];
+                        rarityText = '[ЛЕГЕНДАРНЫЙ]';
+                        color = '#F5A623';
+                    }
                 }
 
-                // Обновляем экран
-                document.getElementById('output').innerHTML = `
-                    <div class="item-name" style="color: ${color};">${itemName}</div>
-                    <div class="item-rarity">${rarity} | Бросок d100: ${roll}</div>
-                `;
-
-                updateLog(`Выдан предмет: ${itemName}`);
-                document.getElementById('rollButton').disabled = false;
-
-                // Если жетоны кончились
-                if (tokens <= 0) {
-                    updateLog("ВНИМАНИЕ: БАЛАНС ИСТОЩЕН.");
-                }
+                document.getElementById('lootResult').innerHTML = 
+                    '<div style="font-size:20px; color:' + color + ';">' + item + '</div>' +
+                    '<div style="font-size:14px; opacity:0.8;">' + rarityText + ' | d100: ' + roll + '</div>';
+                log('ПОЛУЧЕНО: ' + item + ' ' + rarityText);
+                inventory.push(item);
             }, 1500);
         }
 
-        function updateLog(message) {
-            document.getElementById('log').innerHTML = `> ${message}`;
+        // ==================== ЗВУКИ (синтез через Web Audio) ====================
+        let audioCtx = null;
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
         }
+
+        function playSound(type) {
+            initAudio();
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            const now = audioCtx.currentTime;
+
+            switch(type) {
+                case 'buy':
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(600, now);
+                    osc.frequency.linearRampToValueAtTime(800, now + 0.1);
+                    gain.gain.setValueAtTime(0.1, now);
+                    gain.gain.linearRampToValueAtTime(0, now + 0.15);
+                    osc.start(now);
+                    osc.stop(now + 0.15);
+                    break;
+                case 'loot':
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(200, now);
+                    osc.frequency.linearRampToValueAtTime(400, now + 0.2);
+                    gain.gain.setValueAtTime(0.05, now);
+                    gain.gain.linearRampToValueAtTime(0, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                    break;
+                case 'error':
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(100, now);
+                    gain.gain.setValueAtTime(0.08, now);
+                    gain.gain.linearRampToValueAtTime(0, now + 0.2);
+                    osc.start(now);
+                    osc.stop(now + 0.2);
+                    break;
+            }
+        }
+
+        // ==================== ИНИЦИАЛИЗАЦИЯ ====================
+        updateDisplay();
+        showTab('shop'); // Стартовый экран — магазин
     </script>
 </body>
 </html>
