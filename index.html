@@ -364,67 +364,150 @@
             { name: 'Имплант "Зоркий глаз"', rarity: 'Легендарный', weight: 40 }
         ]
     };
+// ==================== АУДИО ДВИЖОК (пустошь) ====================
+let audioCtx = null;
+let masterGain = null;      // общая громкость эмбиента
+let windGain = null;
+let droneGain = null;
+let chimeGain = null;
+let chimeTimer = null;
 
-    // ==================== АУДИО ДВИЖОК (ветер) ====================
-    let audioCtx = null;
-    let windGain = null;
+function initAudio() {
+    if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        masterGain = audioCtx.createGain();
+        masterGain.gain.value = 0;
+        masterGain.connect(audioCtx.destination);
 
-    function initAudio() {
-        if (!audioCtx) {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            const bufferSize = 2 * audioCtx.sampleRate;
-            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-            const data = buffer.getChannelData(0);
-            for (let i = 0; i < bufferSize; i++) {
-                data[i] = Math.random() * 2 - 1;
-            }
-            const noise = audioCtx.createBufferSource();
-            noise.buffer = buffer;
-            noise.loop = true;
+        // --- Слой 1: Ветер (уже был, чуть мягче) ---
+        const windBufferSize = 2 * audioCtx.sampleRate;
+        const windBuffer = audioCtx.createBuffer(1, windBufferSize, audioCtx.sampleRate);
+        const windData = windBuffer.getChannelData(0);
+        for (let i = 0; i < windBufferSize; i++) windData[i] = Math.random() * 2 - 1;
 
-            const bandpass = audioCtx.createBiquadFilter();
-            bandpass.type = 'bandpass';
-            bandpass.frequency.value = 300;
-            bandpass.Q.value = 0.2;
+        const windNoise = audioCtx.createBufferSource();
+        windNoise.buffer = windBuffer;
+        windNoise.loop = true;
 
-            windGain = audioCtx.createGain();
-            windGain.gain.value = 0;
+        const windFilter = audioCtx.createBiquadFilter();
+        windFilter.type = 'bandpass';
+        windFilter.frequency.value = 350;
+        windFilter.Q.value = 0.25;
 
-            noise.connect(bandpass);
-            bandpass.connect(windGain);
-            windGain.connect(audioCtx.destination);
-            noise.start();
-            modulateWind();
+        windGain = audioCtx.createGain();
+        windGain.gain.value = 0;
+
+        windNoise.connect(windFilter);
+        windFilter.connect(windGain);
+        windGain.connect(masterGain);
+        windNoise.start();
+
+        // Модуляция ветра (порывы)
+        function modulateWind() {
+            if (!windGain) return;
+            const now = audioCtx.currentTime;
+            const base = 0.25;
+            const gust = Math.random() * 0.3 + 0.1;
+            windGain.gain.setValueAtTime(base, now);
+            windGain.gain.linearRampToValueAtTime(base + gust, now + 0.8 + Math.random());
+            windGain.gain.linearRampToValueAtTime(base, now + 2.5 + Math.random());
+            setTimeout(modulateWind, 3000);
         }
-    }
+        modulateWind();
 
-    function modulateWind() {
-        if (!windGain) return;
-        const now = audioCtx.currentTime;
-        const baseLevel = 0.15;
-        const gust = Math.random() * 0.2 + 0.1;
-        windGain.gain.setValueAtTime(baseLevel, now);
-        windGain.gain.linearRampToValueAtTime(baseLevel + gust, now + 0.5 + Math.random());
-        windGain.gain.linearRampToValueAtTime(baseLevel, now + 2 + Math.random());
-        setTimeout(modulateWind, 2500);
-    }
-
-    function toggleSound() {
-        initAudio();
-        state.soundEnabled = !state.soundEnabled;
-        const btn = document.getElementById('soundToggle');
-        if (state.soundEnabled) {
-            windGain.gain.value = 0.15;
-            btn.textContent = '🔊';
-        } else {
-            windGain.gain.value = 0;
-            btn.textContent = '🔇';
+        // --- Слой 2: Гул статуи (низкий гул, камень) ---
+        const droneBufferSize = audioCtx.sampleRate * 4;
+        const droneBuffer = audioCtx.createBuffer(1, droneBufferSize, audioCtx.sampleRate);
+        const droneData = droneBuffer.getChannelData(0);
+        for (let i = 0; i < droneBufferSize; i++) {
+            // Коричневый шум (низкие частоты)
+            droneData[i] = (droneData[i-1] || 0) + (Math.random() * 0.02 - 0.01);
+            if (droneData[i] > 1) droneData[i] = 1;
+            if (droneData[i] < -1) droneData[i] = -1;
         }
-    }
 
-    document.addEventListener('click', () => {
-        if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-    }, { once: true });
+        const droneNoise = audioCtx.createBufferSource();
+        droneNoise.buffer = droneBuffer;
+        droneNoise.loop = true;
+
+        const droneLowpass = audioCtx.createBiquadFilter();
+        droneLowpass.type = 'lowpass';
+        droneLowpass.frequency.value = 80;
+        droneLowpass.Q.value = 0.7;
+
+        droneGain = audioCtx.createGain();
+        droneGain.gain.value = 0;
+
+        droneNoise.connect(droneLowpass);
+        droneLowpass.connect(droneGain);
+        droneGain.connect(masterGain);
+        droneNoise.start();
+
+        // Медленное изменение гула
+        function modulateDrone() {
+            if (!droneGain) return;
+            const now = audioCtx.currentTime;
+            const targetFreq = 60 + Math.random() * 30;
+            droneLowpass.frequency.linearRampToValueAtTime(targetFreq, now + 5);
+            droneGain.gain.setValueAtTime(0.12, now);
+            droneGain.gain.linearRampToValueAtTime(0.18, now + 3);
+            droneGain.gain.linearRampToValueAtTime(0.12, now + 6);
+            setTimeout(modulateDrone, 6000);
+        }
+        modulateDrone();
+
+        // --- Слой 3: Кристаллические звоны (редкие) ---
+        chimeGain = audioCtx.createGain();
+        chimeGain.gain.value = 0;
+        chimeGain.connect(masterGain);
+
+        function scheduleChime() {
+            if (!chimeGain) return;
+            const now = audioCtx.currentTime;
+            const nextTime = now + 3 + Math.random() * 8; // раз в 3-11 секунд
+
+            // Создаём короткий звон
+            const osc1 = audioCtx.createOscillator();
+            const osc2 = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc1.type = 'sine';
+            osc2.type = 'triangle';
+            const baseFreq = 800 + Math.random() * 1200;
+            osc1.frequency.value = baseFreq;
+            osc2.frequency.value = baseFreq * 1.5;
+            gain.gain.setValueAtTime(0, now);
+            gain.gain.linearRampToValueAtTime(0.04, now + 0.05);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
+
+            osc1.connect(gain);
+            osc2.connect(gain);
+            gain.connect(chimeGain);
+            osc1.start(now); osc1.stop(now + 0.8);
+            osc2.start(now); osc2.stop(now + 0.8);
+
+            chimeTimer = setTimeout(scheduleChime, (nextTime - now) * 1000);
+        }
+        scheduleChime();
+    }
+}
+
+function toggleSound() {
+    initAudio();
+    state.soundEnabled = !state.soundEnabled;
+    const btn = document.getElementById('soundToggle');
+    if (state.soundEnabled) {
+        masterGain.gain.value = 0.7;   // общая громкость эмбиента
+        btn.textContent = '🔊';
+    } else {
+        masterGain.gain.value = 0;
+        btn.textContent = '🔇';
+    }
+}
+
+// Первый клик по странице разблокирует AudioContext
+document.addEventListener('click', () => {
+    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+}, { once: true });
 
     // ==================== ОТРИСОВКА ====================
     function updateBalance() {
