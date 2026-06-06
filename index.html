@@ -1,19 +1,10 @@
-const firebaseConfig = {
-  apiKey: "AIzaSyDwLgiealkp1O3LxMH5yOIXvBaTANYFJM0",
-  authDomain: "gephard-terminal.firebaseapp.com",
-  projectId: "gephard-terminal",
-  storageBucket: "gephard-terminal.firebasestorage.app",
-  messagingSenderId: "737630152720",
-  appId: "1:737630152720:web:64e5de2c921de2e5b84295"
-};
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Гефест v3.0 — Терминал с аккаунтами</title>
+    <title>Гефест v3.1 — Терминал (Локальный)</title>
     <style>
-        /* Стили идентичны предыдущей версии, только добавлены элементы для инвентаря и авторизации */
         body {
             background-color: #0a0a0a;
             display: flex;
@@ -24,7 +15,6 @@ const firebaseConfig = {
             font-family: 'Courier New', monospace;
             overflow-x: hidden;
         }
-
         .crt {
             background: #0b1a0b;
             border: 20px solid #2a2a2a;
@@ -36,42 +26,30 @@ const firebaseConfig = {
             position: relative;
             overflow: hidden;
         }
-
         .crt::after {
             content: " ";
             display: block;
             position: absolute;
-            top: 0;
-            left: 0;
-            bottom: 0;
-            right: 0;
+            top: 0; left: 0; bottom: 0; right: 0;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
             background-size: 100% 4px;
             pointer-events: none;
             z-index: 10;
         }
-
         .crt::before {
             content: " ";
             display: block;
             position: absolute;
-            top: 0;
-            left: 0;
-            bottom: 0;
-            right: 0;
+            top: 0; left: 0; bottom: 0; right: 0;
             background: rgba(18, 16, 16, 0.1);
             opacity: 0;
             z-index: 10;
             pointer-events: none;
             animation: flicker 0.15s infinite;
         }
-
         @keyframes flicker {
-            0% { opacity: 0.1; }
-            50% { opacity: 0.3; }
-            100% { opacity: 0.05; }
+            0% { opacity: 0.1; } 50% { opacity: 0.3; } 100% { opacity: 0.05; }
         }
-
         .screen {
             position: relative;
             z-index: 20;
@@ -81,7 +59,6 @@ const firebaseConfig = {
             display: flex;
             flex-direction: column;
         }
-
         h1 {
             text-align: center;
             font-size: 22px;
@@ -91,7 +68,6 @@ const firebaseConfig = {
             margin-bottom: 10px;
             text-transform: uppercase;
         }
-
         .user-bar {
             display: flex;
             justify-content: space-between;
@@ -102,7 +78,6 @@ const firebaseConfig = {
             margin-bottom: 10px;
             font-size: 14px;
         }
-
         .balance {
             display: flex;
             justify-content: space-between;
@@ -113,14 +88,12 @@ const firebaseConfig = {
             margin-bottom: 10px;
             font-size: 18px;
         }
-
         .nav {
             display: flex;
             gap: 6px;
             margin-bottom: 10px;
             flex-wrap: wrap;
         }
-
         .nav button {
             flex: 1;
             min-width: 60px;
@@ -135,12 +108,10 @@ const firebaseConfig = {
             text-transform: uppercase;
             transition: 0.2s;
         }
-
         .nav button:hover {
             background: #20C20E;
             color: #0a0a0a;
         }
-
         .content {
             background: #051005;
             border: 1px solid #20C20E;
@@ -150,13 +121,11 @@ const firebaseConfig = {
             overflow-y: auto;
             max-height: 300px;
         }
-
         .item-grid {
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
         }
-
         .item-card {
             background: #0b1a0b;
             border: 1px solid #20C20E;
@@ -168,18 +137,15 @@ const firebaseConfig = {
             transition: 0.2s;
             font-size: 13px;
         }
-
         .item-card:hover {
             background: #1a3a1a;
             border-color: #fff;
         }
-
         .loot-options {
             display: flex;
             flex-direction: column;
             gap: 8px;
         }
-
         .loot-btn {
             background: #0d200d;
             color: #20C20E;
@@ -192,12 +158,10 @@ const firebaseConfig = {
             justify-content: space-between;
             align-items: center;
         }
-
         .loot-btn:hover {
             background: #20C20E;
             color: #0a0a0a;
         }
-
         .result-box {
             background: #051005;
             border: 1px solid #20C20E;
@@ -210,20 +174,17 @@ const firebaseConfig = {
             align-items: center;
             justify-content: center;
         }
-
         .inventory-list {
             display: flex;
             flex-direction: column;
             gap: 4px;
         }
-
         .inv-item {
             background: #0b1a0b;
             padding: 6px 10px;
             border: 1px solid #20C20E;
             font-size: 14px;
         }
-
         .log {
             font-size: 13px;
             opacity: 0.8;
@@ -232,24 +193,19 @@ const firebaseConfig = {
             margin-top: auto;
             min-height: 20px;
         }
-
         button:disabled {
             opacity: 0.4;
             cursor: not-allowed;
         }
-
         .blink { animation: blink 1s step-end infinite; }
         @keyframes blink { 50% { opacity: 0; } }
-
         .hidden { display: none; }
-
         .auth-box {
             background: #051005;
             border: 1px solid #20C20E;
             padding: 20px;
             text-align: center;
         }
-
         .auth-box input {
             background: #0b1a0b;
             border: 1px solid #20C20E;
@@ -260,7 +216,6 @@ const firebaseConfig = {
             font-family: 'Courier New', monospace;
             font-size: 16px;
         }
-
         .auth-box button {
             background: #0d200d;
             color: #20C20E;
@@ -272,49 +227,54 @@ const firebaseConfig = {
             font-weight: bold;
             text-transform: uppercase;
         }
-
         .auth-box button:hover {
             background: #20C20E;
             color: #0a0a0a;
         }
+        .error-text {
+            color: #ff4444;
+            margin-top: 8px;
+            font-size: 13px;
+        }
     </style>
-    <!-- Подключаем Firebase SDK через CDN -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
 <div class="crt">
     <div class="screen" id="appScreen">
-        <!-- Содержимое будет формироваться динамически в зависимости от авторизации -->
+        <!-- Динамический рендер -->
     </div>
 </div>
 
 <script>
-    // ===================== НАСТРОЙКИ FIREBASE =====================
-    // ВСТАВЬ СВОЙ КОНФИГ ЗДЕСЬ (скопируй из консоли Firebase)
-    const firebaseConfig = {
-        apiKey: "ВАШ_API_KEY",
-        authDomain: "ВАШ_проект.firebaseapp.com",
-        projectId: "ВАШ_проект",
-        storageBucket: "ВАШ_проект.appspot.com",
-        messagingSenderId: "ВАШ_номер",
-        appId: "ВАШ_appId"
-    };
+    // ==================== ХРАНИЛИЩЕ ДАННЫХ (localStorage) ====================
+    const STORAGE_KEY = 'gephard_terminal_users';
 
-    // Инициализация Firebase
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
+    function getAllUsers() {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : {};
+    }
 
-    // ===================== СОСТОЯНИЕ ПРИЛОЖЕНИЯ =====================
-    let currentUser = null;
-    let userData = { tokens: 3, inventory: [] }; // локальный кэш
-    let currentTab = 'shop'; // 'shop', 'loot', 'inventory'
+    function saveAllUsers(users) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
+    }
 
-    // Ссылки на DOM (будут заполнены после рендера)
-    let appScreen = document.getElementById('appScreen');
+    // Простой хэш пароля (не криптостойкий, но пароли не хранятся открытым текстом)
+    function hashPassword(password) {
+        let hash = 0;
+        const str = password + 'GEPHARD_SALT_217';
+        for (let i = 0; i < str.length; i++) {
+            const char = str.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash |= 0;
+        }
+        return hash.toString(16);
+    }
+
+    // ==================== СОСТОЯНИЕ ПРИЛОЖЕНИЯ ====================
+    let currentUser = null;   // логин текущего пользователя
+    let userData = { tokens: 3, inventory: [] };
+    let currentTab = 'shop';
 
     // Таблицы лута
     const commonLoot = [
@@ -333,36 +293,46 @@ const firebaseConfig = {
         "Имплант 'Зоркий глаз'", "Чертеж экзоскелета", "Ключ-пропуск в Убежище 17"
     ];
 
-    // ===================== РЕНДЕРИНГ =====================
+    // ==================== РЕНДЕРИНГ ====================
     function renderApp() {
         if (!currentUser) {
-            // Экран авторизации
-            appScreen.innerHTML = `
-                <h1>⚡ ГЕФЕСТ v.3 ⚡</h1>
-                <div class="auth-box">
-                    <p>ТЕРМИНАЛ ЗАЩИЩЁН. ВОЙДИТЕ ИЛИ ЗАРЕГИСТРИРУЙТЕСЬ.</p>
-                    <input id="emailInput" type="email" placeholder="EMAIL"><br>
-                    <input id="passwordInput" type="password" placeholder="ПАРОЛЬ"><br>
-                    <button id="loginBtn">ВХОД</button>
-                    <button id="registerBtn">РЕГИСТРАЦИЯ</button>
-                    <p id="authError" style="color: red;"></p>
-                </div>
-            `;
-            document.getElementById('loginBtn').addEventListener('click', login);
-            document.getElementById('registerBtn').addEventListener('click', register);
+            renderAuthScreen();
             return;
         }
+        renderMainScreen();
+    }
 
-        // Основной интерфейс после входа
-        appScreen.innerHTML = `
+    function renderAuthScreen() {
+        document.getElementById('appScreen').innerHTML = `
+            <h1>⚡ ГЕФЕСТ v.3 ⚡</h1>
+            <div class="auth-box">
+                <p>ТЕРМИНАЛ ЗАЩИЩЁН. ВОЙДИТЕ ИЛИ ЗАРЕГИСТРИРУЙТЕСЬ.</p>
+                <input id="loginInput" type="text" placeholder="ЛОГИН"><br>
+                <input id="passwordInput" type="password" placeholder="ПАРОЛЬ"><br>
+                <button id="loginBtn">ВХОД</button>
+                <button id="registerBtn">РЕГИСТРАЦИЯ</button>
+                <div class="error-text" id="authError"></div>
+            </div>
+            <div class="log" style="margin-top:10px;">> ДОБРО ПОЖАЛОВАТЬ, ВЫЖИВШИЙ.</div>
+        `;
+        document.getElementById('loginBtn').addEventListener('click', login);
+        document.getElementById('registerBtn').addEventListener('click', register);
+        // Enter по паролю
+        document.getElementById('passwordInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') login();
+        });
+    }
+
+    function renderMainScreen() {
+        document.getElementById('appScreen').innerHTML = `
             <h1>⚡ ГЕФЕСТ v.3 ⚡</h1>
             <div class="user-bar">
-                <span>👤 ${currentUser.email}</span>
+                <span>👤 ${currentUser}</span>
                 <button id="logoutBtn" style="background:none; border:1px solid #20C20E; color:#20C20E; padding:4px 8px; cursor:pointer;">ВЫХОД</button>
             </div>
             <div class="balance">
                 <span>БАЛАНС:</span>
-                <span id="tokenDisplay">${userData.tokens} ЖЕТОНОВ</span>
+                <span id="tokenDisplay">${userData.tokens} ЖЕТОН${userData.tokens === 1 ? '' : 'ОВ'}</span>
             </div>
             <div class="nav">
                 <button id="shopTab">МАГАЗИН</button>
@@ -370,16 +340,12 @@ const firebaseConfig = {
                 <button id="inventoryTab">ИНВЕНТАРЬ</button>
             </div>
             <div id="dynamicContent" class="content"></div>
-            <div class="log" id="logMessage">> СИСТЕМА ГОТОВА.</div>
+            <div class="log" id="logMessage">> СИСТЕМА ГОТОВА. ВЫБЕРИТЕ ДЕЙСТВИЕ.</div>
         `;
-
-        // Вешаем обработчики
         document.getElementById('logoutBtn').addEventListener('click', logout);
         document.getElementById('shopTab').addEventListener('click', () => showTab('shop'));
         document.getElementById('lootTab').addEventListener('click', () => showTab('loot'));
         document.getElementById('inventoryTab').addEventListener('click', () => showTab('inventory'));
-
-        // Загружаем выбранную вкладку
         showTab(currentTab);
     }
 
@@ -387,7 +353,6 @@ const firebaseConfig = {
         currentTab = tab;
         const contentDiv = document.getElementById('dynamicContent');
         if (!contentDiv) return;
-
         switch(tab) {
             case 'shop':
                 contentDiv.innerHTML = `
@@ -397,7 +362,7 @@ const firebaseConfig = {
                         <div class="item-card" onclick="buyItem('battery', 1)">🔋 БАТАРЕЯ<br><small>1 жетон</small></div>
                         <div class="item-card" onclick="buyItem('water', 1)">💧 ВОДА<br><small>1 жетон</small></div>
                     </div>
-                    <p style="text-align:center; margin-top:10px; opacity:0.7;">[ ЖЕТОНЫ МОЖНО НАЙТИ В ПУСТОШИ ]</p>
+                    <p style="text-align:center; margin-top:10px; opacity:0.7;">[ ЖЕТОНЫ ВЫДАЁТ МАСТЕР ]</p>
                 `;
                 break;
             case 'loot':
@@ -423,7 +388,6 @@ const firebaseConfig = {
                 contentDiv.innerHTML = invHTML;
                 break;
         }
-        log('Готов к работе.');
     }
 
     function log(text) {
@@ -433,76 +397,107 @@ const firebaseConfig = {
 
     function updateBalanceDisplay() {
         const el = document.getElementById('tokenDisplay');
-        if (el) el.innerText = userData.tokens + ' ЖЕТОНОВ';
+        if (el) el.innerText = userData.tokens + ' ЖЕТОН' + (userData.tokens === 1 ? '' : 'ОВ');
     }
 
-    // ===================== РАБОТА С БАЗОЙ ДАННЫХ =====================
-    async function loadUserData() {
-        if (!currentUser) return;
-        const docRef = db.collection('users').doc(currentUser.uid);
-        const doc = await docRef.get();
-        if (doc.exists) {
-            userData = doc.data();
-            // Убедимся, что инвентарь существует
-            if (!userData.inventory) userData.inventory = [];
-        } else {
-            // Новый пользователь: создаём запись
-            userData = { tokens: 3, inventory: [] };
-            await docRef.set(userData);
+    function saveUserDataToStorage() {
+        const users = getAllUsers();
+        if (users[currentUser]) {
+            users[currentUser].data = { ...userData };
+            saveAllUsers(users);
         }
+    }
+
+    // ==================== АВТОРИЗАЦИЯ ====================
+    function login() {
+        const loginInput = document.getElementById('loginInput').value.trim().toLowerCase();
+        const passwordInput = document.getElementById('passwordInput').value;
+        const errorEl = document.getElementById('authError');
+
+        if (!loginInput || !passwordInput) {
+            errorEl.innerText = 'ВВЕДИТЕ ЛОГИН И ПАРОЛЬ.';
+            return;
+        }
+
+        const users = getAllUsers();
+        const user = users[loginInput];
+
+        if (!user) {
+            errorEl.innerText = 'ПОЛЬЗОВАТЕЛЬ НЕ НАЙДЕН.';
+            return;
+        }
+
+        if (user.passwordHash !== hashPassword(passwordInput)) {
+            errorEl.innerText = 'НЕВЕРНЫЙ ПАРОЛЬ.';
+            return;
+        }
+
+        // Успешный вход
+        errorEl.innerText = '';
+        currentUser = loginInput;
+        userData = { ...user.data };
+        if (!userData.inventory) userData.inventory = [];
         renderApp();
     }
 
-    async function saveUserData() {
-        if (!currentUser) return;
-        const docRef = db.collection('users').doc(currentUser.uid);
-        await docRef.set(userData, { merge: true });
-    }
-
-    // ===================== АВТОРИЗАЦИЯ =====================
-    function login() {
-        const email = document.getElementById('emailInput').value.trim();
-        const password = document.getElementById('passwordInput').value;
-        const errorEl = document.getElementById('authError');
-        auth.signInWithEmailAndPassword(email, password)
-            .then(() => { errorEl.innerText = ''; })
-            .catch(err => { errorEl.innerText = 'ОШИБКА: ' + err.message; });
-    }
-
     function register() {
-        const email = document.getElementById('emailInput').value.trim();
-        const password = document.getElementById('passwordInput').value;
+        const loginInput = document.getElementById('loginInput').value.trim().toLowerCase();
+        const passwordInput = document.getElementById('passwordInput').value;
         const errorEl = document.getElementById('authError');
-        auth.createUserWithEmailAndPassword(email, password)
-            .then(() => { errorEl.innerText = ''; })
-            .catch(err => { errorEl.innerText = 'ОШИБКА: ' + err.message; });
+
+        if (!loginInput || !passwordInput) {
+            errorEl.innerText = 'ВВЕДИТЕ ЛОГИН И ПАРОЛЬ.';
+            return;
+        }
+
+        if (loginInput.length < 3) {
+            errorEl.innerText = 'ЛОГИН ДОЛЖЕН БЫТЬ НЕ МЕНЕЕ 3 СИМВОЛОВ.';
+            return;
+        }
+
+        if (passwordInput.length < 4) {
+            errorEl.innerText = 'ПАРОЛЬ ДОЛЖЕН БЫТЬ НЕ МЕНЕЕ 4 СИМВОЛОВ.';
+            return;
+        }
+
+        const users = getAllUsers();
+
+        if (users[loginInput]) {
+            errorEl.innerText = 'ТАКОЙ ПОЛЬЗОВАТЕЛЬ УЖЕ СУЩЕСТВУЕТ.';
+            return;
+        }
+
+        // Создаём нового пользователя
+        users[loginInput] = {
+            passwordHash: hashPassword(passwordInput),
+            data: { tokens: 3, inventory: [] }
+        };
+        saveAllUsers(users);
+
+        // Автоматический вход
+        errorEl.innerText = '';
+        currentUser = loginInput;
+        userData = { tokens: 3, inventory: [] };
+        renderApp();
+        log('РЕГИСТРАЦИЯ УСПЕШНА. ДОБРО ПОЖАЛОВАТЬ, ВЫЖИВШИЙ ' + loginInput.toUpperCase() + '.');
     }
 
     function logout() {
-        auth.signOut();
+        saveUserDataToStorage();
+        currentUser = null;
+        userData = { tokens: 3, inventory: [] };
+        currentTab = 'shop';
+        renderApp();
     }
 
-    // Слушатель изменений состояния аутентификации
-    auth.onAuthStateChanged(user => {
-        if (user) {
-            currentUser = user;
-            loadUserData(); // загрузит данные и вызовет renderApp
-        } else {
-            currentUser = null;
-            userData = { tokens: 3, inventory: [] };
-            renderApp();
-        }
-    });
-
-    // ===================== ИГРОВЫЕ ДЕЙСТВИЯ =====================
-    window.buyItem = async function(item, cost) {
+    // ==================== ИГРОВЫЕ ДЕЙСТВИЯ ====================
+    window.buyItem = function(item, cost) {
         if (!currentUser) return;
         if (userData.tokens < cost) {
             log('ОШИБКА: НЕДОСТАТОЧНО ЖЕТОНОВ.');
             playSound('error');
             return;
         }
-        // Оптимистичное обновление UI
         userData.tokens -= cost;
         let itemName = '';
         switch(item) {
@@ -513,14 +508,13 @@ const firebaseConfig = {
         }
         userData.inventory.push(itemName);
         updateBalanceDisplay();
-        await saveUserData();
+        saveUserDataToStorage();
         log('КУПЛЕНО: ' + itemName + '. -' + cost + ' ЖЕТОН.');
         playSound('buy');
-        // Обновляем вкладку, если сейчас инвентарь
         if (currentTab === 'inventory') showTab('inventory');
     };
 
-    window.openLootbox = async function(type) {
+    window.openLootbox = function(type) {
         if (!currentUser) return;
         let cost = 0;
         let table = [];
@@ -538,15 +532,16 @@ const firebaseConfig = {
             return;
         }
 
-        // Оптимистичное списание
         userData.tokens -= cost;
         updateBalanceDisplay();
-        document.getElementById('lootResult').innerHTML = '<span class="blink">АНАЛИЗ КАПСУЛЫ...</span>';
+        saveUserDataToStorage();
+
+        const resultBox = document.getElementById('lootResult');
+        if (resultBox) resultBox.innerHTML = '<span class="blink">АНАЛИЗ КАПСУЛЫ...</span>';
         log('ОТКРЫВАЕТСЯ ' + boxName + '...');
         playSound('loot');
 
-        // Имитация задержки и бросок
-        setTimeout(async () => {
+        setTimeout(() => {
             const roll = Math.floor(Math.random() * 100) + 1;
             let item = '';
             let rarityText = '';
@@ -577,17 +572,20 @@ const firebaseConfig = {
             }
 
             userData.inventory.push(item);
-            await saveUserData(); // сохраняем в Firebase
+            saveUserDataToStorage();
 
-            document.getElementById('lootResult').innerHTML = 
-                `<div style="font-size:20px; color:${color};">${item}</div>
-                 <div style="font-size:14px; opacity:0.8;">${rarityText} | d100: ${roll}</div>`;
+            if (resultBox) {
+                resultBox.innerHTML = `
+                    <div style="font-size:20px; color:${color};">${item}</div>
+                    <div style="font-size:14px; opacity:0.8;">${rarityText} | d100: ${roll}</div>
+                `;
+            }
             log('ПОЛУЧЕНО: ' + item + ' ' + rarityText);
             if (currentTab === 'inventory') showTab('inventory');
         }, 1500);
     };
 
-    // ===================== ЗВУКИ =====================
+    // ==================== ЗВУКИ ====================
     let audioCtx = null;
     function initAudio() {
         if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -621,6 +619,9 @@ const firebaseConfig = {
             osc.start(now); osc.stop(now + 0.2);
         }
     }
+
+    // ==================== СТАРТ ====================
+    renderApp();
 </script>
 </body>
 </html>
