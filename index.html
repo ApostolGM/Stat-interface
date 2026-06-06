@@ -1,111 +1,494 @@
 <!DOCTYPE html>
-<script type="module">
-  
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
- 
-  const firebaseConfig = {
-    apiKey: "AIzaSyDwLgiealkp1O3LxMH5yOIXvBaTANYFJM0",
-    authDomain: "gephard-terminal.firebaseapp.com",
-    projectId: "gephard-terminal",
-    storageBucket: "gephard-terminal.firebasestorage.app",
-    messagingSenderId: "737630152720",
-    appId: "1:737630152720:web:64e5de2c921de2e5b84295"
-  };
-
-  const app = initializeApp(firebaseConfig);
-</script>
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-};
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Гефест: Крио-протокол</title>
+    <title>Гефест v2.0 — Торговый автомат</title>
     <style>
-        /* ========== ГЛОБАЛЬНЫЕ СТИЛИ ========== */
         body {
-            margin: 0;
-            padding: 0;
-            background: #0a0f1a;
-            overflow-x: hidden;
-            font-family: 'Courier New', monospace;
-            min-height: 100vh;
+            background-color: #0a0a0a;
             display: flex;
             justify-content: center;
             align-items: center;
-            position: relative;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: hidden;
         }
 
-        /* ========== ПАРАЛЛАКС-КОНТЕЙНЕР ========== */
-        .parallax {
-            position: fixed;
+        /* Корпус статуи */
+        .crt {
+            background: #0b1a0b;
+            border: 20px solid #2a2a2a;
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.2), inset 0 0 100px rgba(0, 0, 0, 0.8);
+            padding: 25px;
+            width: 650px;
+            max-width: 95vw;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Линии развёртки */
+        .crt::after {
+            content: " ";
+            display: block;
+            position: absolute;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        /* Задний слой: огромная статуя */
-        .layer-statue {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 600px;
-            height: 800px;
-            animation: floatStatue 12s ease-in-out infinite;
-        }
-
-        @keyframes floatStatue {
-            0% { transform: translate(-50%, -50%) translateY(0px); }
-            50% { transform: translate(-50%, -50%) translateY(-20px); }
-            100% { transform: translate(-50%, -50%) translateY(0px); }
-        }
-
-        /* Тело статуи (силуэт) */
-        .angel-body {
-            position: absolute;
             bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 80px;
-            height: 400px;
-            background: linear-gradient(to top, #1a2a3a, #0a1620);
-            border-radius: 40px 40px 0 0;
-            box-shadow: 0 0 60px rgba(74, 240, 255, 0.2);
+            right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 10;
         }
 
-        /* Глаза статуи */
-        .angel-body::before {
-            content: "";
+        /* Мерцание */
+        .crt::before {
+            content: " ";
+            display: block;
             position: absolute;
-            top: 60px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 30px;
-            height: 15px;
-            background: #4af0ff;
-            border-radius: 50%;
-            box-shadow: 0 0 30px #4af0ff, 0 0 60px #4af0ff;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: rgba(18, 16, 16, 0.1);
+            opacity: 0;
+            z-index: 10;
+            pointer-events: none;
+            animation: flicker 0.15s infinite;
         }
 
-        /* Крылья (левое и правое) */
-        .wing-left, .wing-right {
-            position: absolute;
-            bottom: 60px;
-            width: 250px;
-            height: 350px;
-            background: rgba(10, 22, 32, 0.8);
-            border-radius: 50%;
-            box-shadow: 0 0 80px rgba(74, 240, 255, 0.15);
+        @keyframes flicker {
+            0% { opacity: 0.1; }
+            50% { opacity: 0.3; }
+            100% { opacity: 0.05; }
         }
-        .wing-left {
-            left: 50px;
-            transform: rotate(25deg) skewY(-20deg);
+
+        .screen {
+            position: relative;
+            z-index: 20;
+            color: #20C20E;
+            text-shadow: 0 0 10px #20C20E;
+            min-height: 350px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 24px;
+            letter-spacing: 3px;
+            border-bottom: 2px dashed #20C20E;
+            padding-bottom: 8px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .balance {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #0d200d;
+            padding: 10px 15px;
+            border: 1px solid #20C20E;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .nav {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .nav button {
+            flex: 1;
+            background: #0d200d;
+            color: #20C20E;
+            border: 2px solid #20C20E;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: 0.2s;
+        }
+
+        .nav button:hover {
+            background: #20C20E;
+            color: #0a0a0a;
+        }
+
+        .content {
+            background: #051005;
+            border: 1px solid #20C20E;
+            padding: 15px;
+            flex-grow: 1;
+            margin-bottom: 15px;
+            overflow-y: auto;
+            max-height: 300px;
+        }
+
+        .item-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .item-card {
+            background: #0b1a0b;
+            border: 1px solid #20C20E;
+            padding: 10px;
+            width: calc(33% - 14px);
+            box-sizing: border-box;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 14px;
+        }
+
+        .item-card:hover {
+            background: #1a3a1a;
+            border-color: #fff;
+        }
+
+        .loot-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .loot-btn {
+            background: #0d200d;
+            color: #20C20E;
+            border: 2px solid #20C20E;
+            padding: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .loot-btn:hover {
+            background: #20C20E;
+            color: #0a0a0a;
+        }
+
+        .result-box {
+            background: #051005;
+            border: 1px solid #20C20E;
+            padding: 15px;
+            text-align: center;
+            min-height: 80px;
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .log {
+            font-size: 14px;
+            opacity: 0.8;
+            border-top: 1px dotted #20C20E;
+            padding-top: 8px;
+            margin-top: auto;
+            min-height: 20px;
+        }
+
+        button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .blink {
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
+        .glitch {
+            animation: glitch 0.3s infinite;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="crt">
+        <div class="screen">
+            <h1>⚡ ГЕФЕСТ v.2 ⚡</h1>
+            <div class="balance">
+                <span>БАЛАНС:</span>
+                <span id="tokenDisplay">3 ЖЕТОНА</span>
+            </div>
+
+            <!-- Навигация -->
+            <div class="nav">
+                <button id="shopTab" onclick="showTab('shop')">🏪 МАГАЗИН</button>
+                <button id="lootTab" onclick="showTab('loot')">🎲 ЛУТБОКСЫ</button>
+            </div>
+
+            <!-- Контент -->
+            <div id="shopContent" class="content">
+                <div class="item-grid">
+                    <div class="item-card" onclick="buyItem('patrons', 1)">
+                        🔫 ПАТРОНЫ<br><small>1 жетон</small>
+                    </div>
+                    <div class="item-card" onclick="buyItem('medkit', 2)">
+                        🏥 АПТЕЧКА<br><small>2 жетона</small>
+                    </div>
+                    <div class="item-card" onclick="buyItem('battery', 1)">
+                        🔋 БАТАРЕЯ<br><small>1 жетон</small>
+                    </div>
+                    <div class="item-card" onclick="buyItem('water', 1)">
+                        💧 ВОДА<br><small>1 жетон</small>
+                    </div>
+                </div>
+                <p style="text-align:center; margin-top:15px; opacity:0.7;">
+                    [ Жетоны можно найти в Пустоши ]
+                </p>
+            </div>
+
+            <div id="lootContent" class="content hidden">
+                <div class="result-box" id="lootResult">
+                    <span>Выберите капсулу</span>
+                </div>
+                <div class="loot-options">
+                    <button class="loot-btn" onclick="openLootbox(1)">
+                        <span>📦 ГУМАНИТАРКА</span>
+                        <span>1 ЖЕТОН</span>
+                    </button>
+                    <button class="loot-btn" onclick="openLootbox(2)">
+                        <span>📦 БАРАХЛО-Х</span>
+                        <span>2 ЖЕТОНА</span>
+                    </button>
+                    <button class="loot-btn" onclick="openLootbox(3)">
+                        <span>📦 СПЕЦИАЛИСТ</span>
+                        <span>3 ЖЕТОНА</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Лог -->
+            <div class="log" id="logMessage">
+                > СИСТЕМА ГОТОВА. ВЫБЕРИТЕ ДЕЙСТВИЕ.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== ОСНОВНЫЕ ПЕРЕМЕННЫЕ ====================
+        let tokens = 3; // Баланс жетонов
+
+        // Таблицы лута
+        const commonLoot = [
+            "Банка тушенки (просрочка)", "Фляга с водой", "Бинт стерильный",
+            "Батарейки АА", "Пачка галет", "Моток лески",
+            "Резиновый пупс", "Ненужная флешка", "Ржавый гвоздь",
+            "Довоенная газета"
+        ];
+
+        const rareLoot = [
+            "Набор отмычек", "Фонарь с динамо-машиной", "Карта местности",
+            "Сигнальная ракетница", "Универсальный глушитель", "Доза антирадина",
+            "Прочный рюкзак", "Когти крота"
+        ];
+
+        const legendaryLoot = [
+            "Портативный очиститель воды", "Генератор белого шума", "Силовая батарея МП-8",
+            "Имплант 'Зоркий глаз'", "Чертеж экзоскелета", "Ключ-пропуск в Убежище 17"
+        ];
+
+        // Купленные предметы (для лога)
+        const inventory = [];
+
+        // ==================== ФУНКЦИИ ИНТЕРФЕЙСА ====================
+        function updateDisplay() {
+            document.getElementById('tokenDisplay').innerText = tokens + ' ЖЕТОН' + (tokens == 1 ? '' : 'А');
+            // Блокировка кнопок при 0 жетонов не полная, но можно сделать
+        }
+
+        function log(text) {
+            document.getElementById('logMessage').innerHTML = '> ' + text;
+        }
+
+        function showTab(tab) {
+            document.getElementById('shopContent').classList.add('hidden');
+            document.getElementById('lootContent').classList.add('hidden');
+            if (tab === 'shop') {
+                document.getElementById('shopContent').classList.remove('hidden');
+                log('МАГАЗИН. ВЫБЕРИТЕ ТОВАР.');
+            } else {
+                document.getElementById('lootContent').classList.remove('hidden');
+                log('ЛУТБОКСЫ. ВЫБЕРИТЕ ТИП КАПСУЛЫ.');
+            }
+            updateDisplay();
+        }
+
+        // ==================== ПОКУПКА ПРИПАСОВ ====================
+        function buyItem(item, cost) {
+            if (tokens < cost) {
+                log('ОШИБКА: НЕДОСТАТОЧНО ЖЕТОНОВ.');
+                playSound('error');
+                return;
+            }
+            tokens -= cost;
+            inventory.push(item);
+            updateDisplay();
+            let itemName = '';
+            switch(item) {
+                case 'patrons': itemName = 'Патроны (10 шт.)'; break;
+                case 'medkit': itemName = 'Аптечка'; break;
+                case 'battery': itemName = 'Батарея'; break;
+                case 'water': itemName = 'Фляга с водой'; break;
+            }
+            log('КУПЛЕНО: ' + itemName + '. -' + cost + ' ЖЕТОН.');
+            playSound('buy');
+        }
+
+        // ==================== ЛУТБОКСЫ ====================
+        function openLootbox(type) {
+            let cost = 0;
+            let table = [];
+            let boxName = '';
+
+            switch(type) {
+                case 1:
+                    cost = 1;
+                    table = commonLoot;
+                    boxName = 'ГУМАНИТАРКА';
+                    break;
+                case 2:
+                    cost = 2;
+                    // Барахло-Х: смесь обычного и редкого
+                    table = [...commonLoot, ...rareLoot];
+                    boxName = 'БАРАХЛО-Х';
+                    break;
+                case 3:
+                    cost = 3;
+                    // Специалист: только редкое и легендарное
+                    table = [...rareLoot, ...legendaryLoot];
+                    boxName = 'СПЕЦИАЛИСТ';
+                    break;
+            }
+
+            if (tokens < cost) {
+                log('ОШИБКА: НЕ ХВАТАЕТ ЖЕТОНОВ ДЛЯ ' + boxName + '.');
+                playSound('error');
+                return;
+            }
+
+            tokens -= cost;
+            updateDisplay();
+            document.getElementById('lootResult').innerHTML = '<span class="blink">АНАЛИЗ КАПСУЛЫ...</span>';
+            log('ОТКРЫВАЕТСЯ ' + boxName + '...');
+            playSound('loot');
+
+            // Задержка для эффекта
+            setTimeout(() => {
+                const roll = Math.floor(Math.random() * 100) + 1;
+                let item = '';
+                let rarityText = '';
+                let color = '#20C20E';
+
+                // Определяем редкость на основе броска
+                if (type === 1) {
+                    // Только обычное
+                    item = commonLoot[Math.floor(Math.random() * commonLoot.length)];
+                    rarityText = '[ОБЫЧНЫЙ]';
+                } else if (type === 2) {
+                    if (roll <= 70) {
+                        item = commonLoot[Math.floor(Math.random() * commonLoot.length)];
+                        rarityText = '[ОБЫЧНЫЙ]';
+                    } else {
+                        item = rareLoot[Math.floor(Math.random() * rareLoot.length)];
+                        rarityText = '[РЕДКИЙ]';
+                        color = '#4A90E2';
+                    }
+                } else if (type === 3) {
+                    if (roll <= 60) {
+                        item = rareLoot[Math.floor(Math.random() * rareLoot.length)];
+                        rarityText = '[РЕДКИЙ]';
+                        color = '#4A90E2';
+                    } else {
+                        item = legendaryLoot[Math.floor(Math.random() * legendaryLoot.length)];
+                        rarityText = '[ЛЕГЕНДАРНЫЙ]';
+                        color = '#F5A623';
+                    }
+                }
+
+                document.getElementById('lootResult').innerHTML = 
+                    '<div style="font-size:20px; color:' + color + ';">' + item + '</div>' +
+                    '<div style="font-size:14px; opacity:0.8;">' + rarityText + ' | d100: ' + roll + '</div>';
+                log('ПОЛУЧЕНО: ' + item + ' ' + rarityText);
+                inventory.push(item);
+            }, 1500);
+        }
+
+        // ==================== ЗВУКИ (синтез через Web Audio) ====================
+        let audioCtx = null;
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playSound(type) {
+            initAudio();
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            const now = audioCtx.currentTime;
+
+            switch(type) {
+                case 'buy':
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(600, now);
+                    osc.frequency.linearRampToValueAtTime(800, now + 0.1);
+                    gain.gain.setValueAtTime(0.1, now);
+                    gain.gain.linearRampToValueAtTime(0, now + 0.15);
+                    osc.start(now);
+                    osc.stop(now + 0.15);
+                    break;
+                case 'loot':
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(200, now);
+                    osc.frequency.linearRampToValueAtTime(400, now + 0.2);
+                    gain.gain.setValueAtTime(0.05, now);
+                    gain.gain.linearRampToValueAtTime(0, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                    break;
+                case 'error':
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(100, now);
+                    gain.gain.setValueAtTime(0.08, now);
+                    gain.gain.linearRampToValueAtTime(0, now + 0.2);
+                    osc.start(now);
+                    osc.stop(now + 0.2);
+                    break;
+            }
+        }
+
+        // ==================== ИНИЦИАЛИЗАЦИЯ ====================
+        updateDisplay();
+        showTab('shop'); // Стартовый экран — магазин
+    </script>
+</body>
+</html>            transform: rotate(25deg) skewY(-20deg);
             animation: flapLeft 10s ease-in-out infinite;
         }
         .wing-right {
