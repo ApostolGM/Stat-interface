@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 const firebaseConfig = {
   apiKey: "AIzaSyDwLgiealkp1O3LxMH5yOIXvBaTANYFJM0",
   authDomain: "gephard-terminal.firebaseapp.com",
@@ -6,14 +7,13 @@ const firebaseConfig = {
   messagingSenderId: "737630152720",
   appId: "1:737630152720:web:64e5de2c921de2e5b84295"
 };
-<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Гефест: Крио-протокол</title>
     <style>
-        /* ========== ПАРАЛЛАКС-ФОН ========== */
+        /* ========== ГЛОБАЛЬНЫЕ СТИЛИ ========== */
         body {
             margin: 0;
             padding: 0;
@@ -27,7 +27,7 @@ const firebaseConfig = {
             position: relative;
         }
 
-        /* Слои параллакса */
+        /* ========== ПАРАЛЛАКС-КОНТЕЙНЕР ========== */
         .parallax {
             position: fixed;
             top: 0;
@@ -38,46 +38,115 @@ const firebaseConfig = {
             z-index: 0;
         }
 
-        /* Медленно плывущие линии */
-        .parallax-line {
+        /* Задний слой: огромная статуя */
+        .layer-statue {
             position: absolute;
-            width: 2px;
-            height: 40px;
-            background: linear-gradient(to bottom, transparent, #4af0ff, transparent);
-            animation: floatLine 8s infinite ease-in-out;
-            opacity: 0.3;
-        }
-        .parallax-line:nth-child(1) { left: 10%; animation-delay: 0s; }
-        .parallax-line:nth-child(2) { left: 30%; animation-delay: 1s; }
-        .parallax-line:nth-child(3) { left: 50%; animation-delay: 2s; }
-        .parallax-line:nth-child(4) { left: 70%; animation-delay: 3s; }
-        .parallax-line:nth-child(5) { left: 90%; animation-delay: 4s; }
-
-        @keyframes floatLine {
-            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
-            20% { opacity: 0.4; }
-            80% { opacity: 0.4; }
-            100% { transform: translateY(-10vh) rotate(180deg); opacity: 0; }
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 800px;
+            animation: floatStatue 12s ease-in-out infinite;
         }
 
-        /* Снежинки / кристаллы */
-        .snowflake {
+        @keyframes floatStatue {
+            0% { transform: translate(-50%, -50%) translateY(0px); }
+            50% { transform: translate(-50%, -50%) translateY(-20px); }
+            100% { transform: translate(-50%, -50%) translateY(0px); }
+        }
+
+        /* Тело статуи (силуэт) */
+        .angel-body {
             position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 400px;
+            background: linear-gradient(to top, #1a2a3a, #0a1620);
+            border-radius: 40px 40px 0 0;
+            box-shadow: 0 0 60px rgba(74, 240, 255, 0.2);
+        }
+
+        /* Глаза статуи */
+        .angel-body::before {
+            content: "";
+            position: absolute;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 15px;
             background: #4af0ff;
             border-radius: 50%;
-            box-shadow: 0 0 6px #4af0ff;
-            animation: fall linear infinite;
-            opacity: 0.5;
+            box-shadow: 0 0 30px #4af0ff, 0 0 60px #4af0ff;
         }
 
-        @keyframes fall {
-            0% { transform: translateY(-10vh) rotate(0deg); }
-            100% { transform: translateY(110vh) rotate(360deg); }
+        /* Крылья (левое и правое) */
+        .wing-left, .wing-right {
+            position: absolute;
+            bottom: 60px;
+            width: 250px;
+            height: 350px;
+            background: rgba(10, 22, 32, 0.8);
+            border-radius: 50%;
+            box-shadow: 0 0 80px rgba(74, 240, 255, 0.15);
+        }
+        .wing-left {
+            left: 50px;
+            transform: rotate(25deg) skewY(-20deg);
+            animation: flapLeft 10s ease-in-out infinite;
+        }
+        .wing-right {
+            right: 50px;
+            transform: rotate(-25deg) skewY(20deg);
+            animation: flapRight 10s ease-in-out infinite;
         }
 
-        /* ========== ОСНОВНОЙ ТЕРМИНАЛ ========== */
+        @keyframes flapLeft {
+            0% { transform: rotate(25deg) skewY(-20deg) translateY(0); }
+            50% { transform: rotate(28deg) skewY(-22deg) translateY(-15px); }
+            100% { transform: rotate(25deg) skewY(-20deg) translateY(0); }
+        }
+        @keyframes flapRight {
+            0% { transform: rotate(-25deg) skewY(20deg) translateY(0); }
+            50% { transform: rotate(-28deg) skewY(22deg) translateY(-15px); }
+            100% { transform: rotate(-25deg) skewY(20deg) translateY(0); }
+        }
+
+        /* Средний слой: парящие осколки */
+        .shard {
+            position: absolute;
+            background: #4af0ff;
+            box-shadow: 0 0 10px #4af0ff;
+            opacity: 0.4;
+            animation: floatShard linear infinite;
+        }
+        @keyframes floatShard {
+            0% { transform: translateY(110vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.6; }
+            90% { opacity: 0.6; }
+            100% { transform: translateY(-10vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* Передний слой: туман */
+        .fog {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, rgba(74,240,255,0.05) 0%, transparent 70%);
+            animation: pulseFog 8s ease-in-out infinite;
+        }
+        @keyframes pulseFog {
+            0% { opacity: 0.4; }
+            50% { opacity: 0.7; }
+            100% { opacity: 0.4; }
+        }
+
+        /* ========== ТЕРМИНАЛ ========== */
         .crt {
-            background: #0a1620;
+            background: rgba(10, 22, 32, 0.8);
+            backdrop-filter: blur(10px);
             border: 2px solid #1e90ff;
             border-radius: 20px;
             box-shadow: 0 0 40px rgba(0, 160, 255, 0.4), inset 0 0 80px rgba(0, 20, 40, 0.9);
@@ -86,10 +155,7 @@ const firebaseConfig = {
             max-width: 95vw;
             position: relative;
             z-index: 10;
-            backdrop-filter: blur(10px);
         }
-
-        /* Лёгкое мерцание экрана */
         .crt::after {
             content: " ";
             display: block;
@@ -100,7 +166,6 @@ const firebaseConfig = {
             pointer-events: none;
             z-index: 10;
         }
-
         .screen {
             position: relative;
             z-index: 20;
@@ -110,7 +175,6 @@ const firebaseConfig = {
             display: flex;
             flex-direction: column;
         }
-
         h1 {
             text-align: center;
             font-size: 22px;
@@ -118,42 +182,30 @@ const firebaseConfig = {
             border-bottom: 2px dashed #4af0ff;
             padding-bottom: 8px;
             margin-bottom: 10px;
-            text-transform: uppercase;
             color: #e0f7ff;
             text-shadow: 0 0 15px #00bfff;
         }
-
         .user-bar {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            background: #0a1a2a;
+            background: rgba(10, 26, 42, 0.8);
             padding: 8px 12px;
             border: 1px solid #1e90ff;
             margin-bottom: 10px;
-            font-size: 14px;
         }
-
         .balance {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            background: #0a1a2a;
+            background: rgba(10, 26, 42, 0.8);
             padding: 10px 15px;
             border: 1px solid #1e90ff;
             margin-bottom: 10px;
             font-size: 18px;
         }
-
-        .nav {
-            display: flex;
-            gap: 6px;
-            margin-bottom: 10px;
-        }
-
+        .nav { display: flex; gap: 6px; margin-bottom: 10px; }
         .nav button {
             flex: 1;
-            background: #0a1a2a;
+            background: rgba(10, 26, 42, 0.8);
             color: #4af0ff;
             border: 2px solid #1e90ff;
             padding: 10px;
@@ -163,14 +215,12 @@ const firebaseConfig = {
             cursor: pointer;
             transition: 0.2s;
         }
-
         .nav button:hover {
             background: #1e90ff;
             color: #000;
         }
-
         .content {
-            background: #05101a;
+            background: rgba(5, 16, 26, 0.9);
             border: 1px solid #1e90ff;
             padding: 15px;
             flex-grow: 1;
@@ -178,31 +228,22 @@ const firebaseConfig = {
             overflow-y: auto;
             max-height: 300px;
         }
-
         .item-grid {
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
         }
-
         .item-card {
-            background: #0a1a2a;
+            background: rgba(10, 26, 42, 0.8);
             border: 1px solid #1e90ff;
             padding: 10px;
             width: calc(33% - 14px);
-            box-sizing: border-box;
             text-align: center;
             cursor: pointer;
-            transition: 0.2s;
         }
-
-        .item-card:hover {
-            background: #1e90ff;
-            color: #000;
-        }
-
+        .item-card:hover { background: #1e90ff; color: #000; }
         .loot-btn {
-            background: #0a1a2a;
+            background: rgba(10, 26, 42, 0.8);
             color: #4af0ff;
             border: 2px solid #1e90ff;
             padding: 10px;
@@ -212,27 +253,20 @@ const firebaseConfig = {
             justify-content: space-between;
             cursor: pointer;
         }
-
-        .loot-btn:hover {
-            background: #1e90ff;
-            color: #000;
-        }
-
+        .loot-btn:hover { background: #1e90ff; color: #000; }
         .log {
             border-top: 1px dotted #4af0ff;
             padding-top: 8px;
             opacity: 0.8;
         }
-
         .auth-box {
-            background: #05101a;
+            background: rgba(5, 16, 26, 0.9);
             border: 1px solid #1e90ff;
             padding: 20px;
             text-align: center;
         }
-
         .auth-box input {
-            background: #0a1a2a;
+            background: rgba(10, 26, 42, 0.8);
             border: 1px solid #1e90ff;
             color: #4af0ff;
             padding: 10px;
@@ -240,9 +274,8 @@ const firebaseConfig = {
             width: 80%;
             font-family: 'Courier New', monospace;
         }
-
         .auth-box button {
-            background: #0a1a2a;
+            background: rgba(10, 26, 42, 0.8);
             color: #4af0ff;
             border: 2px solid #1e90ff;
             padding: 10px 20px;
@@ -251,34 +284,26 @@ const firebaseConfig = {
             font-family: 'Courier New', monospace;
             text-transform: uppercase;
         }
-
-        .auth-box button:hover {
-            background: #1e90ff;
-            color: #000;
-        }
-
-        .error-text {
-            color: #ff6666;
-            font-size: 13px;
-        }
-
-        .blink {
-            animation: blink 1s step-end infinite;
-        }
-        @keyframes blink {
-            50% { opacity: 0; }
-        }
-
-        button:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-        }
+        .auth-box button:hover { background: #1e90ff; color: #000; }
+        .error-text { color: #ff6666; font-size: 13px; }
+        .blink { animation: blink 1s step-end infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+        button:disabled { opacity: 0.4; cursor: not-allowed; }
     </style>
 </head>
 <body>
 
 <!-- Параллакс-слои -->
-<div class="parallax" id="parallaxContainer"></div>
+<div class="parallax" id="parallaxContainer">
+    <!-- Статуя (основной слой) -->
+    <div class="layer-statue">
+        <div class="wing-left"></div>
+        <div class="wing-right"></div>
+        <div class="angel-body"></div>
+    </div>
+    <!-- Туман -->
+    <div class="fog"></div>
+</div>
 
 <!-- Терминал -->
 <div class="crt">
@@ -286,42 +311,30 @@ const firebaseConfig = {
 </div>
 
 <script>
-    // ==================== ПАРАЛЛАКС (снежинки) ====================
+    // ==================== ГЕНЕРАЦИЯ ОСКОЛКОВ (средний слой) ====================
     const container = document.getElementById('parallaxContainer');
-
-    // Создаём плавающие линии
-    for (let i = 0; i < 5; i++) {
-        const line = document.createElement('div');
-        line.className = 'parallax-line';
-        line.style.left = (i * 20 + 10) + '%';
-        container.appendChild(line);
+    for (let i = 0; i < 25; i++) {
+        const shard = document.createElement('div');
+        shard.className = 'shard';
+        const size = Math.random() * 4 + 2;
+        shard.style.width = size + 'px';
+        shard.style.height = size + 'px';
+        shard.style.left = Math.random() * 100 + '%';
+        shard.style.animationDuration = (Math.random() * 6 + 6) + 's';
+        shard.style.animationDelay = Math.random() * 5 + 's';
+        container.appendChild(shard);
     }
 
-    // Создаём 30 снежинок
-    for (let i = 0; i < 30; i++) {
-        const snow = document.createElement('div');
-        snow.className = 'snowflake';
-        const size = Math.random() * 3 + 2;
-        snow.style.width = size + 'px';
-        snow.style.height = size + 'px';
-        snow.style.left = Math.random() * 100 + '%';
-        snow.style.animationDuration = (Math.random() * 5 + 5) + 's';
-        snow.style.animationDelay = Math.random() * 5 + 's';
-        container.appendChild(snow);
-    }
-
-    // ==================== ХРАНИЛИЩЕ ДАННЫХ (localStorage) ====================
+    // ==================== ХРАНИЛИЩЕ ДАННЫХ ====================
     const STORAGE_KEY = 'gephard_terminal_users';
 
     function getAllUsers() {
         const raw = localStorage.getItem(STORAGE_KEY);
         return raw ? JSON.parse(raw) : {};
     }
-
     function saveAllUsers(users) {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
     }
-
     function hashPassword(password) {
         let hash = 0;
         const str = password + 'GEPHARD_SALT_217';
@@ -333,7 +346,6 @@ const firebaseConfig = {
         return hash.toString(16);
     }
 
-    // ==================== СОСТОЯНИЕ ====================
     let currentUser = null;
     let userData = { tokens: 3, inventory: [], usedCodes: [] };
     let currentTab = 'shop';
@@ -361,16 +373,9 @@ const firebaseConfig = {
         'BUNKER-17': 10
     };
 
-    // ==================== РЕНДЕРИНГ ====================
     function renderApp() {
-        if (!currentUser) {
-            renderAuthScreen();
-            return;
-        }
-        if (currentUser === 'master') {
-            renderAdminScreen();
-            return;
-        }
+        if (!currentUser) { renderAuthScreen(); return; }
+        if (currentUser === 'master') { renderAdminScreen(); return; }
         renderMainScreen();
     }
 
@@ -431,11 +436,9 @@ const firebaseConfig = {
                 <p>ВЫБЕРИТЕ ИГРОКА И ВЫДАЙТЕ ЖЕТОНЫ:</p>
                 <div id="playerList" style="margin-bottom:15px;"></div>
                 <div style="display:flex; gap:8px;">
-                    <input id="adminPlayerInput" type="text" placeholder="ЛОГИН ИГРОКА" 
-                           style="flex:1; background:#0a1a2a; border:1px solid #1e90ff; color:#4af0ff; padding:10px; font-family:'Courier New',monospace;">
-                    <input id="adminTokenInput" type="number" value="1" min="1" max="99"
-                           style="width:60px; background:#0a1a2a; border:1px solid #1e90ff; color:#4af0ff; padding:10px; font-family:'Courier New',monospace; text-align:center;">
-                    <button onclick="adminGiveTokens()" style="background:#0a1a2a; color:#4af0ff; border:2px solid #1e90ff; padding:10px; cursor:pointer;">ВЫДАТЬ</button>
+                    <input id="adminPlayerInput" type="text" placeholder="ЛОГИН ИГРОКА" style="flex:1; background:rgba(10,26,42,0.8); border:1px solid #1e90ff; color:#4af0ff; padding:10px; font-family:'Courier New',monospace;">
+                    <input id="adminTokenInput" type="number" value="1" min="1" max="99" style="width:60px; background:rgba(10,26,42,0.8); border:1px solid #1e90ff; color:#4af0ff; padding:10px; font-family:'Courier New',monospace; text-align:center;">
+                    <button onclick="adminGiveTokens()" style="background:rgba(10,26,42,0.8); color:#4af0ff; border:2px solid #1e90ff; padding:10px; cursor:pointer;">ВЫДАТЬ</button>
                 </div>
                 <p id="adminFeedback" style="text-align:center; margin-top:10px;"></p>
             </div>
@@ -445,97 +448,52 @@ const firebaseConfig = {
         refreshPlayerList();
     }
 
-    function showTab(tab) {
+    function showTab(tab) { /* ... весь код showTab, buyItem, openLootbox, redeemCode, login, register, logout, adminGiveTokens, refreshPlayerList ... */
         currentTab = tab;
         const contentDiv = document.getElementById('dynamicContent');
         if (!contentDiv) return;
-        switch(tab) {
-            case 'shop':
-                contentDiv.innerHTML = `
-                    <div class="item-grid">
-                        <div class="item-card" onclick="buyItem('patrons', 1)">🔫 ПАТРОНЫ<br><small>1 жетон</small></div>
-                        <div class="item-card" onclick="buyItem('medkit', 2)">🏥 АПТЕЧКА<br><small>2 жетона</small></div>
-                        <div class="item-card" onclick="buyItem('battery', 1)">🔋 БАТАРЕЯ<br><small>1 жетон</small></div>
-                        <div class="item-card" onclick="buyItem('water', 1)">💧 ВОДА<br><small>1 жетон</small></div>
-                    </div>
-                    <div style="margin-top:15px; display:flex; gap:8px;">
-                        <input id="codeInput" type="text" placeholder="КОД ОТ МАСТЕРА" 
-                               style="flex:1; background:#0a1a2a; border:1px solid #1e90ff; color:#4af0ff; padding:10px; font-family:'Courier New',monospace;">
-                        <button onclick="redeemCode()" style="background:#0a1a2a; color:#4af0ff; border:2px solid #1e90ff; padding:10px 15px; cursor:pointer;">▶</button>
-                    </div>
-                    <p id="codeFeedback" style="text-align:center; margin-top:8px; font-size:13px; min-height:18px;"></p>
-                `;
-                document.getElementById('codeInput').addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') redeemCode();
-                });
-                break;
-            case 'loot':
-                contentDiv.innerHTML = `
-                    <div class="result-box" id="lootResult" style="background:#05101a; border:1px solid #1e90ff; padding:15px; text-align:center; margin-bottom:10px;">
-                        <span>ВЫБЕРИТЕ КАПСУЛУ</span>
-                    </div>
-                    <button class="loot-btn" onclick="openLootbox(1)"><span>📦 ГУМАНИТАРКА</span><span>1 ЖЕТОН</span></button>
-                    <button class="loot-btn" onclick="openLootbox(2)"><span>📦 БАРАХЛО-Х</span><span>2 ЖЕТОНА</span></button>
-                    <button class="loot-btn" onclick="openLootbox(3)"><span>📦 СПЕЦИАЛИСТ</span><span>3 ЖЕТОНА</span></button>
-                `;
-                break;
-            case 'inventory':
-                let invHTML = '<div style="display:flex; flex-direction:column; gap:4px;">';
-                if (userData.inventory.length === 0) {
-                    invHTML += '<p style="text-align:center;">ИНВЕНТАРЬ ПУСТ</p>';
-                } else {
-                    userData.inventory.forEach(item => {
-                        invHTML += `<div style="background:#0a1a2a; border:1px solid #1e90ff; padding:6px;">• ${item}</div>`;
-                    });
-                }
-                invHTML += '</div>';
-                contentDiv.innerHTML = invHTML;
-                break;
+        if (tab === 'shop') {
+            contentDiv.innerHTML = `
+                <div class="item-grid">
+                    <div class="item-card" onclick="buyItem('patrons', 1)">🔫 ПАТРОНЫ<br><small>1 жетон</small></div>
+                    <div class="item-card" onclick="buyItem('medkit', 2)">🏥 АПТЕЧКА<br><small>2 жетона</small></div>
+                    <div class="item-card" onclick="buyItem('battery', 1)">🔋 БАТАРЕЯ<br><small>1 жетон</small></div>
+                    <div class="item-card" onclick="buyItem('water', 1)">💧 ВОДА<br><small>1 жетон</small></div>
+                </div>
+                <div style="margin-top:15px; display:flex; gap:8px;">
+                    <input id="codeInput" type="text" placeholder="КОД ОТ МАСТЕРА" style="flex:1; background:rgba(10,26,42,0.8); border:1px solid #1e90ff; color:#4af0ff; padding:10px; font-family:'Courier New',monospace;">
+                    <button onclick="redeemCode()" style="background:rgba(10,26,42,0.8); color:#4af0ff; border:2px solid #1e90ff; padding:10px 15px; cursor:pointer;">▶</button>
+                </div>
+                <p id="codeFeedback" style="text-align:center; margin-top:8px; font-size:13px; min-height:18px;"></p>`;
+            document.getElementById('codeInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') redeemCode(); });
+        } else if (tab === 'loot') {
+            contentDiv.innerHTML = `
+                <div class="result-box" id="lootResult" style="background:rgba(5,16,26,0.9); border:1px solid #1e90ff; padding:15px; text-align:center; margin-bottom:10px;"><span>ВЫБЕРИТЕ КАПСУЛУ</span></div>
+                <button class="loot-btn" onclick="openLootbox(1)"><span>📦 ГУМАНИТАРКА</span><span>1 ЖЕТОН</span></button>
+                <button class="loot-btn" onclick="openLootbox(2)"><span>📦 БАРАХЛО-Х</span><span>2 ЖЕТОНА</span></button>
+                <button class="loot-btn" onclick="openLootbox(3)"><span>📦 СПЕЦИАЛИСТ</span><span>3 ЖЕТОНА</span></button>`;
+        } else if (tab === 'inventory') {
+            let invHTML = '<div style="display:flex; flex-direction:column; gap:4px;">';
+            if (userData.inventory.length === 0) invHTML += '<p style="text-align:center;">ИНВЕНТАРЬ ПУСТ</p>';
+            else userData.inventory.forEach(item => invHTML += `<div style="background:rgba(10,26,42,0.8); border:1px solid #1e90ff; padding:6px;">• ${item}</div>`);
+            invHTML += '</div>';
+            contentDiv.innerHTML = invHTML;
         }
     }
 
-    function log(text) {
-        const logEl = document.getElementById('logMessage');
-        if (logEl) logEl.innerHTML = '> ' + text;
-    }
+    function log(text) { const el = document.getElementById('logMessage'); if (el) el.innerHTML = '> ' + text; }
+    function updateBalanceDisplay() { const el = document.getElementById('tokenDisplay'); if (el) el.innerText = userData.tokens + ' ЖЕТОН' + (userData.tokens === 1 ? '' : 'ОВ'); }
+    function saveUserDataToStorage() { const users = getAllUsers(); if (users[currentUser]) { users[currentUser].data = { ...userData }; saveAllUsers(users); } }
 
-    function updateBalanceDisplay() {
-        const el = document.getElementById('tokenDisplay');
-        if (el) el.innerText = userData.tokens + ' ЖЕТОН' + (userData.tokens === 1 ? '' : 'ОВ');
-    }
-
-    function saveUserDataToStorage() {
-        const users = getAllUsers();
-        if (users[currentUser]) {
-            users[currentUser].data = { ...userData };
-            saveAllUsers(users);
-        }
-    }
-
-    // ==================== АВТОРИЗАЦИЯ ====================
     function login() {
         const loginInput = document.getElementById('loginInput').value.trim().toLowerCase();
         const passwordInput = document.getElementById('passwordInput').value;
         const errorEl = document.getElementById('authError');
-
-        if (!loginInput || !passwordInput) {
-            errorEl.innerText = 'ВВЕДИТЕ ЛОГИН И ПАРОЛЬ.';
-            return;
-        }
-
+        if (!loginInput || !passwordInput) { errorEl.innerText = 'ВВЕДИТЕ ЛОГИН И ПАРОЛЬ.'; return; }
         const users = getAllUsers();
         const user = users[loginInput];
-
-        if (!user) {
-            errorEl.innerText = 'ПОЛЬЗОВАТЕЛЬ НЕ НАЙДЕН.';
-            return;
-        }
-
-        if (user.passwordHash !== hashPassword(passwordInput)) {
-            errorEl.innerText = 'НЕВЕРНЫЙ ПАРОЛЬ.';
-            return;
-        }
-
+        if (!user) { errorEl.innerText = 'ПОЛЬЗОВАТЕЛЬ НЕ НАЙДЕН.'; return; }
+        if (user.passwordHash !== hashPassword(passwordInput)) { errorEl.innerText = 'НЕВЕРНЫЙ ПАРОЛЬ.'; return; }
         errorEl.innerText = '';
         currentUser = loginInput;
         userData = { ...user.data };
@@ -548,47 +506,21 @@ const firebaseConfig = {
         const loginInput = document.getElementById('loginInput').value.trim().toLowerCase();
         const passwordInput = document.getElementById('passwordInput').value;
         const errorEl = document.getElementById('authError');
-
-        if (!loginInput || !passwordInput) {
-            errorEl.innerText = 'ВВЕДИТЕ ЛОГИН И ПАРОЛЬ.';
-            return;
-        }
-        if (loginInput.length < 3) {
-            errorEl.innerText = 'ЛОГИН МИНИМУМ 3 СИМВОЛА.';
-            return;
-        }
-        if (passwordInput.length < 4) {
-            errorEl.innerText = 'ПАРОЛЬ МИНИМУМ 4 СИМВОЛА.';
-            return;
-        }
-
+        if (!loginInput || !passwordInput) { errorEl.innerText = 'ВВЕДИТЕ ЛОГИН И ПАРОЛЬ.'; return; }
+        if (loginInput.length < 3) { errorEl.innerText = 'ЛОГИН МИНИМУМ 3 СИМВОЛА.'; return; }
+        if (passwordInput.length < 4) { errorEl.innerText = 'ПАРОЛЬ МИНИМУМ 4 СИМВОЛА.'; return; }
         const users = getAllUsers();
-        if (users[loginInput]) {
-            errorEl.innerText = 'ТАКОЙ ПОЛЬЗОВАТЕЛЬ УЖЕ СУЩЕСТВУЕТ.';
-            return;
-        }
-
-        users[loginInput] = {
-            passwordHash: hashPassword(passwordInput),
-            data: { tokens: 3, inventory: [], usedCodes: [] }
-        };
+        if (users[loginInput]) { errorEl.innerText = 'ТАКОЙ ПОЛЬЗОВАТЕЛЬ УЖЕ СУЩЕСТВУЕТ.'; return; }
+        users[loginInput] = { passwordHash: hashPassword(passwordInput), data: { tokens: 3, inventory: [], usedCodes: [] } };
         saveAllUsers(users);
-
         currentUser = loginInput;
         userData = { tokens: 3, inventory: [], usedCodes: [] };
         renderApp();
         log('РЕГИСТРАЦИЯ УСПЕШНА. ДОБРО ПОЖАЛОВАТЬ, ' + loginInput.toUpperCase() + '.');
     }
 
-    function logout() {
-        saveUserDataToStorage();
-        currentUser = null;
-        userData = { tokens: 3, inventory: [], usedCodes: [] };
-        currentTab = 'shop';
-        renderApp();
-    }
+    function logout() { saveUserDataToStorage(); currentUser = null; userData = { tokens: 3, inventory: [], usedCodes: [] }; currentTab = 'shop'; renderApp(); }
 
-    // ==================== АДМИН ====================
     function refreshPlayerList() {
         const users = getAllUsers();
         const listEl = document.getElementById('playerList');
@@ -596,10 +528,7 @@ const firebaseConfig = {
         let html = '';
         for (const [login, user] of Object.entries(users)) {
             if (login === 'master') continue;
-            html += `<div style="background:#0a1a2a; border:1px solid #1e90ff; padding:6px; cursor:pointer;" 
-                         onclick="document.getElementById('adminPlayerInput').value='${login}'">
-                👤 ${login} — ${user.data.tokens} ЖЕТОН(ОВ) | Предметов: ${user.data.inventory.length}
-            </div>`;
+            html += `<div style="background:rgba(10,26,42,0.8); border:1px solid #1e90ff; padding:6px; cursor:pointer;" onclick="document.getElementById('adminPlayerInput').value='${login}'">👤 ${login} — ${user.data.tokens} ЖЕТОН(ОВ) | Предметов: ${user.data.inventory.length}</div>`;
         }
         if (!html) html = '<p>НЕТ ИГРОКОВ.</p>';
         listEl.innerHTML = html;
@@ -609,22 +538,15 @@ const firebaseConfig = {
         const player = document.getElementById('adminPlayerInput').value.trim().toLowerCase();
         const amount = parseInt(document.getElementById('adminTokenInput').value);
         const fb = document.getElementById('adminFeedback');
-        if (!player || isNaN(amount) || amount <= 0) {
-            fb.innerText = 'УКАЖИТЕ ЛОГИН И КОЛИЧЕСТВО.';
-            return;
-        }
+        if (!player || isNaN(amount) || amount <= 0) { fb.innerText = 'УКАЖИТЕ ЛОГИН И КОЛИЧЕСТВО.'; return; }
         const users = getAllUsers();
-        if (!users[player]) {
-            fb.innerText = 'ИГРОК НЕ НАЙДЕН.';
-            return;
-        }
+        if (!users[player]) { fb.innerText = 'ИГРОК НЕ НАЙДЕН.'; return; }
         users[player].data.tokens += amount;
         saveAllUsers(users);
         fb.innerText = `ВЫДАНО ${amount} ЖЕТОН(ОВ) ИГРОКУ ${player}.`;
         refreshPlayerList();
     };
 
-    // ==================== ИГРОВЫЕ ДЕЙСТВИЯ ====================
     window.buyItem = function(item, cost) {
         if (userData.tokens < cost) { log('НЕДОСТАТОЧНО ЖЕТОНОВ.'); return; }
         userData.tokens -= cost;
@@ -643,17 +565,13 @@ const firebaseConfig = {
         userData.tokens -= cost;
         updateBalanceDisplay();
         saveUserDataToStorage();
-
         const box = document.getElementById('lootResult');
         if (box) box.innerHTML = '<span class="blink">АНАЛИЗ КАПСУЛЫ...</span>';
-
         setTimeout(() => {
             const roll = Math.floor(Math.random() * 100) + 1;
             let item, rarity, color = '#4af0ff';
-            if (type === 1) {
-                item = commonLoot[Math.floor(Math.random() * commonLoot.length)];
-                rarity = 'ОБЫЧНЫЙ';
-            } else if (type === 2) {
+            if (type === 1) { item = commonLoot[Math.floor(Math.random() * commonLoot.length)]; rarity = 'ОБЫЧНЫЙ'; }
+            else if (type === 2) {
                 if (roll <= 70) { item = commonLoot[Math.floor(Math.random() * commonLoot.length)]; rarity = 'ОБЫЧНЫЙ'; }
                 else { item = rareLoot[Math.floor(Math.random() * rareLoot.length)]; rarity = 'РЕДКИЙ'; color = '#ffaa00'; }
             } else {
@@ -682,7 +600,6 @@ const firebaseConfig = {
         log('АКТИВИРОВАН КОД: ' + code);
     };
 
-    // ==================== СТАРТ ====================
     renderApp();
 </script>
 </body>
