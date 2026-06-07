@@ -1,81 +1,68 @@
 /* ===== ИМПОРТ ШРИФТОВ ===== */
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
-/* ===== CSS-ПЕРЕМЕННЫЕ ДЛЯ ТЕМ ===== */
+/* ===== БАЗОВЫЕ ПЕРЕМЕННЫЕ ===== */
 :root {
-    --bg-color: #0a0a0a;
-    --crt-bg: #0b1a0b;
-    --text-color: #20C20E;
-    --text-glow: #20C20E;
-    --border-color: #20C20E;
-    --button-bg: #0d200d;
-    --button-hover-bg: #20C20E;
-    --button-hover-text: #0a0a0a;
-    --content-bg: #051005;
-    --card-bg: #0b1a0b;
-    --card-hover-bg: #1a3a1a;
-    --balance-bg: #0d200d;
+    --border-opacity: 0.35;
+    --bg-opacity: 0.15;
+    --crt-bg: rgba(11, 26, 11, 0.45);
 }
 
 /* ===== ТЕМЫ ===== */
 .theme-green {
-    --bg-color: #0a0a0a;
-    --crt-bg: #0b1a0b;
     --text-color: #20C20E;
     --text-glow: #20C20E;
-    --border-color: #20C20E;
-    --button-bg: #0d200d;
-    --button-hover-bg: #20C20E;
-    --button-hover-text: #0a0a0a;
-    --content-bg: #051005;
-    --card-bg: #0b1a0b;
-    --card-hover-bg: #1a3a1a;
-    --balance-bg: #0d200d;
+    --border-color: rgba(32, 194, 14, 0.35);
+    --button-bg: rgba(32, 194, 14, 0.08);
+    --button-hover-bg: rgba(32, 194, 14, 0.25);
+    --button-hover-text: #fff;
+    --content-bg: rgba(5, 16, 5, 0.7);
+    --card-bg: rgba(11, 26, 11, 0.5);
+    --card-hover-bg: rgba(26, 58, 26, 0.75);
+    --balance-bg: rgba(13, 32, 13, 0.65);
+    --crt-bg: rgba(11, 26, 11, 0.45);
 }
 
 .theme-amber {
-    --bg-color: #0a0a06;
-    --crt-bg: #1a140b;
     --text-color: #FFB000;
     --text-glow: #FFB000;
-    --border-color: #FFB000;
-    --button-bg: #201a0d;
-    --button-hover-bg: #FFB000;
+    --border-color: rgba(255, 176, 0, 0.35);
+    --button-bg: rgba(255, 176, 0, 0.08);
+    --button-hover-bg: rgba(255, 176, 0, 0.25);
     --button-hover-text: #0a0a06;
-    --content-bg: #0d0a05;
-    --card-bg: #1a140b;
-    --card-hover-bg: #2a2010;
-    --balance-bg: #201a0d;
+    --content-bg: rgba(13, 10, 5, 0.7);
+    --card-bg: rgba(26, 20, 11, 0.5);
+    --card-hover-bg: rgba(42, 32, 16, 0.75);
+    --balance-bg: rgba(32, 26, 13, 0.65);
+    --crt-bg: rgba(26, 20, 11, 0.45);
 }
 
 .theme-blue {
-    --bg-color: #050a10;
-    --crt-bg: #0b141a;
     --text-color: #4A90E2;
     --text-glow: #4A90E2;
-    --border-color: #4A90E2;
-    --button-bg: #0d1520;
-    --button-hover-bg: #4A90E2;
+    --border-color: rgba(74, 144, 226, 0.35);
+    --button-bg: rgba(74, 144, 226, 0.08);
+    --button-hover-bg: rgba(74, 144, 226, 0.25);
     --button-hover-text: #050a10;
-    --content-bg: #050d15;
-    --card-bg: #0b141a;
-    --card-hover-bg: #101e2a;
-    --balance-bg: #0d1520;
+    --content-bg: rgba(5, 13, 21, 0.7);
+    --card-bg: rgba(11, 20, 26, 0.5);
+    --card-hover-bg: rgba(16, 30, 42, 0.75);
+    --balance-bg: rgba(13, 21, 32, 0.65);
+    --crt-bg: rgba(11, 20, 26, 0.45);
 }
 
 .theme-red {
-    --bg-color: #0a0505;
-    --crt-bg: #1a0b0b;
     --text-color: #FF4444;
     --text-glow: #FF4444;
-    --border-color: #FF4444;
-    --button-bg: #200d0d;
-    --button-hover-bg: #FF4444;
+    --border-color: rgba(255, 68, 68, 0.35);
+    --button-bg: rgba(255, 68, 68, 0.08);
+    --button-hover-bg: rgba(255, 68, 68, 0.25);
     --button-hover-text: #0a0505;
-    --content-bg: #150505;
-    --card-bg: #1a0b0b;
-    --card-hover-bg: #2a1010;
-    --balance-bg: #200d0d;
+    --content-bg: rgba(21, 5, 5, 0.7);
+    --card-bg: rgba(26, 11, 11, 0.5);
+    --card-hover-bg: rgba(42, 16, 16, 0.75);
+    --balance-bg: rgba(32, 13, 13, 0.65);
+    --crt-bg: rgba(26, 11, 11, 0.45);
 }
 
 /* ===== БАЗОВЫЕ СТИЛИ ===== */
@@ -84,7 +71,6 @@
 }
 
 body {
-    /* Картинка статуи — фон всего сайта */
     background: url('statue.png') center/cover no-repeat fixed;
     background-color: #000;
     display: flex;
@@ -96,7 +82,6 @@ body {
     overflow-x: hidden;
 }
 
-/* Затемнение поверх фона */
 body::before {
     content: "";
     position: fixed;
@@ -104,7 +89,7 @@ body::before {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(0, 0, 0, 0.65);
     z-index: 0;
     pointer-events: none;
 }
@@ -122,15 +107,17 @@ body::before {
     display: none !important;
 }
 
-/* ===== CRT-ЭКРАН (ТОНКИЕ РАМКИ) ===== */
+/* ===== CRT-ЭКРАН ===== */
 .crt {
     background: var(--crt-bg);
-    border: 5px solid #2a2a2a;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--border-color);
     border-radius: 12px;
     box-shadow: 
-        0 0 30px rgba(255, 255, 255, 0.05), 
-        inset 0 0 150px rgba(0, 0, 0, 0.9),
-        0 10px 40px rgba(0,0,0,0.8);
+        0 0 30px rgba(0, 0, 0, 0.3),
+        inset 0 0 150px rgba(0, 0, 0, 0.6),
+        0 10px 40px rgba(0, 0, 0, 0.7);
     padding: 25px;
     width: 650px;
     max-width: 92vw;
@@ -138,22 +125,20 @@ body::before {
     overflow: hidden;
 }
 
-/* Эффект выпуклого стекла */
 .crt::before {
     content: "";
     display: block;
     position: absolute;
-    top: -5px;
-    left: -5px;
-    right: -5px;
-    bottom: -5px;
-    background: radial-gradient(ellipse at center, rgba(255,255,255,0.03) 0%, rgba(0,0,0,0.1) 70%);
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
+    background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.02) 0%, rgba(0, 0, 0, 0.08) 70%);
     pointer-events: none;
     z-index: 12;
     border-radius: 14px;
 }
 
-/* Линии развёртки */
 .crt::after {
     content: " ";
     display: block;
@@ -164,8 +149,8 @@ body::before {
     right: 0;
     background: repeating-linear-gradient(
         0deg,
-        rgba(0, 0, 0, 0.25) 0px,
-        rgba(0, 0, 0, 0.25) 2px,
+        rgba(0, 0, 0, 0.2) 0px,
+        rgba(0, 0, 0, 0.2) 2px,
         transparent 2px,
         transparent 4px
     );
@@ -173,7 +158,6 @@ body::before {
     z-index: 11;
 }
 
-/* Мерцание */
 @keyframes flicker {
     0% { opacity: 0.97; }
     5% { opacity: 1; }
@@ -189,10 +173,10 @@ body::before {
     animation: flicker 4s infinite;
 }
 
-/* Частицы пыли */
+/* ===== ЧАСТИЦЫ ПЫЛИ ===== */
 @keyframes dust {
-    0% { transform: translateY(0) translateX(0); opacity: 0.3; }
-    50% { opacity: 0.6; }
+    0% { transform: translateY(0) translateX(0); opacity: 0.2; }
+    50% { opacity: 0.5; }
     100% { transform: translateY(-100px) translateX(20px); opacity: 0; }
 }
 
@@ -270,7 +254,7 @@ input {
     border: 1px solid var(--border-color);
     color: var(--text-color);
     font-family: 'Courier New', monospace;
-    font-size: 16px;
+    font-size: 14px;
     text-align: center;
     outline: none;
     text-shadow: 0 0 5px var(--text-glow);
@@ -281,13 +265,13 @@ input {
 }
 
 input:focus {
-    border-color: #fff;
-    box-shadow: 0 0 15px var(--text-glow), inset 0 0 15px rgba(0,0,0,0.3);
+    border-color: var(--text-color);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.1), inset 0 0 15px rgba(0, 0, 0, 0.3);
 }
 
 input::placeholder {
     color: var(--text-color);
-    opacity: 0.4;
+    opacity: 0.35;
 }
 
 /* ===== КНОПКИ ===== */
@@ -312,31 +296,25 @@ button {
     position: relative;
     z-index: 20;
     overflow: hidden;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
 }
 
 button:active {
     transform: scale(0.95);
-    box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
 }
 
 button:hover {
     background: var(--button-hover-bg);
     color: var(--button-hover-text);
     text-shadow: none;
-    box-shadow: 0 0 20px var(--text-glow);
-    animation: buttonGlow 0.5s ease-in-out;
-}
-
-@keyframes buttonGlow {
-    0% { box-shadow: 0 0 5px var(--text-glow); }
-    50% { box-shadow: 0 0 25px var(--text-glow), 0 0 50px var(--text-glow); }
-    100% { box-shadow: 0 0 15px var(--text-glow); }
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.08);
 }
 
 button:disabled {
     opacity: 0.4;
     cursor: not-allowed;
-    animation: none;
 }
 
 /* ===== БАЛАНС ===== */
@@ -345,6 +323,8 @@ button:disabled {
     justify-content: space-between;
     align-items: center;
     background: var(--balance-bg);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     padding: 10px 15px;
     border: 1px solid var(--border-color);
     margin-bottom: 15px;
@@ -352,7 +332,7 @@ button:disabled {
     color: var(--text-color);
     text-shadow: 0 0 8px var(--text-glow);
     font-family: 'Press Start 2P', 'Courier New', monospace;
-    box-shadow: inset 0 0 20px rgba(0,0,0,0.3);
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.3);
     position: relative;
     z-index: 20;
 }
@@ -377,6 +357,8 @@ button:disabled {
 /* ===== КОНТЕНТ ===== */
 .content {
     background: var(--content-bg);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     border: 1px solid var(--border-color);
     padding: 15px;
     flex-grow: 1;
@@ -385,17 +367,17 @@ button:disabled {
     overflow-y: auto;
     color: var(--text-color);
     text-shadow: 0 0 5px var(--text-glow);
-    box-shadow: inset 0 0 30px rgba(0,0,0,0.4);
+    box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.4);
     position: relative;
     z-index: 20;
 }
 
 .content::-webkit-scrollbar {
-    width: 6px;
+    width: 5px;
 }
 
 .content::-webkit-scrollbar-track {
-    background: var(--content-bg);
+    background: transparent;
 }
 
 .content::-webkit-scrollbar-thumb {
@@ -412,6 +394,8 @@ button:disabled {
 
 .item-card {
     background: var(--card-bg);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
     border: 1px solid var(--border-color);
     padding: 12px 6px;
     width: calc(33% - 8px);
@@ -426,24 +410,29 @@ button:disabled {
 
 .item-card:hover {
     background: var(--card-hover-bg);
-    border-color: #fff;
+    border-color: var(--text-color);
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
 }
 
 .item-card:active {
     transform: scale(0.95);
 }
 
-/* ===== ВКЛАДКИ КАТЕГОРИЙ ===== */
+.item-card img {
+    image-rendering: pixelated;
+    border-radius: 4px;
+}
+
+/* ===== ВКЛАДКИ КАТЕГОРИЙ И ПОДКАТЕГОРИЙ ===== */
 .category-tabs {
     display: flex;
     gap: 5px;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
     flex-wrap: wrap;
 }
 
-.cat-tab {
+.cat-tab, .subcat-tab {
     background: var(--button-bg);
     color: var(--text-color);
     border: 1px solid var(--border-color);
@@ -455,9 +444,11 @@ button:disabled {
     transition: all 0.2s;
     text-shadow: 0 0 5px var(--text-glow);
     flex: unset;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
 }
 
-.cat-tab:hover {
+.cat-tab:hover, .subcat-tab:hover {
     background: var(--button-hover-bg);
     color: var(--button-hover-text);
     text-shadow: none;
@@ -472,6 +463,8 @@ button:disabled {
 
 .loot-btn {
     background: var(--button-bg);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
     color: var(--text-color);
     border: 1px solid var(--border-color);
     padding: 14px;
@@ -489,12 +482,13 @@ button:disabled {
     background: var(--button-hover-bg);
     color: var(--button-hover-text);
     text-shadow: none;
-    box-shadow: 0 0 20px var(--text-glow);
-    animation: buttonGlow 0.5s ease-in-out;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.08);
 }
 
 .result-box {
     background: var(--content-bg);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     border: 1px solid var(--border-color);
     padding: 20px;
     text-align: center;
@@ -504,7 +498,7 @@ button:disabled {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    box-shadow: inset 0 0 30px rgba(0,0,0,0.5);
+    box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.5);
 }
 
 /* ===== ЛОГ ===== */
@@ -559,7 +553,7 @@ button:disabled {
     width: 30px;
     height: 30px;
     border-radius: 50%;
-    border: 2px solid #555;
+    border: 2px solid rgba(255, 255, 255, 0.2);
     cursor: pointer;
     transition: all 0.3s;
     flex: unset;
@@ -568,11 +562,13 @@ button:disabled {
     display: flex;
     align-items: center;
     justify-content: center;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
 }
 
 .theme-btn:hover {
     transform: scale(1.2);
-    border-color: #fff;
+    border-color: rgba(255, 255, 255, 0.6);
 }
 
 .theme-btn.active {
@@ -580,12 +576,12 @@ button:disabled {
     box-shadow: 0 0 15px currentColor;
 }
 
-.theme-green-btn { background: #0b1a0b; color: #20C20E; }
-.theme-amber-btn { background: #1a140b; color: #FFB000; }
-.theme-blue-btn { background: #0b141a; color: #4A90E2; }
-.theme-red-btn { background: #1a0b0b; color: #FF4444; }
+.theme-green-btn { background: rgba(32, 194, 14, 0.15); color: #20C20E; }
+.theme-amber-btn { background: rgba(255, 176, 0, 0.15); color: #FFB000; }
+.theme-blue-btn { background: rgba(74, 144, 226, 0.15); color: #4A90E2; }
+.theme-red-btn { background: rgba(255, 68, 68, 0.15); color: #FF4444; }
 
-/* ===== ЗВУКОВЫЕ ИНДИКАТОРЫ ===== */
+/* ===== ЗВУКОВАЯ КНОПКА ===== */
 .sound-toggle {
     position: absolute;
     top: 10px;
@@ -599,6 +595,8 @@ button:disabled {
     font-size: 8px;
     cursor: pointer;
     text-shadow: 0 0 5px var(--text-glow);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
 }
 
 /* ===== АДАПТИВНОСТЬ ===== */
