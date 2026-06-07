@@ -160,7 +160,15 @@ function init() {
     renderAll();
 }
 
-init();
+init(document.getElementById('adminLink').addEventListener('click', () => {
+    const password = prompt('Мастер-пароль:');
+    if (password === 'Пенис') {  // замени на свой
+        state.isAdmin = true;
+        renderApp();
+    } else {
+        alert('Неверный пароль');
+    }
+}););
 
 
 
