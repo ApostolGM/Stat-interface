@@ -15,6 +15,49 @@
     --body-bg-image: url('../Statuya.png');
     --body-bg-overlay: rgba(0, 0, 0, 0.3);
 }
+/* Админ-панель */
+.admin-panel {
+    padding: 15px;
+}
+.admin-panel h2 {
+    color: var(--accent);
+    margin-top: 15px;
+}
+.admin-row {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+}
+.admin-item {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.admin-item input {
+    background: rgba(10,20,30,0.5);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 4px 8px;
+    font-family: var(--font);
+    font-size: 12px;
+}
+.admin-item input[type="text"] { width: 150px; }
+.admin-item input[type="number"] { width: 60px; }
+.delete-item {
+    background: var(--danger);
+    color: white;
+    border: none;
+    padding: 4px 8px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+.hint {
+    font-size: 12px;
+    opacity: 0.7;
+}
 
 /* ===== ГЛОБАЛЬНЫЕ СТИЛИ ===== */
 * { margin: 0; padding: 0; box-sizing: border-box; }
