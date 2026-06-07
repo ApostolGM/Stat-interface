@@ -1,0 +1,236 @@
+body {
+    background-color: #0a0a0a;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    font-family: 'Courier New', monospace;
+    overflow-x: hidden;
+}
+
+.crt {
+    background: #0b1a0b;
+    border: 20px solid #2a2a2a;
+    border-radius: 20px;
+    box-shadow: 0 0 30px rgba(0, 255, 0, 0.2), inset 0 0 100px rgba(0, 0, 0, 0.8);
+    padding: 25px;
+    width: 650px;
+    max-width: 95vw;
+    position: relative;
+    overflow: hidden;
+}
+
+.crt::after {
+    content: " ";
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+    background-size: 100% 4px;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.crt::before {
+    content: " ";
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: rgba(18, 16, 16, 0.1);
+    opacity: 0;
+    z-index: 10;
+    pointer-events: none;
+    animation: flicker 0.15s infinite;
+}
+
+@keyframes flicker {
+    0% { opacity: 0.1; }
+    50% { opacity: 0.3; }
+    100% { opacity: 0.05; }
+}
+
+.screen {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.hidden {
+    display: none !important;
+}
+
+h1 {
+    text-align: center;
+    font-size: 24px;
+    letter-spacing: 3px;
+    border-bottom: 2px dashed #20C20E;
+    padding-bottom: 8px;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    color: #20C20E;
+    text-shadow: 0 0 10px #20C20E;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    background: #051005;
+    border: 1px solid #20C20E;
+    color: #20C20E;
+    font-family: 'Courier New', monospace;
+    font-size: 16px;
+    text-align: center;
+    outline: none;
+}
+
+.btn-group {
+    display: flex;
+    gap: 10px;
+}
+
+button {
+    background: #0d200d;
+    color: #20C20E;
+    border: 2px solid #20C20E;
+    padding: 10px 20px;
+    font-family: 'Courier New', monospace;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: 0.2s;
+    flex: 1;
+}
+
+button:hover {
+    background: #20C20E;
+    color: #0a0a0a;
+}
+
+button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.balance {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #0d200d;
+    padding: 10px 15px;
+    border: 1px solid #20C20E;
+    margin-bottom: 15px;
+    font-size: 18px;
+    color: #20C20E;
+    text-shadow: 0 0 10px #20C20E;
+}
+
+.nav {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.nav button {
+    flex: 1;
+}
+
+.content {
+    background: #051005;
+    border: 1px solid #20C20E;
+    padding: 15px;
+    flex-grow: 1;
+    margin-bottom: 15px;
+    max-height: 300px;
+    overflow-y: auto;
+    color: #20C20E;
+    text-shadow: 0 0 10px #20C20E;
+}
+
+.item-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.item-card {
+    background: #0b1a0b;
+    border: 1px solid #20C20E;
+    padding: 10px;
+    width: calc(33% - 14px);
+    box-sizing: border-box;
+    text-align: center;
+    cursor: pointer;
+    transition: 0.2s;
+    font-size: 14px;
+}
+
+.item-card:hover {
+    background: #1a3a1a;
+    border-color: #fff;
+}
+
+.loot-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.loot-btn {
+    background: #0d200d;
+    color: #20C20E;
+    border: 2px solid #20C20E;
+    padding: 12px;
+    font-family: 'Courier New', monospace;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.loot-btn:hover {
+    background: #20C20E;
+    color: #0a0a0a;
+}
+
+.result-box {
+    background: #051005;
+    border: 1px solid #20C20E;
+    padding: 15px;
+    text-align: center;
+    min-height: 80px;
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.log {
+    font-size: 14px;
+    opacity: 0.8;
+    border-top: 1px dotted #20C20E;
+    padding-top: 8px;
+    margin-top: auto;
+    min-height: 20px;
+    color: #20C20E;
+    text-shadow: 0 0 10px #20C20E;
+}
+
+.blink {
+    animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+    50% { opacity: 0; }
+}
