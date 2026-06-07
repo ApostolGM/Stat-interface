@@ -51,6 +51,13 @@
         </div>
     </div>
 
+    <!-- Экран выбора персонажа -->
+<div id="characterScreen" class="screen hidden">
+    <div class="crt">
+        <h1>APOSTOL v2.0 (Beta)</h1>
+        <div id="characterContent" class="content" style="max-height:400px;"></div>
+    </div>
+</div>
     <!-- Терминал -->
     <div id="terminal" class="screen hidden">
         <div class="crt">
@@ -69,10 +76,11 @@
             </div>
             <button class="sound-toggle" id="soundToggle" onclick="toggleSound()">🔊 ЗВУК</button>
             <div class="balance">
-                <span>БАЛАНС:</span>
-                <span id="tokenDisplay">0 ЖЕТОНОВ</span>
-                <button id="signOutTerminalBtn" style="font-size:8px; padding:4px 6px; flex:none;">ВЫХОД</button>
-            </div>
+    <span>БАЛАНС:</span>
+    <span id="tokenDisplay">0 РК</span>
+    <button id="changeCharBtn" style="font-size:8px; padding:4px 6px;">ПЕРС</button>
+    <button id="signOutTerminalBtn" style="font-size:8px; padding:4px 6px; flex:none;">ВЫХОД</button>
+</div>
             <div class="nav">
                 <button id="shopTab">🏪 МАГАЗИН</button>
                 <button id="lootTab">🎲 ЛУТБОКСЫ</button>
