@@ -6,7 +6,7 @@ function initAudio() {
     if (!ambientAudio) {
         ambientAudio = new Audio('ambient.mp3');
         ambientAudio.loop = true;
-        ambientAudio.volume = 0.02;
+        ambientAudio.volume = 0.25;
     }
 }
 
