@@ -203,6 +203,30 @@ button:disabled {
     color: #0a0a0a;
 }
 
+.category-tabs {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+
+.cat-tab {
+    background: #0d200d;
+    color: #20C20E;
+    border: 2px solid #20C20E;
+    padding: 8px 12px;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: 0.2s;
+}
+
+.cat-tab:hover {
+    background: #1a3a1a;
+}
+
+
 .result-box {
     background: #051005;
     border: 1px solid #20C20E;
