@@ -10,8 +10,9 @@ let isAdminUnlocked = false;
 let foundUserId = null;
 let foundUserData = null;
 let shopCategories = {};
-let adminMode = 'players'; // 'players' или 'shop'
+let adminMode = 'players'; // 'players', 'shop', 'lootboxes'
 let selectedCategory = null;
+let selectedSubcategory = null;
 
 export function checkMasterPassword(password) {
     if (password === MASTER_PASSWORD) {
@@ -27,6 +28,7 @@ export function resetAdmin() {
     foundUserData = null;
     adminMode = 'players';
     selectedCategory = null;
+    selectedSubcategory = null;
 }
 
 export async function findUserByLogin(login) {
@@ -62,24 +64,28 @@ export async function renderAdmin() {
     subscribeToShop((categories) => {
         shopCategories = categories;
         if (adminMode === 'shop') renderShopAdmin();
+        if (adminMode === 'lootboxes') renderLootboxAdmin();
     });
 
     container.innerHTML = `
         <div style="display:flex; gap:10px; margin-bottom:15px;">
-            <button id="adminPlayersMode" style="${adminMode === 'players' ? 'background:#20C20E;color:#000;' : ''}">ИГРОКИ</button>
-            <button id="adminShopMode" style="${adminMode === 'shop' ? 'background:#20C20E;color:#000;' : ''}">МАГАЗИН</button>
+            <button id="adminPlayersMode" style="${adminMode === 'players' ? 'background:var(--button-hover-bg);color:var(--button-hover-text);' : ''}">ИГРОКИ</button>
+            <button id="adminShopMode" style="${adminMode === 'shop' ? 'background:var(--button-hover-bg);color:var(--button-hover-text);' : ''}">МАГАЗИН</button>
+            <button id="adminLootMode" style="${adminMode === 'lootboxes' ? 'background:var(--button-hover-bg);color:var(--button-hover-text);' : ''}">ЛУТБОКСЫ</button>
         </div>
         <div id="adminInnerContent"></div>
     `;
 
     document.getElementById('adminPlayersMode').onclick = () => { adminMode = 'players'; renderAdmin(); };
-    document.getElementById('adminShopMode').onclick = () => { adminMode = 'shop'; selectedCategory = null; renderAdmin(); };
+    document.getElementById('adminShopMode').onclick = () => { adminMode = 'shop'; selectedCategory = null; selectedSubcategory = null; renderAdmin(); };
+    document.getElementById('adminLootMode').onclick = () => { adminMode = 'lootboxes'; renderAdmin(); };
 
     if (adminMode === 'players') renderPlayersAdmin();
-    else renderShopAdmin();
+    else if (adminMode === 'shop') renderShopAdmin();
+    else if (adminMode === 'lootboxes') renderLootboxAdmin();
 }
 
-// ========== РЕЖИМ ИГРОКОВ ==========
+// ========== ИГРОКИ (без изменений, но валюта РК) ==========
 function renderPlayersAdmin() {
     const inner = document.getElementById('adminInnerContent');
     inner.innerHTML = `
@@ -89,10 +95,10 @@ function renderPlayersAdmin() {
         </div>
         <div id="userInfoAdmin" style="margin-bottom:10px;"></div>
         <div id="adminActions" class="hidden">
-            <h3>БАЛАНС: <span id="adminTokens">0</span> ЖЕТОНОВ</h3>
+            <h3>БАЛАНС: <span id="adminTokens">0</span> РК</h3>
             <div style="display:flex; gap:10px; margin-bottom:10px;">
-                <button id="addTokensBtn">+1 ЖЕТОН</button>
-                <button id="removeTokensBtn">-1 ЖЕТОН</button>
+                <button id="addTokensBtn">+1 РК</button>
+                <button id="removeTokensBtn">-1 РК</button>
                 <input type="number" id="customTokens" placeholder="СУММА" style="width:80px;">
                 <button id="setTokensBtn">УСТАНОВИТЬ</button>
             </div>
@@ -104,7 +110,6 @@ function renderPlayersAdmin() {
             </div>
         </div>
     `;
-
     document.getElementById('searchBtn').onclick = () => doSearch();
     document.getElementById('addTokensBtn').onclick = () => adjustTokens(1);
     document.getElementById('removeTokensBtn').onclick = () => adjustTokens(-1);
@@ -112,109 +117,165 @@ function renderPlayersAdmin() {
     document.getElementById('addItemBtn').onclick = () => addItemToInventory();
 }
 
-// ========== РЕЖИМ МАГАЗИНА ==========
+// ========== МАГАЗИН (с подкатегориями) ==========
 function renderShopAdmin() {
     const inner = document.getElementById('adminInnerContent');
 
     if (!selectedCategory) {
+        // Список категорий
         const catNames = Object.keys(shopCategories);
-        let html = '<h3>КАТЕГОРИИ МАГАЗИНА</h3>';
-        html += '<div style="display:flex; flex-direction:column; gap:8px;">';
+        let html = '<h3>КАТЕГОРИИ</h3><div style="display:flex; flex-direction:column; gap:6px;">';
         catNames.forEach(cat => {
-            const itemCount = shopCategories[cat] ? shopCategories[cat].length : 0;
             html += `
-                <div style="display:flex; justify-content:space-between; align-items:center; background:#0b1a0b; padding:10px; border:1px solid #20C20E; cursor:pointer;" class="selectCategoryBtn" data-cat="${cat}">
-                    <span>📁 ${cat} (${itemCount} товаров)</span>
-                    <button class="deleteCategoryBtn" data-cat="${cat}" style="font-size:12px; padding:4px 8px; flex:none;">УДАЛИТЬ</button>
+                <div style="display:flex; justify-content:space-between; align-items:center; background:var(--card-bg); padding:10px; border:1px solid var(--border-color); cursor:pointer;" class="selectCatBtn" data-cat="${cat}">
+                    <span>📁 ${cat}</span>
+                    <button class="deleteCatBtn" data-cat="${cat}" style="font-size:10px; padding:4px 6px; flex:none;">УДАЛИТЬ</button>
                 </div>`;
         });
         html += '</div>';
         html += `
-            <div style="display:flex; gap:10px; margin-top:15px;">
-                <input type="text" id="newCategoryName" placeholder="НАЗВАНИЕ КАТЕГОРИИ" style="flex:1;">
-                <button id="addCategoryBtn">СОЗДАТЬ</button>
+            <div style="display:flex; gap:10px; margin-top:12px;">
+                <input type="text" id="newCatName" placeholder="НОВАЯ КАТЕГОРИЯ" style="flex:1;">
+                <button id="addCatBtn">СОЗДАТЬ</button>
             </div>`;
         inner.innerHTML = html;
 
-        document.querySelectorAll('.selectCategoryBtn').forEach(div => {
+        document.querySelectorAll('.selectCatBtn').forEach(div => {
             div.onclick = (e) => {
-                if (e.target.classList.contains('deleteCategoryBtn')) return;
+                if (e.target.classList.contains('deleteCatBtn')) return;
                 selectedCategory = div.dataset.cat;
+                selectedSubcategory = null;
                 renderShopAdmin();
             };
         });
-        document.querySelectorAll('.deleteCategoryBtn').forEach(btn => {
+        document.querySelectorAll('.deleteCatBtn').forEach(btn => {
             btn.onclick = async (e) => {
                 e.stopPropagation();
-                const cat = btn.dataset.cat;
-                const newCategories = { ...shopCategories };
-                delete newCategories[cat];
-                await updateShopCategories(newCategories);
-                log(`КАТЕГОРИЯ "${cat}" УДАЛЕНА`);
+                const newCat = { ...shopCategories };
+                delete newCat[btn.dataset.cat];
+                await updateShopCategories(newCat);
+                log('КАТЕГОРИЯ УДАЛЕНА');
             };
         });
-        document.getElementById('addCategoryBtn').onclick = async () => {
-            const name = document.getElementById('newCategoryName').value.trim();
+        document.getElementById('addCatBtn').onclick = async () => {
+            const name = document.getElementById('newCatName').value.trim();
             if (!name || shopCategories[name]) return;
-            const newCategories = { ...shopCategories, [name]: [] };
-            await updateShopCategories(newCategories);
+            const newCat = { ...shopCategories, [name]: { subcategories: {} } };
+            await updateShopCategories(newCat);
             log(`КАТЕГОРИЯ "${name}" СОЗДАНА`);
-            document.getElementById('newCategoryName').value = '';
+        };
+    } else if (!selectedSubcategory) {
+        // Список подкатегорий
+        const subcats = shopCategories[selectedCategory]?.subcategories || {};
+        const subNames = Object.keys(subcats);
+        let html = `<button id="backToCat" style="margin-bottom:10px;">← К КАТЕГОРИЯМ</button>`;
+        html += `<h3>${selectedCategory} → ПОДКАТЕГОРИИ</h3>`;
+        html += '<div style="display:flex; flex-direction:column; gap:6px;">';
+        subNames.forEach(sub => {
+            html += `
+                <div style="display:flex; justify-content:space-between; align-items:center; background:var(--card-bg); padding:10px; border:1px solid var(--border-color); cursor:pointer;" class="selectSubBtn" data-sub="${sub}">
+                    <span>📂 ${sub} (${subcats[sub].length} товаров)</span>
+                    <button class="deleteSubBtn" data-sub="${sub}" style="font-size:10px; padding:4px 6px; flex:none;">УДАЛИТЬ</button>
+                </div>`;
+        });
+        html += '</div>';
+        html += `
+            <div style="display:flex; gap:10px; margin-top:12px;">
+                <input type="text" id="newSubName" placeholder="НОВАЯ ПОДКАТЕГОРИЯ" style="flex:1;">
+                <button id="addSubBtn">СОЗДАТЬ</button>
+            </div>`;
+        inner.innerHTML = html;
+
+        document.getElementById('backToCat').onclick = () => { selectedCategory = null; renderShopAdmin(); };
+        document.querySelectorAll('.selectSubBtn').forEach(div => {
+            div.onclick = (e) => {
+                if (e.target.classList.contains('deleteSubBtn')) return;
+                selectedSubcategory = div.dataset.sub;
+                renderShopAdmin();
+            };
+        });
+        document.querySelectorAll('.deleteSubBtn').forEach(btn => {
+            btn.onclick = async (e) => {
+                e.stopPropagation();
+                const newCat = { ...shopCategories };
+                delete newCat[selectedCategory].subcategories[btn.dataset.sub];
+                await updateShopCategories(newCat);
+                log('ПОДКАТЕГОРИЯ УДАЛЕНА');
+            };
+        });
+        document.getElementById('addSubBtn').onclick = async () => {
+            const name = document.getElementById('newSubName').value.trim();
+            if (!name || subcats[name]) return;
+            const newCat = { ...shopCategories };
+            newCat[selectedCategory].subcategories[name] = [];
+            await updateShopCategories(newCat);
+            log(`ПОДКАТЕГОРИЯ "${name}" СОЗДАНА`);
         };
     } else {
-        const items = shopCategories[selectedCategory] || [];
-        let html = `<button id="backToCategories" style="margin-bottom:10px;">← НАЗАД К КАТЕГОРИЯМ</button>`;
-        html += `<h3>КАТЕГОРИЯ: ${selectedCategory}</h3>`;
-        html += '<div style="display:flex; flex-direction:column; gap:5px;">';
+        // Список товаров в подкатегории
+        const items = shopCategories[selectedCategory].subcategories[selectedSubcategory] || [];
+        let html = `<button id="backToSub" style="margin-bottom:10px;">← К ПОДКАТЕГОРИЯМ</button>`;
+        html += `<h3>${selectedCategory} → ${selectedSubcategory}</h3>`;
+        html += '<div style="display:flex; flex-direction:column; gap:4px;">';
         items.forEach((item, index) => {
             html += `
-                <div style="display:flex; justify-content:space-between; align-items:center; background:#0b1a0b; padding:8px; border:1px solid #20C20E;">
-                    <span>${item.emoji} ${item.name} — ${item.price} жет.</span>
+                <div style="display:flex; justify-content:space-between; align-items:center; background:var(--card-bg); padding:6px 8px; border:1px solid var(--border-color); font-size:11px;">
+                    <span>${item.image ? `<img src="${item.image}" style="width:20px;height:20px;vertical-align:middle;"> ` : ''}${item.name} — ${item.price} РК</span>
+                    <span style="font-size:9px; opacity:0.7;">${(item.tags || []).join(', ')}</span>
                     <button data-index="${index}" class="removeItemBtn">УДАЛИТЬ</button>
                 </div>`;
         });
         html += '</div>';
         html += `
-            <div style="display:flex; gap:10px; margin-top:15px;">
-                <input type="text" id="newItemName" placeholder="НАЗВАНИЕ" style="flex:1;">
-                <input type="text" id="newItemEmoji" placeholder="ЭМОДЗИ" style="width:60px;">
+            <div style="display:flex; gap:8px; margin-top:10px; flex-wrap:wrap;">
+                <input type="text" id="newItemName" placeholder="НАЗВАНИЕ" style="flex:1; min-width:120px;">
+                <input type="text" id="newItemImage" placeholder="URL КАРТИНКИ" style="flex:1; min-width:120px;">
                 <input type="number" id="newItemPrice" placeholder="ЦЕНА" style="width:70px;">
+                <input type="text" id="newItemTags" placeholder="ТЕГИ (через запятую)" style="flex:1; min-width:120px;">
                 <button id="addItemBtn">ДОБАВИТЬ</button>
             </div>`;
         inner.innerHTML = html;
 
-        document.getElementById('backToCategories').onclick = () => {
-            selectedCategory = null;
-            renderShopAdmin();
-        };
+        document.getElementById('backToSub').onclick = () => { selectedSubcategory = null; renderShopAdmin(); };
         document.querySelectorAll('.removeItemBtn').forEach(btn => {
             btn.onclick = async () => {
                 const index = parseInt(btn.dataset.index);
                 const newItems = [...items];
                 newItems.splice(index, 1);
-                const newCategories = { ...shopCategories, [selectedCategory]: newItems };
-                await updateShopCategories(newCategories);
+                const newCat = { ...shopCategories };
+                newCat[selectedCategory].subcategories[selectedSubcategory] = newItems;
+                await updateShopCategories(newCat);
                 log('ТОВАР УДАЛЁН');
             };
         });
         document.getElementById('addItemBtn').onclick = async () => {
             const name = document.getElementById('newItemName').value.trim();
-            const emoji = document.getElementById('newItemEmoji').value.trim();
+            const image = document.getElementById('newItemImage').value.trim();
             const price = parseInt(document.getElementById('newItemPrice').value);
-            if (!name || !emoji || isNaN(price)) return;
-            const newItem = { id: Date.now().toString(), name, emoji, price };
+            const tags = document.getElementById('newItemTags').value.split(',').map(t => t.trim()).filter(t => t);
+            if (!name || isNaN(price)) return;
+            const newItem = { id: Date.now().toString(), name, image, price, tags };
             const newItems = [...items, newItem];
-            const newCategories = { ...shopCategories, [selectedCategory]: newItems };
-            await updateShopCategories(newCategories);
+            const newCat = { ...shopCategories };
+            newCat[selectedCategory].subcategories[selectedSubcategory] = newItems;
+            await updateShopCategories(newCat);
             log(`ТОВАР "${name}" ДОБАВЛЕН`);
             document.getElementById('newItemName').value = '';
-            document.getElementById('newItemEmoji').value = '';
+            document.getElementById('newItemImage').value = '';
             document.getElementById('newItemPrice').value = '';
+            document.getElementById('newItemTags').value = '';
         };
     }
 }
 
-// ========== ФУНКЦИИ УПРАВЛЕНИЯ ИГРОКАМИ ==========
+// ========== ЛУТБОКСЫ (заглушка — будет в следующем этапе) ==========
+function renderLootboxAdmin() {
+    document.getElementById('adminInnerContent').innerHTML = `
+        <p>КОНСТРУКТОР ЛУТБОКСОВ БУДЕТ ДОБАВЛЕН В СЛЕДУЮЩЕМ ОБНОВЛЕНИИ</p>
+    `;
+}
+
+// ========== ФУНКЦИИ ИГРОКОВ ==========
 async function doSearch() {
     const login = document.getElementById('searchLogin').value.trim().toLowerCase();
     if (!login) return;
@@ -226,7 +287,7 @@ async function doSearch() {
     }
     foundUserId = user.id;
     foundUserData = user;
-    document.getElementById('userInfoAdmin').innerHTML = `<p>НАЙДЕН: ${user.login || user.email}</p>`;
+    document.getElementById('userInfoAdmin').innerHTML = `<p>НАЙДЕН: ${user.login}</p>`;
     document.getElementById('adminActions').classList.remove('hidden');
     updateAdminDisplay(user);
 }
@@ -238,11 +299,11 @@ function updateAdminDisplay(user) {
     const inventory = user.inventory || [];
     inventory.forEach((item, index) => {
         const li = document.createElement('li');
-        li.style.cssText = 'padding:5px 0; border-bottom:1px solid #1a3a1a; display:flex; justify-content:space-between;';
-        li.innerHTML = `<span>${item}</span> <button data-index="${index}" class="removeItemBtn">УДАЛИТЬ</button>`;
+        li.style.cssText = 'padding:5px 0; border-bottom:1px solid var(--card-hover-bg); display:flex; justify-content:space-between;';
+        li.innerHTML = `<span>${item}</span> <button data-index="${index}" class="removeInvBtn">УДАЛИТЬ</button>`;
         invList.appendChild(li);
     });
-    document.querySelectorAll('.removeItemBtn').forEach(btn => {
+    document.querySelectorAll('.removeInvBtn').forEach(btn => {
         btn.onclick = () => removeItemFromInventory(parseInt(btn.dataset.index));
     });
 }
@@ -251,7 +312,7 @@ async function adjustTokens(delta) {
     if (!foundUserId) return;
     const newTokens = (foundUserData.tokens || 0) + delta;
     await updateDoc(doc(db, "users", foundUserId), { tokens: newTokens });
-    log(`ЖЕТОНЫ ИГРОКА ИЗМЕНЕНЫ НА ${delta > 0 ? '+' + delta : delta}`);
+    log(`БАЛАНС ИГРОКА ИЗМЕНЁН НА ${delta > 0 ? '+' + delta : delta} РК`);
 }
 
 async function setTokensValue() {
@@ -259,7 +320,7 @@ async function setTokensValue() {
     const value = parseInt(document.getElementById('customTokens').value);
     if (isNaN(value)) return;
     await updateDoc(doc(db, "users", foundUserId), { tokens: value });
-    log(`БАЛАНС УСТАНОВЛЕН В ${value} ЖЕТОНОВ`);
+    log(`БАЛАНС УСТАНОВЛЕН В ${value} РК`);
 }
 
 async function addItemToInventory() {
@@ -269,7 +330,6 @@ async function addItemToInventory() {
     const newInventory = [...(foundUserData.inventory || []), itemName];
     await updateDoc(doc(db, "users", foundUserId), { inventory: newInventory });
     log(`ПРЕДМЕТ "${itemName}" ДОБАВЛЕН`);
-    document.getElementById('newItemInput').value = '';
 }
 
 async function removeItemFromInventory(index) {
