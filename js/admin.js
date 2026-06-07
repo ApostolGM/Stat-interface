@@ -29,9 +29,9 @@ export function resetAdmin() {
     selectedCategory = null;
 }
 
-export async function findUserByEmail(email) {
+export async function findUserByLogin(login) {
     const usersRef = collection(db, "users");
-    const q = query(usersRef, where("email", "==", email));
+    const q = query(usersRef, where("login", "==", login));
     const snapshot = await getDocs(q);
     if (snapshot.empty) return null;
     const docSnap = snapshot.docs[0];
@@ -79,12 +79,12 @@ export async function renderAdmin() {
     else renderShopAdmin();
 }
 
-// ========== РЕЖИМ ИГРОКОВ (без изменений) ==========
+// ========== РЕЖИМ ИГРОКОВ ==========
 function renderPlayersAdmin() {
     const inner = document.getElementById('adminInnerContent');
     inner.innerHTML = `
         <div style="display:flex; gap:10px; margin-bottom:10px;">
-           <input type="text" id="searchLogin" placeholder="ЛОГИН ИГРОКА" style="flex:1;">
+            <input type="text" id="searchLogin" placeholder="ЛОГИН ИГРОКА" style="flex:1;">
             <button id="searchBtn">ПОИСК</button>
         </div>
         <div id="userInfoAdmin" style="margin-bottom:10px;"></div>
@@ -112,12 +112,11 @@ function renderPlayersAdmin() {
     document.getElementById('addItemBtn').onclick = () => addItemToInventory();
 }
 
-// ========== РЕЖИМ МАГАЗИНА (с категориями) ==========
+// ========== РЕЖИМ МАГАЗИНА ==========
 function renderShopAdmin() {
     const inner = document.getElementById('adminInnerContent');
 
     if (!selectedCategory) {
-        // Показываем список категорий
         const catNames = Object.keys(shopCategories);
         let html = '<h3>КАТЕГОРИИ МАГАЗИНА</h3>';
         html += '<div style="display:flex; flex-direction:column; gap:8px;">';
@@ -163,7 +162,6 @@ function renderShopAdmin() {
             document.getElementById('newCategoryName').value = '';
         };
     } else {
-        // Показываем товары выбранной категории
         const items = shopCategories[selectedCategory] || [];
         let html = `<button id="backToCategories" style="margin-bottom:10px;">← НАЗАД К КАТЕГОРИЯМ</button>`;
         html += `<h3>КАТЕГОРИЯ: ${selectedCategory}</h3>`;
@@ -216,10 +214,70 @@ function renderShopAdmin() {
     }
 }
 
-// ========== ФУНКЦИИ ИГРОКОВ (без изменений) ==========
-async function doSearch() { /* ... */ }
-function updateAdminDisplay(user) { /* ... */ }
-async function adjustTokens(delta) { /* ... */ }
-async function setTokensValue() { /* ... */ }
-async function addItemToInventory() { /* ... */ }
-async function removeItemFromInventory(index) { /* ... */ }
+// ========== ФУНКЦИИ УПРАВЛЕНИЯ ИГРОКАМИ ==========
+async function doSearch() {
+    const login = document.getElementById('searchLogin').value.trim().toLowerCase();
+    if (!login) return;
+    const user = await findUserByLogin(login);
+    if (!user) {
+        document.getElementById('userInfoAdmin').innerHTML = '<p style="color:#FF5555;">ИГРОК НЕ НАЙДЕН</p>';
+        document.getElementById('adminActions').classList.add('hidden');
+        return;
+    }
+    foundUserId = user.id;
+    foundUserData = user;
+    document.getElementById('userInfoAdmin').innerHTML = `<p>НАЙДЕН: ${user.login || user.email}</p>`;
+    document.getElementById('adminActions').classList.remove('hidden');
+    updateAdminDisplay(user);
+}
+
+function updateAdminDisplay(user) {
+    document.getElementById('adminTokens').innerText = user.tokens || 0;
+    const invList = document.getElementById('adminInventory');
+    invList.innerHTML = '';
+    const inventory = user.inventory || [];
+    inventory.forEach((item, index) => {
+        const li = document.createElement('li');
+        li.style.cssText = 'padding:5px 0; border-bottom:1px solid #1a3a1a; display:flex; justify-content:space-between;';
+        li.innerHTML = `<span>${item}</span> <button data-index="${index}" class="removeItemBtn">УДАЛИТЬ</button>`;
+        invList.appendChild(li);
+    });
+    document.querySelectorAll('.removeItemBtn').forEach(btn => {
+        btn.onclick = () => removeItemFromInventory(parseInt(btn.dataset.index));
+    });
+}
+
+async function adjustTokens(delta) {
+    if (!foundUserId) return;
+    const newTokens = (foundUserData.tokens || 0) + delta;
+    await updateDoc(doc(db, "users", foundUserId), { tokens: newTokens });
+    log(`ЖЕТОНЫ ИГРОКА ИЗМЕНЕНЫ НА ${delta > 0 ? '+' + delta : delta}`);
+}
+
+async function setTokensValue() {
+    if (!foundUserId) return;
+    const value = parseInt(document.getElementById('customTokens').value);
+    if (isNaN(value)) return;
+    await updateDoc(doc(db, "users", foundUserId), { tokens: value });
+    log(`БАЛАНС УСТАНОВЛЕН В ${value} ЖЕТОНОВ`);
+}
+
+async function addItemToInventory() {
+    if (!foundUserId) return;
+    const itemName = document.getElementById('newItemInput').value.trim();
+    if (!itemName) return;
+    const newInventory = [...(foundUserData.inventory || []), itemName];
+    await updateDoc(doc(db, "users", foundUserId), { inventory: newInventory });
+    log(`ПРЕДМЕТ "${itemName}" ДОБАВЛЕН`);
+    document.getElementById('newItemInput').value = '';
+}
+
+async function removeItemFromInventory(index) {
+    if (!foundUserId) return;
+    const newInventory = [...(foundUserData.inventory || [])];
+    if (index >= 0 && index < newInventory.length) {
+        const removed = newInventory.splice(index, 1);
+        await updateDoc(doc(db, "users", foundUserId), { inventory: newInventory });
+        log(`ПРЕДМЕТ "${removed[0]}" УДАЛЁН`);
+    }
+}
