@@ -8,18 +8,36 @@ import {
     onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
 
+const FAKE_DOMAIN = "@gephard.local"; // фиктивный домен для логинов
+
 let currentUser = null;
 
+// Превращает логин в фиктивный email
+function loginToEmail(login) {
+    return login.trim().toLowerCase() + FAKE_DOMAIN;
+}
+
+// Извлекает логин из фиктивного email для отображения
+function emailToLogin(email) {
+    return email.replace(FAKE_DOMAIN, '');
+}
+
 export async function signUp() {
-    const email = document.getElementById('email').value;
+    const login = document.getElementById('login').value.trim();
     const password = document.getElementById('password').value;
     const errorEl = document.getElementById('authError');
+    if (!login) {
+        errorEl.innerText = 'ВВЕДИТЕ ЛОГИН';
+        return;
+    }
+    const email = loginToEmail(login);
     try {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         await setDoc(doc(db, "users", userCredential.user.uid), {
             tokens: 3,
             inventory: [],
-            email: email
+            login: login,      // сохраняем логин
+            email: email       // сохраняем фиктивный email для поиска в админке
         });
     } catch (error) {
         errorEl.innerText = error.message;
@@ -27,9 +45,14 @@ export async function signUp() {
 }
 
 export async function signIn() {
-    const email = document.getElementById('email').value;
+    const login = document.getElementById('login').value.trim();
     const password = document.getElementById('password').value;
     const errorEl = document.getElementById('authError');
+    if (!login) {
+        errorEl.innerText = 'ВВЕДИТЕ ЛОГИН';
+        return;
+    }
+    const email = loginToEmail(login);
     try {
         await signInWithEmailAndPassword(auth, email, password);
     } catch (error) {
@@ -43,7 +66,6 @@ export async function signOutUser() {
 
 export function setupAuth(onUserChange) {
     onAuthStateChanged(auth, (user) => {
-        // Всегда скрываем загрузку и показываем экран авторизации
         document.getElementById('loading').classList.add('hidden');
         document.getElementById('auth').classList.remove('hidden');
 
@@ -51,7 +73,9 @@ export function setupAuth(onUserChange) {
             currentUser = user;
             document.getElementById('authForm').classList.add('hidden');
             document.getElementById('userInfo').classList.remove('hidden');
-            document.getElementById('userEmail').innerText = user.email;
+            // Показываем логин вместо email
+            const login = user.email ? emailToLogin(user.email) : user.email;
+            document.getElementById('userEmail').innerText = login;
             onUserChange(user);
         } else {
             currentUser = null;
