@@ -1,95 +1,97 @@
 // lootbox.js
 import { updateUserData } from './db.js';
-import { getTokens, getInventory, log } from './ui.js';
+import { getTokens, getInventory, log } from './shared.js';
+import { subscribeToLootboxes } from './lootbox-config.js';
 
-const commonLoot = [
-    "Банка тушенки (просрочка)", "Фляга с водой", "Бинт стерильный",
-    "Батарейки АА", "Пачка галет", "Моток лески",
-    "Резиновый пупс", "Ненужная флешка", "Ржавый гвоздь",
-    "Довоенная газета"
-];
-const rareLoot = [
-    "Набор отмычек", "Фонарь с динамо-машиной", "Карта местности",
-    "Сигнальная ракетница", "Универсальный глушитель", "Доза антирадина",
-    "Прочный рюкзак", "Когти крота"
-];
-const legendaryLoot = [
-    "Портативный очиститель воды", "Генератор белого шума", "Силовая батарея МП-8",
-    "Имплант 'Зоркий глаз'", "Чертеж экзоскелета", "Ключ-пропуск в Убежище 17"
-];
+let lootboxes = [];
+let unsubscribeLoot = null;
 
 export function renderLoot(userId) {
-    document.getElementById('lootContent').innerHTML = `
-        <div class="result-box" id="lootResult">
-            <span>Выберите капсулу</span>
-        </div>
-        <div class="loot-options">
-            <button class="loot-btn" id="lootCommon">
-                <span>📦 ГУМАНИТАРКА</span><span>1 ЖЕТОН</span>
-            </button>
-            <button class="loot-btn" id="lootRare">
-                <span>📦 БАРАХЛО-Х</span><span>2 ЖЕТОНА</span>
-            </button>
-            <button class="loot-btn" id="lootLegendary">
-                <span>📦 СПЕЦИАЛИСТ</span><span>3 ЖЕТОНА</span>
-            </button>
-        </div>
-    `;
-    document.getElementById('lootCommon').onclick = () => openLootbox(userId, 1);
-    document.getElementById('lootRare').onclick = () => openLootbox(userId, 2);
-    document.getElementById('lootLegendary').onclick = () => openLootbox(userId, 3);
+    const container = document.getElementById('lootContent');
+    if (!container || container.classList.contains('hidden')) return;
+
+    if (unsubscribeLoot) unsubscribeLoot();
+
+    container.innerHTML = '<p style="text-align:center;">ЗАГРУЗКА ЛУТБОКСОВ...</p>';
+
+    unsubscribeLoot = subscribeToLootboxes((boxes) => {
+        lootboxes = boxes;
+        renderLootUI(container, userId);
+    });
 }
 
-async function openLootbox(userId, type) {
-    let cost, table, boxName;
-    if (type === 1) {
-        cost = 1; table = commonLoot; boxName = 'ГУМАНИТАРКА';
-    } else if (type === 2) {
-        cost = 2; table = [...commonLoot, ...rareLoot]; boxName = 'БАРАХЛО-Х';
-    } else {
-        cost = 3; table = [...rareLoot, ...legendaryLoot]; boxName = 'СПЕЦИАЛИСТ';
-    }
-
-    if (getTokens() < cost) {
-        log('ОШИБКА: НЕ ХВАТАЕТ ЖЕТОНОВ ДЛЯ ' + boxName + '.');
+function renderLootUI(container, userId) {
+    if (lootboxes.length === 0) {
+        container.innerHTML = '<p style="text-align:center;">НЕТ ДОСТУПНЫХ ЛУТБОКСОВ</p>';
         return;
     }
 
-    document.getElementById('lootResult').innerHTML = '<span class="blink">АНАЛИЗ КАПСУЛЫ...</span>';
-    log('ОТКРЫВАЕТСЯ ' + boxName + '...');
+    let html = '<div class="loot-options">';
+    lootboxes.forEach(box => {
+        const imgTag = box.image ? `<img src="${box.image}" style="width:24px;height:24px;vertical-align:middle;margin-right:8px;">` : '';
+        html += `
+            <button class="loot-btn" data-id="${box.id}">
+                <span>${imgTag}${box.name}</span>
+                <span>${box.price} РК</span>
+            </button>`;
+    });
+    html += '</div>';
+    html += '<div class="result-box" id="lootResult"><span>ВЫБЕРИТЕ ЛУТБОКС</span></div>';
+    container.innerHTML = html;
 
+    document.querySelectorAll('.loot-btn').forEach(btn => {
+        btn.onclick = () => openLootbox(btn.dataset.id, userId);
+    });
+}
+
+async function openLootbox(boxId, userId) {
+    const box = lootboxes.find(b => b.id === boxId);
+    if (!box) return;
+
+    if (getTokens() < box.price) {
+        log('ОШИБКА: НЕДОСТАТОЧНО РК.');
+        document.getElementById('lootResult').innerHTML = '<span style="color:#FF4444;">НЕДОСТАТОЧНО РК</span>';
+        return;
+    }
+
+    // Списываем РК
+    const newTokens = getTokens() - box.price;
+
+    // Анимация кручения
+    document.getElementById('lootResult').innerHTML = '<span class="blink">ОТКРЫТИЕ КАПСУЛЫ...</span>';
+    log(`ОТКРЫВАЕТСЯ ${box.name}...`);
+
+    // Задержка для эффекта
     setTimeout(async () => {
-        const roll = Math.floor(Math.random() * 100) + 1;
-        let item, rarityText, color = '#20C20E';
-
-        if (type === 1) {
-            item = table[Math.floor(Math.random() * table.length)];
-            rarityText = '[ОБЫЧНЫЙ]';
-        } else if (type === 2) {
-            if (roll <= 70) {
-                item = commonLoot[Math.floor(Math.random() * commonLoot.length)];
-                rarityText = '[ОБЫЧНЫЙ]';
-            } else {
-                item = rareLoot[Math.floor(Math.random() * rareLoot.length)];
-                rarityText = '[РЕДКИЙ]'; color = '#4A90E2';
-            }
-        } else {
-            if (roll <= 60) {
-                item = rareLoot[Math.floor(Math.random() * rareLoot.length)];
-                rarityText = '[РЕДКИЙ]'; color = '#4A90E2';
-            } else {
-                item = legendaryLoot[Math.floor(Math.random() * legendaryLoot.length)];
-                rarityText = '[ЛЕГЕНДАРНЫЙ]'; color = '#F5A623';
-            }
-        }
-
-        const newTokens = getTokens() - cost;
-        const newInventory = [...getInventory(), item];
+        // Выбираем предмет на основе шансов
+        const item = rollItem(box.items);
+        
+        const newInventory = [...getInventory(), item.name];
         await updateUserData(userId, { tokens: newTokens, inventory: newInventory });
 
-        document.getElementById('lootResult').innerHTML = 
-            `<div style="font-size:20px; color:${color};">${item}</div>
-             <div style="font-size:14px; opacity:0.8;">${rarityText} | d100: ${roll}</div>`;
-        log('ПОЛУЧЕНО: ' + item + ' ' + rarityText);
+        const imgTag = item.image ? `<img src="${item.image}" style="width:48px;height:48px;display:block;margin:0 auto 10px;">` : '';
+        document.getElementById('lootResult').innerHTML = `
+            ${imgTag}
+            <div style="font-size:18px;color:var(--text-color);">${item.name}</div>
+            <div style="font-size:12px;opacity:0.7;margin-top:5px;">ПОЛУЧЕНО!</div>`;
+        log(`ИЗ ${box.name} ПОЛУЧЕНО: ${item.name}. -${box.price} РК.`);
     }, 1500);
+}
+
+// Выбор случайного предмета с учётом шансов
+function rollItem(items) {
+    const totalChance = items.reduce((sum, item) => sum + item.chance, 0);
+    let roll = Math.random() * totalChance;
+    for (const item of items) {
+        roll -= item.chance;
+        if (roll <= 0) return item;
+    }
+    return items[items.length - 1]; // fallback
+}
+
+export function cleanupLoot() {
+    if (unsubscribeLoot) {
+        unsubscribeLoot();
+        unsubscribeLoot = null;
+    }
 }
