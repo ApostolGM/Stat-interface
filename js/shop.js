@@ -1,32 +1,43 @@
 // shop.js
 import { updateUserData } from './db.js';
-import { getTokens, getInventory, setTokens, setInventory, log } from './ui.js';
+import { getTokens, getInventory, log } from './ui.js';
+import { subscribeToShop } from './shop-config.js';
 
 export function renderShop(userId) {
-    document.getElementById('shopContent').innerHTML = `
-        <div class="item-grid">
-            <div class="item-card" id="buyPatrons">🔫 ПАТРОНЫ<br><small>1 жетон</small></div>
-            <div class="item-card" id="buyMedkit">🏥 АПТЕЧКА<br><small>2 жетона</small></div>
-            <div class="item-card" id="buyBattery">🔋 БАТАРЕЯ<br><small>1 жетон</small></div>
-            <div class="item-card" id="buyWater">💧 ВОДА<br><small>1 жетон</small></div>
-        </div>
-        <p style="text-align:center; margin-top:15px; opacity:0.7;">[ Жетоны можно найти в Пустоши ]</p>
-    `;
-    document.getElementById('buyPatrons').onclick = () => buyItem(userId, 'patrons', 1);
-    document.getElementById('buyMedkit').onclick = () => buyItem(userId, 'medkit', 2);
-    document.getElementById('buyBattery').onclick = () => buyItem(userId, 'battery', 1);
-    document.getElementById('buyWater').onclick = () => buyItem(userId, 'water', 1);
+    const container = document.getElementById('shopContent');
+    container.innerHTML = '<p style="text-align:center;">ЗАГРУЗКА ТОВАРОВ...</p>';
+
+    // Подписываемся на изменения магазина
+    subscribeToShop((items) => {
+        if (items.length === 0) {
+            container.innerHTML = '<p style="text-align:center;">МАГАЗИН ПУСТ</p>';
+            return;
+        }
+        let html = '<div class="item-grid">';
+        items.forEach(item => {
+            html += `
+                <div class="item-card" id="buy_${item.id}">
+                    ${item.emoji} ${item.name}<br><small>${item.price} жетон${item.price > 1 ? 'а' : ''}</small>
+                </div>`;
+        });
+        html += '</div>';
+        html += '<p style="text-align:center; margin-top:15px; opacity:0.7;">[ Жетоны можно найти в Пустоши ]</p>';
+        container.innerHTML = html;
+
+        // Навешиваем обработчики
+        items.forEach(item => {
+            document.getElementById(`buy_${item.id}`).onclick = () => buyItem(userId, item);
+        });
+    });
 }
 
-async function buyItem(userId, item, cost) {
-    if (getTokens() < cost) {
+async function buyItem(userId, item) {
+    if (getTokens() < item.price) {
         log('ОШИБКА: НЕДОСТАТОЧНО ЖЕТОНОВ.');
         return;
     }
-    const itemNames = { patrons: 'Патроны (10 шт.)', medkit: 'Аптечка', battery: 'Батарея', water: 'Фляга с водой' };
-    const itemName = itemNames[item];
-    const newTokens = getTokens() - cost;
-    const newInventory = [...getInventory(), itemName];
+    const newTokens = getTokens() - item.price;
+    const newInventory = [...getInventory(), `${item.emoji} ${item.name}`];
     await updateUserData(userId, { tokens: newTokens, inventory: newInventory });
-    log('КУПЛЕНО: ' + itemName + '. -' + cost + ' ЖЕТОН.');
+    log(`КУПЛЕНО: ${item.name}. -${item.price} ЖЕТОН.`);
 }
