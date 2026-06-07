@@ -4,6 +4,7 @@ import { collection, query, where, getDocs, doc, updateDoc } from "https://www.g
 import { log } from './shared.js';
 import { subscribeToShop, updateShopCategories } from './shop-config.js';
 import { subscribeToLootboxes, updateLootboxes } from './lootbox-config.js';
+import { initGroups, renderGroupsAdmin } from './groups.js';
 
 const MASTER_PASSWORD = "gephard217";
 
@@ -78,6 +79,7 @@ export async function renderAdmin() {
             <button id="adminPlayersMode" style="${adminMode === 'players' ? 'background:var(--button-hover-bg);color:var(--button-hover-text);' : ''}">ИГРОКИ</button>
             <button id="adminShopMode" style="${adminMode === 'shop' ? 'background:var(--button-hover-bg);color:var(--button-hover-text);' : ''}">МАГАЗИН</button>
             <button id="adminLootMode" style="${adminMode === 'lootboxes' ? 'background:var(--button-hover-bg);color:var(--button-hover-text);' : ''}">ЛУТБОКСЫ</button>
+            <button id="adminGroupsMode" style="${adminMode === 'groups' ? 'background:var(--button-hover-bg);color:var(--button-hover-text);' : ''}">ГРУППЫ</button>
         </div>
         <div id="adminInnerContent"></div>
     `;
@@ -85,10 +87,15 @@ export async function renderAdmin() {
     document.getElementById('adminPlayersMode').onclick = () => { adminMode = 'players'; renderAdmin(); };
     document.getElementById('adminShopMode').onclick = () => { adminMode = 'shop'; selectedCategory = null; selectedSubcategory = null; renderAdmin(); };
     document.getElementById('adminLootMode').onclick = () => { adminMode = 'lootboxes'; renderAdmin(); };
+    document.getElementById('adminGroupsMode').onclick = () => { adminMode = 'groups'; renderAdmin(); };
 
     if (adminMode === 'players') renderPlayersAdmin();
     else if (adminMode === 'shop') renderShopAdmin();
     else if (adminMode === 'lootboxes') renderLootboxAdmin();
+    else if (adminMode === 'groups') {
+        initGroups();
+        renderGroupsAdmin('adminInnerContent');
+    }
 }
 
 // ==================== ИГРОКИ ====================
@@ -295,7 +302,6 @@ function renderLootboxAdmin() {
     }
     html += '</div>';
     
-    // Форма создания/редактирования
     html += `
         <div style="border-top:1px solid var(--border-color); padding-top:12px;">
             <h4 id="lootFormTitle">НОВЫЙ ЛУТБОКС</h4>
