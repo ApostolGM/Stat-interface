@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Гефест v3.0 — Терминал статуи</title>
+    <title>Гефест v3.1 — Терминал статуи</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -22,15 +22,15 @@
                 <input type="email" id="email" placeholder="EMAIL" autocomplete="off">
                 <input type="password" id="password" placeholder="ПАРОЛЬ">
                 <div class="btn-group">
-                    <button onclick="signIn()">ВОЙТИ</button>
-                    <button onclick="signUp()">РЕГИСТРАЦИЯ</button>
+                    <button id="signInBtn">ВОЙТИ</button>
+                    <button id="signUpBtn">РЕГИСТРАЦИЯ</button>
                 </div>
                 <p id="authError" style="color:#FF5555;"></p>
             </div>
             <div id="userInfo" class="hidden">
                 <p>ВЫ ВОШЛИ КАК <span id="userEmail"></span></p>
-                <button onclick="enterTerminal()">ВОЙТИ В ТЕРМИНАЛ</button>
-                <button onclick="signOutUser()">ВЫЙТИ</button>
+                <button id="enterTerminalBtn">ВОЙТИ В ТЕРМИНАЛ</button>
+                <button id="signOutBtn">ВЫЙТИ</button>
             </div>
         </div>
     </div>
@@ -42,62 +42,23 @@
             <div class="balance">
                 <span>БАЛАНС:</span>
                 <span id="tokenDisplay">0 ЖЕТОНОВ</span>
-                <button onclick="signOutUser()" style="font-size:12px; padding:2px 8px;">ВЫХОД</button>
+                <button id="signOutTerminalBtn" style="font-size:12px; padding:2px 8px;">ВЫХОД</button>
             </div>
 
             <div class="nav">
-                <button id="shopTab" onclick="showTab('shop')">🏪 МАГАЗИН</button>
-                <button id="lootTab" onclick="showTab('loot')">🎲 ЛУТБОКСЫ</button>
-                <button id="invTab" onclick="showTab('inventory')">🎒 ИНВЕНТАРЬ</button>
+                <button id="shopTab">🏪 МАГАЗИН</button>
+                <button id="lootTab">🎲 ЛУТБОКСЫ</button>
+                <button id="invTab">🎒 ИНВЕНТАРЬ</button>
             </div>
 
-            <!-- Контент магазина -->
             <div id="shopContent" class="content"></div>
-
-            <!-- Контент лутбоксов -->
             <div id="lootContent" class="content hidden"></div>
-
-            <!-- Контент инвентаря -->
             <div id="inventoryContent" class="content hidden"></div>
 
             <div class="log" id="logMessage">> СИСТЕМА ГОТОВА.</div>
         </div>
     </div>
 
-    <!-- Firebase SDK -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
-
-        // ⚠️ ЗАМЕНИТЕ НА ДАННЫЕ ИЗ ВАШЕГО FIREBASE КОНСОЛИ
-        const firebaseConfig = {
-            apiKey: "AIzaSy...",
-            authDomain: "...",
-            projectId: "...",
-            storageBucket: "...",
-            messagingSenderId: "...",
-            appId: "..."
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        window.auth = auth;
-        window.db = db;
-        window.doc = doc;
-        window.getDoc = getDoc;
-        window.setDoc = setDoc;
-        window.updateDoc = updateDoc;
-        window.onSnapshot = onSnapshot;
-        window.signInWithEmailAndPassword = signInWithEmailAndPassword;
-        window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
-        window.signOut = signOut;
-        window.onAuthStateChanged = onAuthStateChanged;
-    </script>
-
-    <!-- Основной скрипт игры -->
-    <script src="app.js"></script>
+    <script type="module" src="main.js"></script>
 </body>
 </html>
