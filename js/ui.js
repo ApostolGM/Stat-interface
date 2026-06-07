@@ -4,6 +4,12 @@ import { resetAdmin, renderAdmin } from './admin.js';
 
 export { setTokens, setInventory, getTokens, getInventory, log };
 
+// Ссылка на функцию очистки подписки магазина
+let shopCleanup = null;
+export function setShopCleanup(fn) {
+    shopCleanup = fn;
+}
+
 export function showTab(tab, renderFunctions) {
     document.getElementById('shopContent').classList.add('hidden');
     document.getElementById('lootContent').classList.add('hidden');
@@ -35,4 +41,7 @@ export function showTab(tab, renderFunctions) {
 
 export function resetAdminOnLogout() {
     resetAdmin();
+    // Очищаем подписку магазина при выходе
+    if (shopCleanup) shopCleanup();
+    shopCleanup = null;
 }
