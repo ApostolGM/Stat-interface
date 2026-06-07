@@ -15,14 +15,11 @@
     <!-- Экран загрузки -->
     <div id="loading" class="screen">
         <div class="statue-wrapper">
-            <div class="statue-body">
-                <div class="statue-shoulders">
-                    <div class="statue-cracks"></div>
-                </div>
+            <div class="statue-bg"></div>
+            <div class="statue-screen">
                 <div class="crt">
                     <h1>ЗАГРУЗКА...</h1>
                 </div>
-                <div class="statue-base"></div>
             </div>
         </div>
     </div>
@@ -30,10 +27,8 @@
     <!-- Экран авторизации -->
     <div id="auth" class="screen hidden">
         <div class="statue-wrapper">
-            <div class="statue-body">
-                <div class="statue-shoulders">
-                    <div class="statue-cracks"></div>
-                </div>
+            <div class="statue-bg"></div>
+            <div class="statue-screen">
                 <div class="crt">
                     <div class="dust-particles">
                         <div class="dust-particle"></div>
@@ -67,7 +62,6 @@
                         <button id="signOutBtn">ВЫЙТИ</button>
                     </div>
                 </div>
-                <div class="statue-base"></div>
             </div>
         </div>
     </div>
@@ -75,10 +69,8 @@
     <!-- Основной терминал -->
     <div id="terminal" class="screen hidden">
         <div class="statue-wrapper">
-            <div class="statue-body">
-                <div class="statue-shoulders">
-                    <div class="statue-cracks"></div>
-                </div>
+            <div class="statue-bg"></div>
+            <div class="statue-screen">
                 <div class="crt">
                     <div class="dust-particles">
                         <div class="dust-particle"></div>
@@ -101,7 +93,7 @@
                     <div class="balance">
                         <span>БАЛАНС:</span>
                         <span id="tokenDisplay">0 ЖЕТОНОВ</span>
-                        <button id="signOutTerminalBtn" style="font-size:10px; padding:4px 8px; flex:none;">ВЫХОД</button>
+                        <button id="signOutTerminalBtn" style="font-size:8px; padding:4px 6px; flex:none;">ВЫХОД</button>
                     </div>
 
                     <div class="nav">
@@ -118,7 +110,6 @@
 
                     <div class="log" id="logMessage">> СИСТЕМА ГОТОВА.</div>
                 </div>
-                <div class="statue-base"></div>
             </div>
         </div>
     </div>
@@ -138,7 +129,6 @@
         })();
     </script>
 
-    <!-- Основной скрипт -->
     <script src="js/main.js" type="module"></script>
 </body>
 </html>
