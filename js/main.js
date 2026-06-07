@@ -3,7 +3,7 @@ import { setupAuth, signIn, signUp, signOutUser } from './auth.js';
 import { subscribeToUserData } from './db.js';
 import { setTokens, setInventory, showTab, log, resetAdminOnLogout } from './ui.js';
 import { renderShop, initShop, cleanupShop } from './shop.js';
-import { renderLoot } from './lootbox.js';
+import { renderLoot, cleanupLoot } from './lootbox.js';
 import { renderInventory } from './inventory.js';
 import { renderAdmin } from './admin.js';
 
@@ -31,20 +31,26 @@ function onDataUpdate(data) {
 document.addEventListener('DOMContentLoaded', () => {
     console.log('DOMContentLoaded');
 
+    // Кнопки авторизации
     document.getElementById('signInBtn').addEventListener('click', signIn);
     document.getElementById('signUpBtn').addEventListener('click', signUp);
 
+    // Выход из аккаунта (экран авторизации)
     document.getElementById('signOutBtn').addEventListener('click', () => {
         cleanupShop();
+        cleanupLoot();
         signOutUser();
     });
 
+    // Выход из терминала
     document.getElementById('signOutTerminalBtn').addEventListener('click', () => {
         resetAdminOnLogout();
         cleanupShop();
+        cleanupLoot();
         signOutUser();
     });
 
+    // Вход в терминал
     document.getElementById('enterTerminalBtn').addEventListener('click', () => {
         console.log('enterTerminalBtn clicked');
         document.getElementById('auth').classList.add('hidden');
@@ -52,6 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
         showTab('shop', renderFunctions);
     });
 
+    // Вкладки терминала
     document.getElementById('shopTab').addEventListener('click', () => showTab('shop', renderFunctions));
     document.getElementById('lootTab').addEventListener('click', () => showTab('loot', renderFunctions));
     document.getElementById('invTab').addEventListener('click', () => showTab('inventory', renderFunctions));
@@ -61,12 +68,14 @@ document.addEventListener('DOMContentLoaded', () => {
         adminTabBtn.addEventListener('click', () => showTab('admin', renderFunctions));
     }
 
+    // Запуск слушателя авторизации
     setupAuth((user) => {
         console.log('setupAuth callback, user:', user);
         if (user) {
             currentUserId = user.uid;
             console.log('Subscribing to user data...');
             subscribeToUserData(user.uid, onDataUpdate);
+            // Инициализируем магазин (постоянная подписка)
             initShop(user.uid);
         } else {
             currentUserId = null;
