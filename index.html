@@ -3,130 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Гефест v4.0 — Терминал статуи</title>
+    <title>APOSTOL — Терминал статуи</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Фоновый шум -->
     <audio id="bgHum" loop preload="auto">
         <source src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=" type="audio/wav">
     </audio>
 
-    <!-- Экран загрузки -->
+    <!-- Загрузка -->
     <div id="loading" class="screen">
-        <div class="statue-wrapper">
-            <div class="statue-bg"></div>
-            <div class="statue-screen">
-                <div class="crt">
-                    <h1>ЗАГРУЗКА...</h1>
-                </div>
-            </div>
+        <div class="crt">
+            <h1>ЗАГРУЗКА...</h1>
         </div>
     </div>
 
-    <!-- Экран авторизации -->
+    <!-- Авторизация -->
     <div id="auth" class="screen hidden">
-        <div class="statue-wrapper">
-            <div class="statue-bg"></div>
-            <div class="statue-screen">
-                <div class="crt">
-                    <div class="dust-particles">
-                        <div class="dust-particle"></div>
-                        <div class="dust-particle"></div>
-                        <div class="dust-particle"></div>
-                        <div class="dust-particle"></div>
-                        <div class="dust-particle"></div>
-                        <div class="dust-particle"></div>
-                        <div class="dust-particle"></div>
-                        <div class="dust-particle"></div>
-                    </div>
-                    <h1>ГЕФЕСТ v.4</h1>
-                    <div class="theme-switcher">
-                        <button class="theme-btn theme-green-btn active" onclick="setTheme('green')" title="Классический">🟢</button>
-                        <button class="theme-btn theme-amber-btn" onclick="setTheme('amber')" title="Янтарный">🟠</button>
-                        <button class="theme-btn theme-blue-btn" onclick="setTheme('blue')" title="Голографический">🔵</button>
-                        <button class="theme-btn theme-red-btn" onclick="setTheme('red')" title="Аварийный">🔴</button>
-                    </div>
-                    <div id="authForm">
-                        <input type="text" id="login" placeholder="ЛОГИН" autocomplete="off">
-                        <input type="password" id="password" placeholder="ПАРОЛЬ">
-                        <div class="btn-group">
-                            <button id="signInBtn">ВОЙТИ</button>
-                            <button id="signUpBtn">РЕГИСТРАЦИЯ</button>
-                        </div>
-                        <p id="authError" style="color:#FF5555;"></p>
-                    </div>
-                    <div id="userInfo" class="hidden">
-                        <p>ВЫ ВОШЛИ КАК <span id="userEmail"></span></p>
-                        <button id="enterTerminalBtn">ВОЙТИ В ТЕРМИНАЛ</button>
-                        <button id="signOutBtn">ВЫЙТИ</button>
-                    </div>
+        <div class="crt">
+            <div class="dust-particles">
+                <div class="dust-particle"></div><div class="dust-particle"></div>
+                <div class="dust-particle"></div><div class="dust-particle"></div>
+                <div class="dust-particle"></div><div class="dust-particle"></div>
+                <div class="dust-particle"></div><div class="dust-particle"></div>
+            </div>
+            <h1>APOSTOL v.4</h1>
+            <div class="theme-switcher">
+                <button class="theme-btn theme-green-btn active" onclick="setTheme('green')">🟢</button>
+                <button class="theme-btn theme-amber-btn" onclick="setTheme('amber')">🟠</button>
+                <button class="theme-btn theme-blue-btn" onclick="setTheme('blue')">🔵</button>
+                <button class="theme-btn theme-red-btn" onclick="setTheme('red')">🔴</button>
+            </div>
+            <div id="authForm">
+                <input type="text" id="login" placeholder="ЛОГИН" autocomplete="off">
+                <input type="password" id="password" placeholder="ПАРОЛЬ">
+                <div class="btn-group">
+                    <button id="signInBtn">ВОЙТИ</button>
+                    <button id="signUpBtn">РЕГИСТРАЦИЯ</button>
                 </div>
+                <p id="authError" style="color:#FF5555;"></p>
+            </div>
+            <div id="userInfo" class="hidden">
+                <p>ВЫ ВОШЛИ КАК <span id="userEmail"></span></p>
+                <button id="enterTerminalBtn">ВОЙТИ В ТЕРМИНАЛ</button>
+                <button id="signOutBtn">ВЫЙТИ</button>
             </div>
         </div>
     </div>
 
-    <!-- Основной терминал -->
+    <!-- Терминал -->
     <div id="terminal" class="screen hidden">
-        <div class="statue-wrapper">
-            <div class="statue-bg"></div>
-            <div class="statue-screen">
-                <div class="crt">
-                    <div class="dust-particles">
-                        <div class="dust-particle"></div>
-                        <div class="dust-particle"></div>
-                        <div class="dust-particle"></div>
-                        <div class="dust-particle"></div>
-                        <div class="dust-particle"></div>
-                        <div class="dust-particle"></div>
-                        <div class="dust-particle"></div>
-                        <div class="dust-particle"></div>
-                    </div>
-                    <h1>⚡ ГЕФЕСТ v.4 ⚡</h1>
-                    <div class="theme-switcher">
-                        <button class="theme-btn theme-green-btn active" onclick="setTheme('green')" title="Классический">🟢</button>
-                        <button class="theme-btn theme-amber-btn" onclick="setTheme('amber')" title="Янтарный">🟠</button>
-                        <button class="theme-btn theme-blue-btn" onclick="setTheme('blue')" title="Голографический">🔵</button>
-                        <button class="theme-btn theme-red-btn" onclick="setTheme('red')" title="Аварийный">🔴</button>
-                    </div>
-                    <button class="sound-toggle" id="soundToggle" onclick="toggleSound()">🔊 ЗВУК</button>
-                    <div class="balance">
-                        <span>БАЛАНС:</span>
-                        <span id="tokenDisplay">0 ЖЕТОНОВ</span>
-                        <button id="signOutTerminalBtn" style="font-size:8px; padding:4px 6px; flex:none;">ВЫХОД</button>
-                    </div>
-
-                    <div class="nav">
-                        <button id="shopTab">🏪 МАГАЗИН</button>
-                        <button id="lootTab">🎲 ЛУТБОКСЫ</button>
-                        <button id="invTab">🎒 ИНВЕНТАРЬ</button>
-                        <button id="adminTab">🔑 АДМИН</button>
-                    </div>
-
-                    <div id="shopContent" class="content"></div>
-                    <div id="lootContent" class="content hidden"></div>
-                    <div id="inventoryContent" class="content hidden"></div>
-                    <div id="adminContent" class="content hidden"></div>
-
-                    <div class="log" id="logMessage">> СИСТЕМА ГОТОВА.</div>
-                </div>
+        <div class="crt">
+            <div class="dust-particles">
+                <div class="dust-particle"></div><div class="dust-particle"></div>
+                <div class="dust-particle"></div><div class="dust-particle"></div>
+                <div class="dust-particle"></div><div class="dust-particle"></div>
+                <div class="dust-particle"></div><div class="dust-particle"></div>
             </div>
+            <h1>⚡ APOSTOL v.4 ⚡</h1>
+            <div class="theme-switcher">
+                <button class="theme-btn theme-green-btn active" onclick="setTheme('green')">🟢</button>
+                <button class="theme-btn theme-amber-btn" onclick="setTheme('amber')">🟠</button>
+                <button class="theme-btn theme-blue-btn" onclick="setTheme('blue')">🔵</button>
+                <button class="theme-btn theme-red-btn" onclick="setTheme('red')">🔴</button>
+            </div>
+            <button class="sound-toggle" id="soundToggle" onclick="toggleSound()">🔊 ЗВУК</button>
+            <div class="balance">
+                <span>БАЛАНС:</span>
+                <span id="tokenDisplay">0 ЖЕТОНОВ</span>
+                <button id="signOutTerminalBtn" style="font-size:8px; padding:4px 6px; flex:none;">ВЫХОД</button>
+            </div>
+            <div class="nav">
+                <button id="shopTab">🏪 МАГАЗИН</button>
+                <button id="lootTab">🎲 ЛУТБОКСЫ</button>
+                <button id="invTab">🎒 ИНВЕНТАРЬ</button>
+                <button id="adminTab">🔑 АДМИН</button>
+            </div>
+            <div id="shopContent" class="content"></div>
+            <div id="lootContent" class="content hidden"></div>
+            <div id="inventoryContent" class="content hidden"></div>
+            <div id="adminContent" class="content hidden"></div>
+            <div class="log" id="logMessage">> СИСТЕМА APOSTOL ГОТОВА.</div>
         </div>
     </div>
 
-    <!-- Переключатель тем -->
+    <!-- Темы -->
     <script>
         function setTheme(theme) {
             document.documentElement.className = 'theme-' + theme;
-            localStorage.setItem('gephard-theme', theme);
-            document.querySelectorAll('.theme-btn').forEach(btn => btn.classList.remove('active'));
-            const activeBtn = document.querySelector('.theme-' + theme + '-btn');
-            if (activeBtn) activeBtn.classList.add('active');
+            localStorage.setItem('apostol-theme', theme);
+            document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+            const btn = document.querySelector('.theme-' + theme + '-btn');
+            if (btn) btn.classList.add('active');
         }
-        (function() {
-            const saved = localStorage.getItem('gephard-theme') || 'green';
-            setTheme(saved);
-        })();
+        (() => { setTheme(localStorage.getItem('apostol-theme') || 'green'); })();
     </script>
 
     <script src="js/main.js" type="module"></script>
