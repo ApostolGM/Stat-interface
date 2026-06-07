@@ -128,50 +128,17 @@
         function setTheme(theme) {
             document.documentElement.className = 'theme-' + theme;
             localStorage.setItem('gephard-theme', theme);
-            // Обновляем активную кнопку
             document.querySelectorAll('.theme-btn').forEach(btn => btn.classList.remove('active'));
             const activeBtn = document.querySelector('.theme-' + theme + '-btn');
             if (activeBtn) activeBtn.classList.add('active');
         }
-        // Загружаем сохранённую тему
         (function() {
             const saved = localStorage.getItem('gephard-theme') || 'green';
             setTheme(saved);
         })();
     </script>
 
-    <!-- Firebase SDK -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSy...",
-            authDomain: "gephard-terminal.firebaseapp.com",
-            projectId: "gephard-terminal",
-            storageBucket: "gephard-terminal.appspot.com",
-            messagingSenderId: "123456789",
-            appId: "1:123456789:web:abc123def456"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        window.auth = auth;
-        window.db = db;
-        window.doc = doc;
-        window.getDoc = getDoc;
-        window.setDoc = setDoc;
-        window.updateDoc = updateDoc;
-        window.onSnapshot = onSnapshot;
-        window.signInWithEmailAndPassword = signInWithEmailAndPassword;
-        window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
-        window.signOut = signOut;
-        window.onAuthStateChanged = onAuthStateChanged;
-    </script>
-
+    <!-- Основной скрипт -->
     <script src="js/main.js" type="module"></script>
 </body>
 </html>
