@@ -1,32 +1,15 @@
 {
-  "globalIndex": 1.0,
-  "categoryIndexes": {
-    "food": 1.0,
-    "weapons": 1.0,
-    "bestiary": 1.0,
-    "lootboxes": 1.0
-  },
-  "items": {
-    "food": [
-      { "id": "canned_meat", "name": "Консервы \"Тушёнка\"", "desc": "Просрочена, но съедобна.", "price": 1, "image": "" },
-      { "id": "water_flask", "name": "Фляга с водой", "desc": "Чистая, без радиации.", "price": 1, "image": "" },
-      { "id": "crackers", "name": "Галеты", "desc": "Твёрдые как камень.", "price": 1, "image": "" },
-      { "id": "mutant_steak", "name": "Стейк мутанта", "desc": "+2 к сытости.", "price": 2, "image": "" }
-    ],
-    "weapons": [
-      { "id": "rusty_knife", "name": "Ржавый нож", "desc": "Урон 1d4.", "price": 2, "image": "" },
-      { "id": "pipe_pistol", "name": "Трубный пистолет", "desc": "Калибр .38.", "price": 3, "image": "" },
-      { "id": "frag_grenade", "name": "Осколочная граната", "desc": "Радиус 3 м.", "price": 4, "image": "" }
-    ],
-    "bestiary": [
-      { "id": "radroach_info", "name": "Радтаракан", "desc": "Боится света.", "price": 0, "image": "" },
-      { "id": "ghoul_info", "name": "Гуль", "desc": "Обезвредить: выстрел в голову.", "price": 0, "image": "" },
-      { "id": "deathclaw_info", "name": "Коготь смерти", "desc": "Уязвим к плазме.", "price": 0, "image": "" }
-    ],
-    "lootboxes": [
-      { "id": "box_humanitarian", "name": "Гуманитарка", "desc": "Обычный предмет.", "price": 1, "image": "" },
-      { "id": "box_junk", "name": "Барахло-Х", "desc": "Шанс на редкий.", "price": 2, "image": "" },
-      { "id": "box_specialist", "name": "Специалист", "desc": "Редкие и легендарные.", "price": 3, "image": "" }
-    ]
-  }
+  "items": [
+    { "id": "canned_meat", "category": "food", "name": "Консервы \"Тушёнка\"", "desc": "Просрочена, но съедобна.", "price": 1, "image": "" },
+    { "id": "water_flask", "category": "food", "name": "Фляга с водой", "desc": "Чистая, без радиации.", "price": 1, "image": "" },
+    { "id": "rusty_knife", "category": "weapons", "name": "Ржавый нож", "desc": "Урон 1d4.", "price": 2, "image": "" },
+    { "id": "pipe_pistol", "category": "weapons", "name": "Трубный пистолет", "desc": "Калибр .38.", "price": 3, "image": "" },
+    { "id": "frag_grenade", "category": "weapons", "name": "Осколочная граната", "desc": "Радиус 3 м.", "price": 4, "image": "" },
+    { "id": "radroach_info", "category": "bestiary", "name": "Радтаракан", "desc": "Боится света.", "price": 0, "image": "" },
+    { "id": "ghoul_info", "category": "bestiary", "name": "Гуль", "desc": "Обезвредить: выстрел в голову.", "price": 0, "image": "" },
+    { "id": "deathclaw_info", "category": "bestiary", "name": "Коготь смерти", "desc": "Уязвим к плазме.", "price": 0, "image": "" },
+    { "id": "box_humanitarian", "category": "lootboxes", "name": "Гуманитарка", "desc": "Обычный предмет.", "price": 1, "image": "" },
+    { "id": "box_junk", "category": "lootboxes", "name": "Барахло-Х", "desc": "Шанс на редкий.", "price": 2, "image": "" },
+    { "id": "box_specialist", "category": "lootboxes", "name": "Специалист", "desc": "Редкие и легендарные.", "price": 3, "image": "" }
+  ]
 }
