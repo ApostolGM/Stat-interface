@@ -48,7 +48,7 @@ export function showTab(tab, renderFunctions) {
         case 'admin':
             if (adminContent) {
                 adminContent.classList.remove('hidden');
-                renderAdmin(); // вызов админского рендера
+                renderAdmin();
             }
             break;
     }
