@@ -6,17 +6,27 @@
     <title>APOSTOL — Торговая статуя</title>
     <style>
         :root {
-            --bg: rgba(18, 30, 41, 0.75);
-            --surface: rgba(25, 40, 55, 0.8);
-            --border: rgba(120, 180, 210, 0.4);
-            --text: #c8e1f0;
-            --accent: #7ec8e3;
-            --accent-glow: rgba(126, 200, 227, 0.5);
-            --crystal: #a0d2f0;          /* цвет кристаллов (РК) */
-            --crystal-glow: rgba(160, 210, 240, 0.5);
-            --danger: #e07b6e;
-            --font: 'Courier New', monospace;
-        }
+    --bg: rgba(18, 30, 41, 0.45);          /* было 0.75 */
+    --surface: rgba(25, 40, 55, 0.5);       /* было 0.8 */
+    --border: rgba(120, 180, 210, 0.3);
+    --text: #d4e6f5;
+    --accent: #7ec8e3;
+    --accent-glow: rgba(126, 200, 227, 0.5);
+    --crystal: #b8dcf5;
+    --crystal-glow: rgba(160, 210, 240, 0.5);
+    --danger: #e07b6e;
+    --font: 'Courier New', monospace;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.3);   /* было 0.5 — меньше затемнения */
+    z-index: 0;
+    pointer-events: none;
+}
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -58,48 +68,55 @@
         }
 
         .terminal {
-            width: 100%;
-            max-width: 800px;
-            background: var(--bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            box-shadow: 0 8px 32px rgba(0, 20, 40, 0.5);
-            overflow: hidden;
-            position: relative;
-            z-index: 1;
-        }
+    background: var(--bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);   /* было 12px */
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 20, 40, 0.4);
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+}
 
-        /* Шапка */
-        .header {
-            background: rgba(15, 25, 35, 0.7);
-            border-bottom: 1px solid var(--border);
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        .header h1 {
-            font-size: 24px;
-            letter-spacing: 4px;
-            color: var(--accent);
-            text-shadow: 0 0 15px var(--accent-glow);
-            margin: 0;
-        }
+.header {
+    background: rgba(15, 25, 35, 0.4);   /* было 0.7 */
+    border-bottom: 1px solid var(--border);
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+        
         .header-controls {
             display: flex;
             align-items: center;
             gap: 15px;
         }
-        .balance {
-            background: rgba(10, 20, 30, 0.6);
-            border: 1px solid var(--border);
-            padding: 8px 15px;
-            border-radius: 6px;
-            font-size: 18px;
+       .balance {
+    background: rgba(10, 20, 30, 0.3);   /* было 0.6 */
+    border: 1px solid var(--border);
+    padding: 8px 15px;
+    border-radius: 6px;
+    font-size: 18px;
+}
+
+.main-tabs {
+    background: rgba(12, 22, 30, 0.4);   /* было 0.7 */
+    border-bottom: 1px solid var(--border);
+}
+
+.main-tab:hover { background: rgba(25, 40, 55, 0.4); }
+.main-tab.active { background: rgba(25, 40, 55, 0.4); }
+
+.sub-tabs {
+    background: rgba(12, 22, 30, 0.3);   /* было 0.6 */
+    border-bottom: 1px solid var(--border);
+}
+
+.sub-tab:hover { background: rgba(25, 40, 55, 0.3); }
         }
         .balance span {
             color: var(--crystal);
@@ -364,156 +381,79 @@
             { name: 'Имплант "Зоркий глаз"', rarity: 'Легендарный', weight: 40 }
         ]
     };
-            // ==================== АУДИО ПЛЕЕР (фоновый эмбиент) ====================
+            // ==================== АУДИО ПЛЕЕР (автозапуск при первом клике) ====================
 let ambientAudio = null;
+let audioUnlocked = false;   // был ли уже разблокирован
 
 function initAudio() {
     if (!ambientAudio) {
-        ambientAudio = new Audio('ambient.mp3');   // путь к файлу
+        ambientAudio = new Audio('ambient.mp3');
         ambientAudio.loop = true;
-        ambientAudio.volume = 0.02;                // можно настроить громкость
+        ambientAudio.volume = 0.037;
     }
 }
+
+// Попытка включить при загрузке (может сработать, если сайт уже в белом списке)
+function tryAutoPlay() {
+    initAudio();
+    if (!ambientAudio) return;
+    const promise = ambientAudio.play();
+    if (promise !== undefined) {
+        promise.then(() => {
+            audioUnlocked = true;
+            state.soundEnabled = true;
+            updateSoundButton();
+        }).catch(() => {
+            // Браузер заблокировал — будем ждать первого клика
+            state.soundEnabled = false;
+            updateSoundButton();
+        });
+    }
+}
+
+// При первом клике в любом месте страницы — запускаем, если ещё не запущен
+function onFirstInteraction() {
+    if (!ambientAudio || audioUnlocked) return;
+    ambientAudio.play().then(() => {
+        audioUnlocked = true;
+        state.soundEnabled = true;
+        updateSoundButton();
+    }).catch(() => {});
+    // Убираем обработчик, чтобы не дёргать лишний раз
+    document.removeEventListener('click', onFirstInteraction);
+    document.removeEventListener('touchstart', onFirstInteraction);
+    document.removeEventListener('keydown', onFirstInteraction);
+}
+
+// Вешаем обработчики на первый клик/касание/клавишу
+document.addEventListener('click', onFirstInteraction);
+document.addEventListener('touchstart', onFirstInteraction);
+document.addEventListener('keydown', onFirstInteraction);
 
 function toggleSound() {
     initAudio();
-    state.soundEnabled = !state.soundEnabled;
-    const btn = document.getElementById('soundToggle');
+    if (!ambientAudio) return;
     if (state.soundEnabled) {
-        ambientAudio.play().catch(e => console.log('Ошибка воспроизведения:', e));
-        btn.textContent = '🔊';
-    } else {
         ambientAudio.pause();
-        btn.textContent = '🔇';
+        state.soundEnabled = false;
+    } else {
+        ambientAudio.play().then(() => {
+            state.soundEnabled = true;
+            audioUnlocked = true;
+        }).catch(() => {
+            state.soundEnabled = false;
+        });
     }
+    updateSoundButton();
 }
 
-// Первый клик по странице разблокирует AudioContext (не обязателен для <audio>, но оставим)
-document.addEventListener('click', () => {
-    // Ничего не требуется, Audio() работает без жеста в большинстве браузеров
-}, { once: true });
+function updateSoundButton() {
+    const btn = document.getElementById('soundToggle');
+    if (btn) btn.textContent = state.soundEnabled ? '🔊' : '🔇';
+}
 
-    // ==================== ОТРИСОВКА ====================
-    function updateBalance() {
-        document.getElementById('balanceDisplay').textContent = state.tokens;
-    }
-
-    function renderContent() {
-        const container = document.getElementById('content');
-        container.innerHTML = '';
-        if (state.currentMainTab === 'shop') renderShop(container);
-        else if (state.currentMainTab === 'inventory') renderInventory(container);
-    }
-
-    function renderShop(container) {
-        const sub = state.currentSubTab;
-        if (sub === 'lootboxes') {
-            renderLootboxes(container);
-        } else {
-            const items = shopItems[sub] || [];
-            const grid = document.createElement('div');
-            grid.className = 'grid';
-            items.forEach(item => {
-                const card = createItemCard(item);
-                grid.appendChild(card);
-            });
-            container.appendChild(grid);
-        }
-    }
-
-    function createItemCard(item) {
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `
-            <h3>${item.name}</h3>
-            <div class="desc">${item.desc}</div>
-            <div class="price">${item.price > 0 ? '💰 ' + item.price + ' РК' : 'Бесплатно'}</div>
-            <button class="buy-btn" data-id="${item.id}" data-price="${item.price}" ${item.price > state.tokens ? 'disabled' : ''}>
-                ${item.price > 0 ? 'Купить' : 'Изучить'}
-            </button>
-        `;
-        card.querySelector('.buy-btn').addEventListener('click', (e) => {
-            const btn = e.currentTarget;
-            const price = parseInt(btn.dataset.price);
-            const id = btn.dataset.id;
-            buyItem(id, price, item.name);
-        });
-        return card;
-    }
-
-    function renderLootboxes(container) {
-        const boxes = shopItems.lootboxes;
-        boxes.forEach(box => {
-            const card = document.createElement('div');
-            card.className = 'card lootbox-card';
-            card.innerHTML = `
-                <h3>${box.name}</h3>
-                <div class="desc">${box.desc}</div>
-                <div class="price">💰 ${box.price} РК</div>
-                <button class="roll-btn" data-id="${box.id}" data-price="${box.price}" ${box.price > state.tokens ? 'disabled' : ''}>
-                    Открыть
-                </button>
-                <div class="lootbox-result" id="result-${box.id}"></div>
-            `;
-            card.querySelector('.roll-btn').addEventListener('click', (e) => {
-                const btn = e.currentTarget;
-                const price = parseInt(btn.dataset.price);
-                const id = btn.dataset.id;
-                if (state.tokens < price) return;
-                state.tokens -= price;
-                updateBalance();
-                const result = rollLoot(id);
-                document.getElementById(`result-${id}`).innerHTML = 
-                    `<span style="color:var(--accent);">${result.name}</span> <small>[${result.rarity}]</small>`;
-                state.inventory.push(result.name);
-                renderAll();
-            });
-            container.appendChild(card);
-        });
-    }
-
-    function rollLoot(boxId) {
-        const table = lootTables[boxId] || [];
-        if (table.length === 0) return { name: 'Ничего', rarity: 'Пусто' };
-        const totalWeight = table.reduce((sum, item) => sum + (item.weight || 1), 0);
-        let random = Math.random() * totalWeight;
-        for (let item of table) {
-            random -= (item.weight || 1);
-            if (random <= 0) return { name: item.name, rarity: item.rarity };
-        }
-        return table[table.length - 1];
-    }
-
-    function renderInventory(container) {
-        const list = document.createElement('ul');
-        list.className = 'inventory-list';
-        if (state.inventory.length === 0) {
-            list.innerHTML = '<li>Инвентарь пуст</li>';
-        } else {
-            const counts = {};
-            state.inventory.forEach(item => counts[item] = (counts[item] || 0) + 1);
-            for (let [name, count] of Object.entries(counts)) {
-                const li = document.createElement('li');
-                li.innerHTML = `<span>${name}</span><span class="item-count">x${count}</span>`;
-                list.appendChild(li);
-            }
-        }
-        container.appendChild(list);
-    }
-
-    function buyItem(id, price, name) {
-        if (state.tokens < price) return;
-        state.tokens -= price;
-        state.inventory.push(name);
-        updateBalance();
-        renderAll();
-    }
-
-    function renderAll() {
-        renderContent();
-        updateBalance();
-    }
-
+// Вызываем попытку автозапуска при старте
+tryAutoPlay();
     // ==================== НАВИГАЦИЯ ====================
     function setupTabs() {
         document.querySelectorAll('.main-tab').forEach(tab => {
