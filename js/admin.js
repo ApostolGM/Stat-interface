@@ -84,7 +84,7 @@ function renderPlayersAdmin() {
     const inner = document.getElementById('adminInnerContent');
     inner.innerHTML = `
         <div style="display:flex; gap:10px; margin-bottom:10px;">
-            <input type="email" id="searchEmail" placeholder="EMAIL ИГРОКА" style="flex:1;">
+           <input type="text" id="searchLogin" placeholder="ЛОГИН ИГРОКА" style="flex:1;">
             <button id="searchBtn">ПОИСК</button>
         </div>
         <div id="userInfoAdmin" style="margin-bottom:10px;"></div>
