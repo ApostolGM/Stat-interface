@@ -1,29 +1,8 @@
 // ui.js
+import { setTokens, setInventory, getTokens, getInventory, log } from './shared.js';
 import { resetAdmin, renderAdmin } from './admin.js';
 
-let tokens = 0;
-let inventory = [];
-
-export function setTokens(val) {
-    tokens = val;
-    document.getElementById('tokenDisplay').innerText = tokens + ' ЖЕТОН' + (tokens == 1 ? '' : 'А');
-}
-
-export function setInventory(val) {
-    inventory = val;
-}
-
-export function getTokens() {
-    return tokens;
-}
-
-export function getInventory() {
-    return inventory;
-}
-
-export function log(text) {
-    document.getElementById('logMessage').innerHTML = '> ' + text;
-}
+export { setTokens, setInventory, getTokens, getInventory, log };
 
 export function showTab(tab, renderFunctions) {
     document.getElementById('shopContent').classList.add('hidden');
