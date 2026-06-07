@@ -10,13 +10,10 @@ let currentUserId = null;
 
 export function initShop(userId) {
     currentUserId = userId;
-    // Отписываемся от старой подписки, если была
     if (unsubscribeShop) unsubscribeShop();
 
-    // Постоянная подписка на изменения магазина
     unsubscribeShop = subscribeToShop((categories) => {
         shopCategories = categories;
-        // Если текущая категория исчезла — сбрасываем
         if (!shopCategories[currentCategory]) {
             currentCategory = Object.keys(shopCategories)[0] || null;
         }
@@ -25,16 +22,22 @@ export function initShop(userId) {
 }
 
 export function renderShop(userId) {
-    // Инициализируем подписку при первом заходе
     if (currentUserId !== userId) {
         initShop(userId);
     }
     renderShopUI();
 }
 
+export function cleanupShop() {
+    if (unsubscribeShop) {
+        unsubscribeShop();
+        unsubscribeShop = null;
+    }
+}
+
 function renderShopUI() {
     const container = document.getElementById('shopContent');
-    if (!container || container.classList.contains('hidden')) return; // Не рендерим, если вкладка скрыта
+    if (!container || container.classList.contains('hidden')) return;
 
     const categoryNames = Object.keys(shopCategories);
     if (categoryNames.length === 0) {
@@ -42,19 +45,16 @@ function renderShopUI() {
         return;
     }
 
-    // Если текущая категория не выбрана или не существует
     if (!currentCategory || !shopCategories[currentCategory]) {
         currentCategory = categoryNames[0];
     }
 
-    // Вкладки категорий
     let tabsHtml = '<div class="category-tabs">';
     categoryNames.forEach(cat => {
         tabsHtml += `<button class="cat-tab" data-cat="${cat}" style="${cat === currentCategory ? 'background:#20C20E;color:#000;' : ''}">${cat.toUpperCase()}</button>`;
     });
     tabsHtml += '</div>';
 
-    // Товары текущей категории
     const items = shopCategories[currentCategory] || [];
     let itemsHtml = '<div class="item-grid">';
     if (items.length === 0) {
@@ -72,7 +72,6 @@ function renderShopUI() {
 
     container.innerHTML = tabsHtml + itemsHtml;
 
-    // Обработчики вкладок
     document.querySelectorAll('.cat-tab').forEach(btn => {
         btn.onclick = () => {
             currentCategory = btn.dataset.cat;
@@ -80,7 +79,6 @@ function renderShopUI() {
         };
     });
 
-    // Обработчики покупок
     items.forEach(item => {
         const btn = document.getElementById(`buy_${item.id}`);
         if (btn) {
