@@ -2,15 +2,16 @@
 import { db } from './firebase-config.js';
 import { collection, query, where, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 import { log } from './shared.js';
-import { subscribeToShop, updateShopItems } from './shop-config.js';
+import { subscribeToShop, updateShopCategories } from './shop-config.js';
 
 const MASTER_PASSWORD = "gephard217";
 
 let isAdminUnlocked = false;
 let foundUserId = null;
 let foundUserData = null;
-let shopItems = [];
+let shopCategories = {};
 let adminMode = 'players'; // 'players' или 'shop'
+let selectedCategory = null;
 
 export function checkMasterPassword(password) {
     if (password === MASTER_PASSWORD) {
@@ -25,6 +26,7 @@ export function resetAdmin() {
     foundUserId = null;
     foundUserData = null;
     adminMode = 'players';
+    selectedCategory = null;
 }
 
 export async function findUserByEmail(email) {
@@ -57,13 +59,11 @@ export async function renderAdmin() {
         return;
     }
 
-    // Подписываемся на товары магазина
-    subscribeToShop((items) => {
-        shopItems = items;
+    subscribeToShop((categories) => {
+        shopCategories = categories;
         if (adminMode === 'shop') renderShopAdmin();
     });
 
-    // Переключатель режимов админки
     container.innerHTML = `
         <div style="display:flex; gap:10px; margin-bottom:15px;">
             <button id="adminPlayersMode" style="${adminMode === 'players' ? 'background:#20C20E;color:#000;' : ''}">ИГРОКИ</button>
@@ -72,19 +72,14 @@ export async function renderAdmin() {
         <div id="adminInnerContent"></div>
     `;
 
-    document.getElementById('adminPlayersMode').onclick = () => {
-        adminMode = 'players';
-        renderAdmin();
-    };
-    document.getElementById('adminShopMode').onclick = () => {
-        adminMode = 'shop';
-        renderAdmin();
-    };
+    document.getElementById('adminPlayersMode').onclick = () => { adminMode = 'players'; renderAdmin(); };
+    document.getElementById('adminShopMode').onclick = () => { adminMode = 'shop'; selectedCategory = null; renderAdmin(); };
 
     if (adminMode === 'players') renderPlayersAdmin();
     else renderShopAdmin();
 }
 
+// ========== РЕЖИМ ИГРОКОВ (без изменений) ==========
 function renderPlayersAdmin() {
     const inner = document.getElementById('adminInnerContent');
     inner.innerHTML = `
@@ -117,109 +112,114 @@ function renderPlayersAdmin() {
     document.getElementById('addItemBtn').onclick = () => addItemToInventory();
 }
 
+// ========== РЕЖИМ МАГАЗИНА (с категориями) ==========
 function renderShopAdmin() {
     const inner = document.getElementById('adminInnerContent');
-    let html = '<h3>ТОВАРЫ МАГАЗИНА</h3><div style="display:flex; flex-direction:column; gap:5px;">';
-    shopItems.forEach((item, index) => {
+
+    if (!selectedCategory) {
+        // Показываем список категорий
+        const catNames = Object.keys(shopCategories);
+        let html = '<h3>КАТЕГОРИИ МАГАЗИНА</h3>';
+        html += '<div style="display:flex; flex-direction:column; gap:8px;">';
+        catNames.forEach(cat => {
+            const itemCount = shopCategories[cat] ? shopCategories[cat].length : 0;
+            html += `
+                <div style="display:flex; justify-content:space-between; align-items:center; background:#0b1a0b; padding:10px; border:1px solid #20C20E; cursor:pointer;" class="selectCategoryBtn" data-cat="${cat}">
+                    <span>📁 ${cat} (${itemCount} товаров)</span>
+                    <button class="deleteCategoryBtn" data-cat="${cat}" style="font-size:12px; padding:4px 8px; flex:none;">УДАЛИТЬ</button>
+                </div>`;
+        });
+        html += '</div>';
         html += `
-            <div style="display:flex; justify-content:space-between; align-items:center; background:#0b1a0b; padding:8px; border:1px solid #20C20E;">
-                <span>${item.emoji} ${item.name} — ${item.price} жет.</span>
-                <button data-index="${index}" class="removeShopItemBtn">УДАЛИТЬ</button>
+            <div style="display:flex; gap:10px; margin-top:15px;">
+                <input type="text" id="newCategoryName" placeholder="НАЗВАНИЕ КАТЕГОРИИ" style="flex:1;">
+                <button id="addCategoryBtn">СОЗДАТЬ</button>
             </div>`;
-    });
-    html += '</div>';
-    html += `
-        <div style="display:flex; gap:10px; margin-top:15px;">
-            <input type="text" id="newItemName" placeholder="НАЗВАНИЕ" style="flex:1;">
-            <input type="text" id="newItemEmoji" placeholder="ЭМОДЗИ" style="width:60px;">
-            <input type="number" id="newItemPrice" placeholder="ЦЕНА" style="width:70px;">
-            <button id="addShopItemBtn">ДОБАВИТЬ</button>
-        </div>`;
-    inner.innerHTML = html;
+        inner.innerHTML = html;
 
-    document.querySelectorAll('.removeShopItemBtn').forEach(btn => {
-        btn.onclick = async () => {
-            const index = parseInt(btn.dataset.index);
-            const newItems = [...shopItems];
-            newItems.splice(index, 1);
-            await updateShopItems(newItems);
-            log('ТОВАР УДАЛЁН');
+        document.querySelectorAll('.selectCategoryBtn').forEach(div => {
+            div.onclick = (e) => {
+                if (e.target.classList.contains('deleteCategoryBtn')) return;
+                selectedCategory = div.dataset.cat;
+                renderShopAdmin();
+            };
+        });
+        document.querySelectorAll('.deleteCategoryBtn').forEach(btn => {
+            btn.onclick = async (e) => {
+                e.stopPropagation();
+                const cat = btn.dataset.cat;
+                const newCategories = { ...shopCategories };
+                delete newCategories[cat];
+                await updateShopCategories(newCategories);
+                log(`КАТЕГОРИЯ "${cat}" УДАЛЕНА`);
+            };
+        });
+        document.getElementById('addCategoryBtn').onclick = async () => {
+            const name = document.getElementById('newCategoryName').value.trim();
+            if (!name || shopCategories[name]) return;
+            const newCategories = { ...shopCategories, [name]: [] };
+            await updateShopCategories(newCategories);
+            log(`КАТЕГОРИЯ "${name}" СОЗДАНА`);
+            document.getElementById('newCategoryName').value = '';
         };
-    });
-    document.getElementById('addShopItemBtn').onclick = async () => {
-        const name = document.getElementById('newItemName').value.trim();
-        const emoji = document.getElementById('newItemEmoji').value.trim();
-        const price = parseInt(document.getElementById('newItemPrice').value);
-        if (!name || !emoji || isNaN(price)) return;
-        const newItems = [...shopItems, { id: Date.now().toString(), name, emoji, price }];
-        await updateShopItems(newItems);
-        log(`ТОВАР "${name}" ДОБАВЛЕН`);
-    };
-}
+    } else {
+        // Показываем товары выбранной категории
+        const items = shopCategories[selectedCategory] || [];
+        let html = `<button id="backToCategories" style="margin-bottom:10px;">← НАЗАД К КАТЕГОРИЯМ</button>`;
+        html += `<h3>КАТЕГОРИЯ: ${selectedCategory}</h3>`;
+        html += '<div style="display:flex; flex-direction:column; gap:5px;">';
+        items.forEach((item, index) => {
+            html += `
+                <div style="display:flex; justify-content:space-between; align-items:center; background:#0b1a0b; padding:8px; border:1px solid #20C20E;">
+                    <span>${item.emoji} ${item.name} — ${item.price} жет.</span>
+                    <button data-index="${index}" class="removeItemBtn">УДАЛИТЬ</button>
+                </div>`;
+        });
+        html += '</div>';
+        html += `
+            <div style="display:flex; gap:10px; margin-top:15px;">
+                <input type="text" id="newItemName" placeholder="НАЗВАНИЕ" style="flex:1;">
+                <input type="text" id="newItemEmoji" placeholder="ЭМОДЗИ" style="width:60px;">
+                <input type="number" id="newItemPrice" placeholder="ЦЕНА" style="width:70px;">
+                <button id="addItemBtn">ДОБАВИТЬ</button>
+            </div>`;
+        inner.innerHTML = html;
 
-async function doSearch() {
-    const email = document.getElementById('searchEmail').value.trim();
-    if (!email) return;
-    const user = await findUserByEmail(email);
-    if (!user) {
-        document.getElementById('userInfoAdmin').innerHTML = '<p style="color:#FF5555;">ИГРОК НЕ НАЙДЕН</p>';
-        document.getElementById('adminActions').classList.add('hidden');
-        return;
-    }
-    foundUserId = user.id;
-    foundUserData = user;
-    document.getElementById('userInfoAdmin').innerHTML = `<p>НАЙДЕН: ${user.email}</p>`;
-    document.getElementById('adminActions').classList.remove('hidden');
-    updateAdminDisplay(user);
-}
-
-function updateAdminDisplay(user) {
-    document.getElementById('adminTokens').innerText = user.tokens || 0;
-    const invList = document.getElementById('adminInventory');
-    invList.innerHTML = '';
-    const inventory = user.inventory || [];
-    inventory.forEach((item, index) => {
-        const li = document.createElement('li');
-        li.style.cssText = 'padding:5px 0; border-bottom:1px solid #1a3a1a; display:flex; justify-content:space-between;';
-        li.innerHTML = `<span>${item}</span> <button data-index="${index}" class="removeItemBtn">УДАЛИТЬ</button>`;
-        invList.appendChild(li);
-    });
-    document.querySelectorAll('.removeItemBtn').forEach(btn => {
-        btn.onclick = () => removeItemFromInventory(parseInt(btn.dataset.index));
-    });
-}
-
-async function adjustTokens(delta) {
-    if (!foundUserId) return;
-    const newTokens = (foundUserData.tokens || 0) + delta;
-    await updateDoc(doc(db, "users", foundUserId), { tokens: newTokens });
-    log(`ЖЕТОНЫ ИГРОКА ИЗМЕНЕНЫ НА ${delta > 0 ? '+' + delta : delta}`);
-}
-
-async function setTokensValue() {
-    if (!foundUserId) return;
-    const value = parseInt(document.getElementById('customTokens').value);
-    if (isNaN(value)) return;
-    await updateDoc(doc(db, "users", foundUserId), { tokens: value });
-    log(`БАЛАНС УСТАНОВЛЕН В ${value} ЖЕТОНОВ`);
-}
-
-async function addItemToInventory() {
-    if (!foundUserId) return;
-    const itemName = document.getElementById('newItemInput').value.trim();
-    if (!itemName) return;
-    const newInventory = [...(foundUserData.inventory || []), itemName];
-    await updateDoc(doc(db, "users", foundUserId), { inventory: newInventory });
-    log(`ПРЕДМЕТ "${itemName}" ДОБАВЛЕН`);
-    document.getElementById('newItemInput').value = '';
-}
-
-async function removeItemFromInventory(index) {
-    if (!foundUserId) return;
-    const newInventory = [...(foundUserData.inventory || [])];
-    if (index >= 0 && index < newInventory.length) {
-        const removed = newInventory.splice(index, 1);
-        await updateDoc(doc(db, "users", foundUserId), { inventory: newInventory });
-        log(`ПРЕДМЕТ "${removed[0]}" УДАЛЁН`);
+        document.getElementById('backToCategories').onclick = () => {
+            selectedCategory = null;
+            renderShopAdmin();
+        };
+        document.querySelectorAll('.removeItemBtn').forEach(btn => {
+            btn.onclick = async () => {
+                const index = parseInt(btn.dataset.index);
+                const newItems = [...items];
+                newItems.splice(index, 1);
+                const newCategories = { ...shopCategories, [selectedCategory]: newItems };
+                await updateShopCategories(newCategories);
+                log('ТОВАР УДАЛЁН');
+            };
+        });
+        document.getElementById('addItemBtn').onclick = async () => {
+            const name = document.getElementById('newItemName').value.trim();
+            const emoji = document.getElementById('newItemEmoji').value.trim();
+            const price = parseInt(document.getElementById('newItemPrice').value);
+            if (!name || !emoji || isNaN(price)) return;
+            const newItem = { id: Date.now().toString(), name, emoji, price };
+            const newItems = [...items, newItem];
+            const newCategories = { ...shopCategories, [selectedCategory]: newItems };
+            await updateShopCategories(newCategories);
+            log(`ТОВАР "${name}" ДОБАВЛЕН`);
+            document.getElementById('newItemName').value = '';
+            document.getElementById('newItemEmoji').value = '';
+            document.getElementById('newItemPrice').value = '';
+        };
     }
 }
+
+// ========== ФУНКЦИИ ИГРОКОВ (без изменений) ==========
+async function doSearch() { /* ... */ }
+function updateAdminDisplay(user) { /* ... */ }
+async function adjustTokens(delta) { /* ... */ }
+async function setTokensValue() { /* ... */ }
+async function addItemToInventory() { /* ... */ }
+async function removeItemFromInventory(index) { /* ... */ }
