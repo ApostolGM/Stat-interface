@@ -8,10 +8,8 @@ import {
     onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
 
-// Состояние
 let currentUser = null;
 
-// Экспортируем для main.js функции-обработчики
 export async function signUp() {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
@@ -20,7 +18,8 @@ export async function signUp() {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         await setDoc(doc(db, "users", userCredential.user.uid), {
             tokens: 3,
-            inventory: []
+            inventory: [],
+            email: email
         });
     } catch (error) {
         errorEl.innerText = error.message;
@@ -44,6 +43,10 @@ export async function signOutUser() {
 
 export function setupAuth(onUserChange) {
     onAuthStateChanged(auth, (user) => {
+        // Всегда скрываем загрузку и показываем экран авторизации
+        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('auth').classList.remove('hidden');
+
         if (user) {
             currentUser = user;
             document.getElementById('authForm').classList.add('hidden');
@@ -55,8 +58,6 @@ export function setupAuth(onUserChange) {
             document.getElementById('authForm').classList.remove('hidden');
             document.getElementById('userInfo').classList.add('hidden');
             document.getElementById('terminal').classList.add('hidden');
-            document.getElementById('loading').classList.add('hidden');
-            document.getElementById('auth').classList.remove('hidden');
             onUserChange(null);
         }
     });
