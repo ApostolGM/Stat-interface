@@ -6,6 +6,7 @@ import { renderShop, initShop, cleanupShop } from './shop.js';
 import { renderLoot, cleanupLoot } from './lootbox.js';
 import { renderInventory } from './inventory.js';
 import { renderAdmin } from './admin.js';
+import { initGroups, cleanupGroups } from './groups.js';
 
 let currentUserId = null;
 
@@ -39,6 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('signOutBtn').addEventListener('click', () => {
         cleanupShop();
         cleanupLoot();
+        cleanupGroups();
         signOutUser();
     });
 
@@ -47,6 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
         resetAdminOnLogout();
         cleanupShop();
         cleanupLoot();
+        cleanupGroups();
         signOutUser();
     });
 
@@ -75,8 +78,8 @@ document.addEventListener('DOMContentLoaded', () => {
             currentUserId = user.uid;
             console.log('Subscribing to user data...');
             subscribeToUserData(user.uid, onDataUpdate);
-            // Инициализируем магазин (постоянная подписка)
             initShop(user.uid);
+            initGroups();
         } else {
             currentUserId = null;
             document.getElementById('loading').classList.add('hidden');
