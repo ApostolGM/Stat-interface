@@ -5,7 +5,7 @@ import { setTokens, setInventory, showTab, log, resetAdminOnLogout } from './ui.
 import { renderShop } from './shop.js';
 import { renderLoot } from './lootbox.js';
 import { renderInventory } from './inventory.js';
-import { renderAdmin } from './admin.js'; // новый импорт
+import { renderAdmin } from './admin.js';
 
 let currentUserId = null;
 
@@ -13,10 +13,11 @@ const renderFunctions = {
     shop: () => renderShop(currentUserId),
     loot: () => renderLoot(currentUserId),
     inventory: () => renderInventory(),
-    admin: () => renderAdmin() // добавлено
+    admin: () => renderAdmin()
 };
 
 function onDataUpdate(data) {
+    console.log('onDataUpdate called', data);
     setTokens(data.tokens);
     setInventory(data.inventory);
     const terminal = document.getElementById('terminal');
@@ -29,14 +30,16 @@ function onDataUpdate(data) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOMContentLoaded');
     document.getElementById('signInBtn').addEventListener('click', signIn);
     document.getElementById('signUpBtn').addEventListener('click', signUp);
     document.getElementById('signOutBtn').addEventListener('click', signOutUser);
     document.getElementById('signOutTerminalBtn').addEventListener('click', () => {
-        resetAdminOnLogout(); // сброс админа
+        resetAdminOnLogout();
         signOutUser();
     });
     document.getElementById('enterTerminalBtn').addEventListener('click', () => {
+        console.log('enterTerminalBtn clicked');
         document.getElementById('auth').classList.add('hidden');
         document.getElementById('terminal').classList.remove('hidden');
         showTab('shop', renderFunctions);
@@ -45,19 +48,21 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('shopTab').addEventListener('click', () => showTab('shop', renderFunctions));
     document.getElementById('lootTab').addEventListener('click', () => showTab('loot', renderFunctions));
     document.getElementById('invTab').addEventListener('click', () => showTab('inventory', renderFunctions));
-
-    // Кнопка админа
     const adminTabBtn = document.getElementById('adminTab');
     if (adminTabBtn) {
         adminTabBtn.addEventListener('click', () => showTab('admin', renderFunctions));
     }
 
     setupAuth((user) => {
+        console.log('setupAuth callback, user:', user);
         if (user) {
             currentUserId = user.uid;
+            console.log('Subscribing to user data...');
             subscribeToUserData(user.uid, onDataUpdate);
         } else {
             currentUserId = null;
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('auth').classList.remove('hidden');
         }
     });
 });
