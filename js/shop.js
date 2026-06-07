@@ -4,106 +4,122 @@ import { getTokens, getInventory, log } from './shared.js';
 import { subscribeToShop } from './shop-config.js';
 
 let currentCategory = null;
+let currentSubcategory = null;
 let unsubscribeShop = null;
 let shopCategories = {};
 let currentUserId = null;
 
 export function initShop(userId) {
     currentUserId = userId;
-    // Отписываемся от старой подписки, если была
     if (unsubscribeShop) unsubscribeShop();
-
-    // Постоянная подписка на изменения магазина
     unsubscribeShop = subscribeToShop((categories) => {
         shopCategories = categories;
-        // Если текущая категория исчезла — сбрасываем
         if (!shopCategories[currentCategory]) {
             currentCategory = Object.keys(shopCategories)[0] || null;
+            currentSubcategory = null;
+        }
+        if (currentCategory && currentSubcategory && !shopCategories[currentCategory]?.subcategories?.[currentSubcategory]) {
+            currentSubcategory = Object.keys(shopCategories[currentCategory].subcategories)[0] || null;
         }
         renderShopUI();
     });
 }
 
 export function renderShop(userId) {
-    // Инициализируем подписку при первом заходе
-    if (currentUserId !== userId) {
-        initShop(userId);
-    }
+    if (currentUserId !== userId) initShop(userId);
     renderShopUI();
 }
 
 export function cleanupShop() {
-    if (unsubscribeShop) {
-        unsubscribeShop();
-        unsubscribeShop = null;
-    }
+    if (unsubscribeShop) { unsubscribeShop(); unsubscribeShop = null; }
 }
 
 function renderShopUI() {
     const container = document.getElementById('shopContent');
-    if (!container || container.classList.contains('hidden')) return; // Не рендерим, если вкладка скрыта
+    if (!container || container.classList.contains('hidden')) return;
 
-    const categoryNames = Object.keys(shopCategories);
-    if (categoryNames.length === 0) {
+    const catNames = Object.keys(shopCategories);
+    if (catNames.length === 0) {
         container.innerHTML = '<p style="text-align:center;">МАГАЗИН ПУСТ</p>';
         return;
     }
 
-    // Если текущая категория не выбрана или не существует
     if (!currentCategory || !shopCategories[currentCategory]) {
-        currentCategory = categoryNames[0];
+        currentCategory = catNames[0];
+        currentSubcategory = null;
     }
 
     // Вкладки категорий
-    let tabsHtml = '<div class="category-tabs">';
-    categoryNames.forEach(cat => {
-        tabsHtml += `<button class="cat-tab" data-cat="${cat}" style="${cat === currentCategory ? 'background:#20C20E;color:#000;' : ''}">${cat.toUpperCase()}</button>`;
+    let html = '<div class="category-tabs">';
+    catNames.forEach(cat => {
+        html += `<button class="cat-tab" data-cat="${cat}" style="${cat === currentCategory ? 'background:var(--button-hover-bg);color:var(--button-hover-text);' : ''}">${cat.toUpperCase()}</button>`;
     });
-    tabsHtml += '</div>';
+    html += '</div>';
 
-    // Товары текущей категории
-    const items = shopCategories[currentCategory] || [];
-    let itemsHtml = '<div class="item-grid">';
+    // Подкатегории
+    const subcats = shopCategories[currentCategory]?.subcategories || {};
+    const subNames = Object.keys(subcats);
+    if (!currentSubcategory || !subcats[currentSubcategory]) {
+        currentSubcategory = subNames[0] || null;
+    }
+
+    if (subNames.length > 0) {
+        html += '<div class="subcategory-tabs" style="display:flex; gap:4px; margin-bottom:10px; flex-wrap:wrap;">';
+        subNames.forEach(sub => {
+            html += `<button class="subcat-tab" data-sub="${sub}" style="font-size:9px; padding:6px 10px; background:var(--button-bg); color:var(--text-color); border:1px solid var(--border-color); cursor:pointer; ${sub === currentSubcategory ? 'background:var(--button-hover-bg);color:var(--button-hover-text);' : ''}">${sub}</button>`;
+        });
+        html += '</div>';
+    }
+
+    // Товары
+    const items = currentSubcategory ? subcats[currentSubcategory] || [] : [];
+    html += '<div class="item-grid">';
     if (items.length === 0) {
-        itemsHtml += '<p style="text-align:center;width:100%;">В ЭТОЙ КАТЕГОРИИ НЕТ ТОВАРОВ</p>';
+        html += '<p style="text-align:center;width:100%;">НЕТ ТОВАРОВ</p>';
     } else {
         items.forEach(item => {
-            itemsHtml += `
+            const imgTag = item.image ? `<img src="${item.image}" style="width:32px;height:32px;display:block;margin:0 auto 5px;">` : '';
+            html += `
                 <div class="item-card" id="buy_${item.id}">
-                    ${item.emoji} ${item.name}<br><small>${item.price} жетон${item.price > 1 ? 'а' : ''}</small>
+                    ${imgTag}
+                    <div>${item.name}</div>
+                    <small>${item.price} РК</small>
+                    ${item.tags?.length ? `<div style="font-size:7px;opacity:0.6;margin-top:3px;">${item.tags.join(' · ')}</div>` : ''}
                 </div>`;
         });
     }
-    itemsHtml += '</div>';
-    itemsHtml += '<p style="text-align:center; margin-top:15px; opacity:0.7;">[ Жетоны можно найти в Пустоши ]</p>';
+    html += '</div>';
 
-    container.innerHTML = tabsHtml + itemsHtml;
+    container.innerHTML = html;
 
-    // Обработчики вкладок
+    // Обработчики
     document.querySelectorAll('.cat-tab').forEach(btn => {
         btn.onclick = () => {
             currentCategory = btn.dataset.cat;
+            currentSubcategory = null;
             renderShopUI();
         };
     });
-
-    // Обработчики покупок
+    document.querySelectorAll('.subcat-tab').forEach(btn => {
+        btn.onclick = () => {
+            currentSubcategory = btn.dataset.sub;
+            renderShopUI();
+        };
+    });
     items.forEach(item => {
         const btn = document.getElementById(`buy_${item.id}`);
-        if (btn) {
-            btn.onclick = () => buyItem(item);
-        }
+        if (btn) btn.onclick = () => buyItem(item);
     });
 }
 
 async function buyItem(item) {
     if (!currentUserId) return;
     if (getTokens() < item.price) {
-        log('ОШИБКА: НЕДОСТАТОЧНО ЖЕТОНОВ.');
+        log('ОШИБКА: НЕДОСТАТОЧНО РК.');
         return;
     }
     const newTokens = getTokens() - item.price;
-    const newInventory = [...getInventory(), `${item.emoji} ${item.name}`];
+    const newInventory = [...getInventory(), item.name];
     await updateUserData(currentUserId, { tokens: newTokens, inventory: newInventory });
-    log(`КУПЛЕНО: ${item.name}. -${item.price} ЖЕТОН.`);
+    log(`КУПЛЕНО: ${item.name}. -${item.price} РК.`);
 }
