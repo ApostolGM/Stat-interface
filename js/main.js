@@ -28,7 +28,16 @@ function onDataUpdate(data) {
         else if (!document.getElementById('adminContent')?.classList.contains('hidden')) renderAdmin();
     }
 }
-
+document.getElementById('changeCharBtn').addEventListener('click', () => {
+    document.getElementById('terminal').classList.add('hidden');
+    document.getElementById('characterScreen').classList.remove('hidden');
+    // Перерендерить список персонажей
+    getDoc(doc(db, "users", currentUserId)).then(userDoc => {
+        if (userDoc.exists()) {
+            renderCharacterScreen(userDoc.data());
+        }
+    });
+});
 document.addEventListener('DOMContentLoaded', () => {
     console.log('DOMContentLoaded');
 
