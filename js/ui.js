@@ -35,4 +35,4 @@ export function showTab(tab, renderFunctions) {
 
 export function resetAdminOnLogout() {
     resetAdmin();
-}
+};
