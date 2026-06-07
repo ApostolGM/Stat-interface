@@ -2,14 +2,16 @@
 import { db } from './firebase-config.js';
 import { collection, query, where, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 import { log } from './shared.js';
+import { subscribeToShop, updateShopItems } from './shop-config.js';
 
-const MASTER_PASSWORD = "gephard217"; // ← ЗАДАЙ СВОЙ ПАРОЛЬ
+const MASTER_PASSWORD = "gephard217";
 
 let isAdminUnlocked = false;
 let foundUserId = null;
 let foundUserData = null;
+let shopItems = [];
+let adminMode = 'players'; // 'players' или 'shop'
 
-// Проверка пароля
 export function checkMasterPassword(password) {
     if (password === MASTER_PASSWORD) {
         isAdminUnlocked = true;
@@ -18,24 +20,22 @@ export function checkMasterPassword(password) {
     return false;
 }
 
-// Сброс админ-доступа при выходе
 export function resetAdmin() {
     isAdminUnlocked = false;
     foundUserId = null;
     foundUserData = null;
+    adminMode = 'players';
 }
 
-// Поиск пользователя по email
 export async function findUserByEmail(email) {
     const usersRef = collection(db, "users");
-    const q = query(usersRef, where("email", "==", email)); // нужно поле email в документах
+    const q = query(usersRef, where("email", "==", email));
     const snapshot = await getDocs(q);
     if (snapshot.empty) return null;
-    const doc = snapshot.docs[0];
-    return { id: doc.id, ...doc.data() };
+    const docSnap = snapshot.docs[0];
+    return { id: docSnap.id, ...docSnap.data() };
 }
 
-// Рендер админ-интерфейса
 export async function renderAdmin() {
     const container = document.getElementById('adminContent');
     if (!isAdminUnlocked) {
@@ -57,8 +57,37 @@ export async function renderAdmin() {
         return;
     }
 
-    // Админ-интерфейс
+    // Подписываемся на товары магазина
+    subscribeToShop((items) => {
+        shopItems = items;
+        if (adminMode === 'shop') renderShopAdmin();
+    });
+
+    // Переключатель режимов админки
     container.innerHTML = `
+        <div style="display:flex; gap:10px; margin-bottom:15px;">
+            <button id="adminPlayersMode" style="${adminMode === 'players' ? 'background:#20C20E;color:#000;' : ''}">ИГРОКИ</button>
+            <button id="adminShopMode" style="${adminMode === 'shop' ? 'background:#20C20E;color:#000;' : ''}">МАГАЗИН</button>
+        </div>
+        <div id="adminInnerContent"></div>
+    `;
+
+    document.getElementById('adminPlayersMode').onclick = () => {
+        adminMode = 'players';
+        renderAdmin();
+    };
+    document.getElementById('adminShopMode').onclick = () => {
+        adminMode = 'shop';
+        renderAdmin();
+    };
+
+    if (adminMode === 'players') renderPlayersAdmin();
+    else renderShopAdmin();
+}
+
+function renderPlayersAdmin() {
+    const inner = document.getElementById('adminInnerContent');
+    inner.innerHTML = `
         <div style="display:flex; gap:10px; margin-bottom:10px;">
             <input type="email" id="searchEmail" placeholder="EMAIL ИГРОКА" style="flex:1;">
             <button id="searchBtn">ПОИСК</button>
@@ -81,12 +110,51 @@ export async function renderAdmin() {
         </div>
     `;
 
-    // Обработчики
     document.getElementById('searchBtn').onclick = () => doSearch();
     document.getElementById('addTokensBtn').onclick = () => adjustTokens(1);
     document.getElementById('removeTokensBtn').onclick = () => adjustTokens(-1);
     document.getElementById('setTokensBtn').onclick = () => setTokensValue();
     document.getElementById('addItemBtn').onclick = () => addItemToInventory();
+}
+
+function renderShopAdmin() {
+    const inner = document.getElementById('adminInnerContent');
+    let html = '<h3>ТОВАРЫ МАГАЗИНА</h3><div style="display:flex; flex-direction:column; gap:5px;">';
+    shopItems.forEach((item, index) => {
+        html += `
+            <div style="display:flex; justify-content:space-between; align-items:center; background:#0b1a0b; padding:8px; border:1px solid #20C20E;">
+                <span>${item.emoji} ${item.name} — ${item.price} жет.</span>
+                <button data-index="${index}" class="removeShopItemBtn">УДАЛИТЬ</button>
+            </div>`;
+    });
+    html += '</div>';
+    html += `
+        <div style="display:flex; gap:10px; margin-top:15px;">
+            <input type="text" id="newItemName" placeholder="НАЗВАНИЕ" style="flex:1;">
+            <input type="text" id="newItemEmoji" placeholder="ЭМОДЗИ" style="width:60px;">
+            <input type="number" id="newItemPrice" placeholder="ЦЕНА" style="width:70px;">
+            <button id="addShopItemBtn">ДОБАВИТЬ</button>
+        </div>`;
+    inner.innerHTML = html;
+
+    document.querySelectorAll('.removeShopItemBtn').forEach(btn => {
+        btn.onclick = async () => {
+            const index = parseInt(btn.dataset.index);
+            const newItems = [...shopItems];
+            newItems.splice(index, 1);
+            await updateShopItems(newItems);
+            log('ТОВАР УДАЛЁН');
+        };
+    });
+    document.getElementById('addShopItemBtn').onclick = async () => {
+        const name = document.getElementById('newItemName').value.trim();
+        const emoji = document.getElementById('newItemEmoji').value.trim();
+        const price = parseInt(document.getElementById('newItemPrice').value);
+        if (!name || !emoji || isNaN(price)) return;
+        const newItems = [...shopItems, { id: Date.now().toString(), name, emoji, price }];
+        await updateShopItems(newItems);
+        log(`ТОВАР "${name}" ДОБАВЛЕН`);
+    };
 }
 
 async function doSearch() {
