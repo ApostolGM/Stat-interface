@@ -1,68 +1,177 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" class="theme-green">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Гефест v3.1 — Терминал статуи</title>
+    <title>Гефест v4.0 — Терминал статуи</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- Фоновый шум -->
+    <audio id="bgHum" loop preload="auto">
+        <source src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=" type="audio/wav">
+    </audio>
+
     <!-- Экран загрузки -->
     <div id="loading" class="screen">
-        <div class="crt">
-            <h1>ЗАГРУЗКА...</h1>
+        <div class="statue-wrapper">
+            <div class="statue-body">
+                <div class="statue-shoulders">
+                    <div class="statue-cracks"></div>
+                </div>
+                <div class="crt">
+                    <h1>ЗАГРУЗКА...</h1>
+                </div>
+                <div class="statue-base"></div>
+            </div>
         </div>
     </div>
 
     <!-- Экран авторизации -->
     <div id="auth" class="screen hidden">
-        <div class="crt">
-            <h1>ГЕФЕСТ v.3</h1>
-            <div id="authForm">
-    <input type="text" id="login" placeholder="ЛОГИН" autocomplete="off">
-    <input type="password" id="password" placeholder="ПАРОЛЬ">
-    <div class="btn-group">
-        <button id="signInBtn">ВОЙТИ</button>
-        <button id="signUpBtn">РЕГИСТРАЦИЯ</button>
-    </div>
-    <p id="authError" style="color:#FF5555;"></p>
-    </div>
-                <p id="authError" style="color:#FF5555;"></p>
-            </div>
-            <div id="userInfo" class="hidden">
-                <p>ВЫ ВОШЛИ КАК <span id="userEmail"></span></p>
-                <button id="enterTerminalBtn">ВОЙТИ В ТЕРМИНАЛ</button>
-                <button id="signOutBtn">ВЫЙТИ</button>
+        <div class="statue-wrapper">
+            <div class="statue-body">
+                <div class="statue-shoulders">
+                    <div class="statue-cracks"></div>
+                </div>
+                <div class="crt">
+                    <div class="dust-particles">
+                        <div class="dust-particle"></div>
+                        <div class="dust-particle"></div>
+                        <div class="dust-particle"></div>
+                        <div class="dust-particle"></div>
+                        <div class="dust-particle"></div>
+                        <div class="dust-particle"></div>
+                        <div class="dust-particle"></div>
+                        <div class="dust-particle"></div>
+                    </div>
+                    <h1>ГЕФЕСТ v.4</h1>
+                    <div class="theme-switcher">
+                        <button class="theme-btn theme-green-btn active" onclick="setTheme('green')" title="Классический">🟢</button>
+                        <button class="theme-btn theme-amber-btn" onclick="setTheme('amber')" title="Янтарный">🟠</button>
+                        <button class="theme-btn theme-blue-btn" onclick="setTheme('blue')" title="Голографический">🔵</button>
+                        <button class="theme-btn theme-red-btn" onclick="setTheme('red')" title="Аварийный">🔴</button>
+                    </div>
+                    <div id="authForm">
+                        <input type="text" id="login" placeholder="ЛОГИН" autocomplete="off">
+                        <input type="password" id="password" placeholder="ПАРОЛЬ">
+                        <div class="btn-group">
+                            <button id="signInBtn">ВОЙТИ</button>
+                            <button id="signUpBtn">РЕГИСТРАЦИЯ</button>
+                        </div>
+                        <p id="authError" style="color:#FF5555;"></p>
+                    </div>
+                    <div id="userInfo" class="hidden">
+                        <p>ВЫ ВОШЛИ КАК <span id="userEmail"></span></p>
+                        <button id="enterTerminalBtn">ВОЙТИ В ТЕРМИНАЛ</button>
+                        <button id="signOutBtn">ВЫЙТИ</button>
+                    </div>
+                </div>
+                <div class="statue-base"></div>
             </div>
         </div>
     </div>
 
     <!-- Основной терминал -->
     <div id="terminal" class="screen hidden">
-        <div class="crt">
-            <h1>⚡ ГЕФЕСТ v.3 ⚡</h1>
-            <div class="balance">
-                <span>БАЛАНС:</span>
-                <span id="tokenDisplay">0 ЖЕТОНОВ</span>
-                <button id="signOutTerminalBtn" style="font-size:12px; padding:2px 8px;">ВЫХОД</button>
+        <div class="statue-wrapper">
+            <div class="statue-body">
+                <div class="statue-shoulders">
+                    <div class="statue-cracks"></div>
+                </div>
+                <div class="crt">
+                    <div class="dust-particles">
+                        <div class="dust-particle"></div>
+                        <div class="dust-particle"></div>
+                        <div class="dust-particle"></div>
+                        <div class="dust-particle"></div>
+                        <div class="dust-particle"></div>
+                        <div class="dust-particle"></div>
+                        <div class="dust-particle"></div>
+                        <div class="dust-particle"></div>
+                    </div>
+                    <h1>⚡ ГЕФЕСТ v.4 ⚡</h1>
+                    <div class="theme-switcher">
+                        <button class="theme-btn theme-green-btn active" onclick="setTheme('green')" title="Классический">🟢</button>
+                        <button class="theme-btn theme-amber-btn" onclick="setTheme('amber')" title="Янтарный">🟠</button>
+                        <button class="theme-btn theme-blue-btn" onclick="setTheme('blue')" title="Голографический">🔵</button>
+                        <button class="theme-btn theme-red-btn" onclick="setTheme('red')" title="Аварийный">🔴</button>
+                    </div>
+                    <button class="sound-toggle" id="soundToggle" onclick="toggleSound()">🔊 ЗВУК</button>
+                    <div class="balance">
+                        <span>БАЛАНС:</span>
+                        <span id="tokenDisplay">0 ЖЕТОНОВ</span>
+                        <button id="signOutTerminalBtn" style="font-size:10px; padding:4px 8px; flex:none;">ВЫХОД</button>
+                    </div>
+
+                    <div class="nav">
+                        <button id="shopTab">🏪 МАГАЗИН</button>
+                        <button id="lootTab">🎲 ЛУТБОКСЫ</button>
+                        <button id="invTab">🎒 ИНВЕНТАРЬ</button>
+                        <button id="adminTab">🔑 АДМИН</button>
+                    </div>
+
+                    <div id="shopContent" class="content"></div>
+                    <div id="lootContent" class="content hidden"></div>
+                    <div id="inventoryContent" class="content hidden"></div>
+                    <div id="adminContent" class="content hidden"></div>
+
+                    <div class="log" id="logMessage">> СИСТЕМА ГОТОВА.</div>
+                </div>
+                <div class="statue-base"></div>
             </div>
-
-            <div class="nav">
-                <button id="adminTab">🔑 АДМИН</button>
-                <button id="shopTab">🏪 МАГАЗИН</button>
-                <button id="lootTab">🎲 ЛУТБОКСЫ</button>
-                <button id="invTab">🎒 ИНВЕНТАРЬ</button>
-            </div>
-
-            <div id="shopContent" class="content"></div>
-            <div id="lootContent" class="content hidden"></div>
-            <div id="inventoryContent" class="content hidden"></div>
-            <div id="adminContent" class="content hidden"></div>
-
-            <div class="log" id="logMessage">> СИСТЕМА ГОТОВА.</div>
         </div>
     </div>
 
-   <script type="module" src="js/main.js"></script>
+    <!-- Переключатель тем -->
+    <script>
+        function setTheme(theme) {
+            document.documentElement.className = 'theme-' + theme;
+            localStorage.setItem('gephard-theme', theme);
+            // Обновляем активную кнопку
+            document.querySelectorAll('.theme-btn').forEach(btn => btn.classList.remove('active'));
+            const activeBtn = document.querySelector('.theme-' + theme + '-btn');
+            if (activeBtn) activeBtn.classList.add('active');
+        }
+        // Загружаем сохранённую тему
+        (function() {
+            const saved = localStorage.getItem('gephard-theme') || 'green';
+            setTheme(saved);
+        })();
+    </script>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSy...",
+            authDomain: "gephard-terminal.firebaseapp.com",
+            projectId: "gephard-terminal",
+            storageBucket: "gephard-terminal.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "1:123456789:web:abc123def456"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        window.auth = auth;
+        window.db = db;
+        window.doc = doc;
+        window.getDoc = getDoc;
+        window.setDoc = setDoc;
+        window.updateDoc = updateDoc;
+        window.onSnapshot = onSnapshot;
+        window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+        window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+        window.signOut = signOut;
+        window.onAuthStateChanged = onAuthStateChanged;
+    </script>
+
+    <script src="js/main.js" type="module"></script>
 </body>
 </html>
