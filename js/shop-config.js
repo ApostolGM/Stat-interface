@@ -1,8 +1,7 @@
 // shop-config.js
 import { db } from './firebase-config.js';
-import { doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+import { doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
-// Получить категории и товары
 export function subscribeToShop(callback) {
     const shopDocRef = doc(db, "config", "shop");
     return onSnapshot(shopDocRef, (docSnap) => {
@@ -10,7 +9,6 @@ export function subscribeToShop(callback) {
             const data = docSnap.data();
             callback(data.categories || {});
         } else {
-            // Категории по умолчанию
             const defaultCategories = {
                 "Еда": [
                     { id: 'water', name: 'Фляга с водой', emoji: '💧', price: 1 },
@@ -31,7 +29,6 @@ export function subscribeToShop(callback) {
     });
 }
 
-// Обновить категории
 export async function updateShopCategories(categories) {
     const shopDocRef = doc(db, "config", "shop");
     await setDoc(shopDocRef, { categories });
