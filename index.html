@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>APOSTOL</title>
+    <title>APOSTOL v2.0 (Beta) — Терминал</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -13,27 +13,13 @@
 
     <!-- Загрузка -->
     <div id="loading" class="screen">
-        <div class="crt">
-            <h1>ЗАГРУЗКА...</h1>
-        </div>
+        <div class="crt"><h1>ЗАГРУЗКА...</h1></div>
     </div>
 
     <!-- Авторизация -->
     <div id="auth" class="screen hidden">
         <div class="crt">
-            <div class="dust-particles">
-                <div class="dust-particle"></div><div class="dust-particle"></div>
-                <div class="dust-particle"></div><div class="dust-particle"></div>
-                <div class="dust-particle"></div><div class="dust-particle"></div>
-                <div class="dust-particle"></div><div class="dust-particle"></div>
-            </div>
             <h1>APOSTOL v2.0 (Beta)</h1>
-            <div class="theme-switcher">
-                <button class="theme-btn theme-green-btn active" onclick="setTheme('green')">🟢</button>
-                <button class="theme-btn theme-amber-btn" onclick="setTheme('amber')">🟠</button>
-                <button class="theme-btn theme-blue-btn" onclick="setTheme('blue')">🔵</button>
-                <button class="theme-btn theme-red-btn" onclick="setTheme('red')">🔴</button>
-            </div>
             <div id="authForm">
                 <input type="text" id="login" placeholder="ЛОГИН" autocomplete="off">
                 <input type="password" id="password" placeholder="ПАРОЛЬ">
@@ -43,70 +29,61 @@
                 </div>
                 <p id="authError" style="color:#FF5555;"></p>
             </div>
-            <div id="userInfo" class="hidden">
-                <p>ВЫ ВОШЛИ КАК <span id="userEmail"></span></p>
-                <button id="enterTerminalBtn">ВОЙТИ В ТЕРМИНАЛ</button>
-                <button id="signOutBtn">ВЫЙТИ</button>
-            </div>
         </div>
     </div>
 
-    <!-- Экран выбора персонажа -->
-<div id="characterScreen" class="screen hidden">
-    <div class="crt">
-        <h1>APOSTOL v2.0 (Beta)</h1>
-        <div id="characterContent" class="content" style="max-height:400px;"></div>
+    <!-- Экран персонажей -->
+    <div id="characterScreen" class="screen hidden">
+        <div class="crt">
+            <h1>APOSTOL v2.0 (Beta)</h1>
+            <div id="characterContent" class="content" style="max-height:400px;"></div>
+            <button id="signOutFromCharBtn" style="margin-top:10px;">ВЫЙТИ</button>
+        </div>
     </div>
-</div>
+
     <!-- Терминал -->
     <div id="terminal" class="screen hidden">
         <div class="crt">
-            <div class="dust-particles">
-                <div class="dust-particle"></div><div class="dust-particle"></div>
-                <div class="dust-particle"></div><div class="dust-particle"></div>
-                <div class="dust-particle"></div><div class="dust-particle"></div>
-                <div class="dust-particle"></div><div class="dust-particle"></div>
-            </div>
-            <h1>APOSTOL v2.0 (Beta)</h1>
+            <h1>⚡ APOSTOL v2.0 (Beta) ⚡</h1>
             <div class="theme-switcher">
                 <button class="theme-btn theme-green-btn active" onclick="setTheme('green')">🟢</button>
                 <button class="theme-btn theme-amber-btn" onclick="setTheme('amber')">🟠</button>
                 <button class="theme-btn theme-blue-btn" onclick="setTheme('blue')">🔵</button>
                 <button class="theme-btn theme-red-btn" onclick="setTheme('red')">🔴</button>
             </div>
-            <button class="sound-toggle" id="soundToggle" onclick="toggleSound()">🔊 ЗВУК</button>
+            <button class="sound-toggle" id="soundToggle" onclick="toggleSound()">🔊</button>
             <div class="balance">
-    <span>БАЛАНС:</span>
-    <span id="tokenDisplay">0 РК</span>
-    <button id="changeCharBtn" style="font-size:8px; padding:4px 6px;">ПЕРС</button>
-    <button id="signOutTerminalBtn" style="font-size:8px; padding:4px 6px; flex:none;">ВЫХОД</button>
-</div>
+                <span>БАЛАНС:</span>
+                <span id="tokenDisplay">0 РК</span>
+                <span id="charDisplay" style="font-size:10px;"></span>
+                <button id="changeCharBtn" style="font-size:8px; padding:4px 6px;">СМЕНИТЬ</button>
+                <button id="signOutTerminalBtn" style="font-size:8px; padding:4px 6px;">ВЫХОД</button>
+            </div>
             <div class="nav">
                 <button id="shopTab">🏪 МАГАЗИН</button>
                 <button id="lootTab">🎲 ЛУТБОКСЫ</button>
                 <button id="invTab">🎒 ИНВЕНТАРЬ</button>
+                <button id="groupTab">👥 ГРУППА</button>
                 <button id="adminTab">🔑 АДМИН</button>
             </div>
             <div id="shopContent" class="content"></div>
             <div id="lootContent" class="content hidden"></div>
             <div id="inventoryContent" class="content hidden"></div>
+            <div id="groupContent" class="content hidden"></div>
             <div id="adminContent" class="content hidden"></div>
             <div class="log" id="logMessage">> СИСТЕМА APOSTOL ГОТОВА.</div>
         </div>
     </div>
 
-    <!-- Темы -->
     <script>
-        function setTheme(theme) {
-            document.documentElement.className = 'theme-' + theme;
-            localStorage.setItem('apostol-theme', theme);
+        function setTheme(t) {
+            document.documentElement.className = 'theme-' + t;
+            localStorage.setItem('apostol-theme', t);
             document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
-            const btn = document.querySelector('.theme-' + theme + '-btn');
-            if (btn) btn.classList.add('active');
+            document.querySelector('.theme-' + t + '-btn')?.classList.add('active');
         }
-        (() => { setTheme(localStorage.getItem('apostol-theme') || 'green'); })();
+        (() => setTheme(localStorage.getItem('apostol-theme') || 'green'))();
     </script>
-
     <script src="js/main.js" type="module"></script>
 </body>
 </html>
