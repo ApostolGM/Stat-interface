@@ -1,20 +1,59 @@
-// groups-config.js
-import { db } from './firebase-config.js';
-import { doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+import { setupAuth, signIn, signUp, signOutUser, showCharacterScreen } from './auth.js';
+import { subscribeToUserData } from './db.js';
+import { setTokens, setInventory, showTab, log, resetAdminOnLogout } from './ui.js';
+import { renderShop, initShop, cleanupShop } from './shop.js';
+import { renderLoot, cleanupLoot } from './lootbox.js';
+import { renderInventory } from './inventory.js';
+import { renderAdmin } from './admin.js';
+import { renderGroup } from './group-view.js';
 
-export function subscribeToGroups(callback) {
-    const docRef = doc(db, "config", "groups");
-    return onSnapshot(docRef, (docSnap) => {
-        if (docSnap.exists()) {
-            callback(docSnap.data().groups || []);
-        } else {
-            setDoc(docRef, { groups: [] });
-            callback([]);
+let currentUserId = null;
+
+const renderFunctions = {
+    shop: () => renderShop(currentUserId),
+    loot: () => renderLoot(currentUserId),
+    inventory: () => renderInventory(),
+    group: () => renderGroup(),
+    admin: () => renderAdmin()
+};
+
+function onDataUpdate(data) {
+    setTokens(data.tokens);
+    setInventory(data.inventory);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('signInBtn').addEventListener('click', signIn);
+    document.getElementById('signUpBtn').addEventListener('click', signUp);
+    document.getElementById('signOutFromCharBtn').addEventListener('click', signOutUser);
+
+    document.getElementById('signOutTerminalBtn').addEventListener('click', () => {
+        cleanupShop(); cleanupLoot(); signOutUser();
+    });
+
+    document.getElementById('changeCharBtn').addEventListener('click', () => {
+        document.getElementById('terminal').classList.add('hidden');
+        import('./auth.js').then(m => m.showCharacterScreen({ uid: currentUserId }));
+    });
+
+    document.getElementById('shopTab').addEventListener('click', () => showTab('shop', renderFunctions));
+    document.getElementById('lootTab').addEventListener('click', () => showTab('loot', renderFunctions));
+    document.getElementById('invTab').addEventListener('click', () => showTab('inventory', renderFunctions));
+    document.getElementById('groupTab').addEventListener('click', () => showTab('group', renderFunctions));
+    document.getElementById('adminTab').addEventListener('click', () => showTab('admin', renderFunctions));
+
+    setupAuth((user) => {
+        if (user) {
+            currentUserId = user.uid;
+            subscribeToUserData(user.uid, onDataUpdate);
+            initShop(user.uid);
         }
     });
-}
+});
 
-export async function updateGroups(groups) {
-    const docRef = doc(db, "config", "groups");
-    await setDoc(docRef, { groups });
-}
+window.toggleSound = function() {
+    const hum = document.getElementById('bgHum');
+    const btn = document.getElementById('soundToggle');
+    if (hum.paused) { hum.volume = 0.03; hum.play().catch(() => {}); btn.innerHTML = '🔊'; }
+    else { hum.pause(); btn.innerHTML = '🔇'; }
+};
