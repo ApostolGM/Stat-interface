@@ -7,35 +7,70 @@
     <link rel="stylesheet" href="css/themes.css">
 </head>
 <body>
-<div class="terminal">
-    <div class="header">
-        <h1>APOSTOL</h1>
-        <div class="header-controls">
-            <div class="balance">
-                РК: <span id="balanceDisplay">3</span>
-            </div>
-            <button id="soundToggle" class="sound-btn" title="Вкл/Выкл звук">🔊</button>
+    <!-- Экран авторизации -->
+    <div id="auth-screen" class="screen-container hidden">
+        <div class="auth-box">
+            <h1>APOSTOL</h1>
+            <input type="email" id="email" placeholder="EMAIL"><br>
+            <input type="password" id="password" placeholder="ПАРОЛЬ"><br>
+            <button id="login-btn">ВХОД</button>
+            <button id="register-btn">РЕГИСТРАЦИЯ</button>
+            <p id="auth-error" class="error-text"></p>
         </div>
     </div>
 
-    <div class="main-tabs">
-        <div class="main-tab active" data-tab="shop">Магазин</div>
-        <div class="main-tab" data-tab="inventory">Инвентарь</div>
+    <!-- Экран выбора группы -->
+    <div id="group-screen" class="screen-container hidden">
+        <div class="group-box">
+            <h1>ВЫБОР ГРУППЫ</h1>
+            <p>СОЗДАТЬ НОВУЮ ГРУППУ (МАСТЕР)</p>
+            <input type="text" id="group-name" placeholder="НАЗВАНИЕ ГРУППЫ"><br>
+            <input type="text" id="master-key" placeholder="КЛЮЧ МАСТЕРА"><br>
+            <button id="create-group-btn">СОЗДАТЬ</button>
+            <hr>
+            <p>ПРИСОЕДИНИТЬСЯ К СУЩЕСТВУЮЩЕЙ</p>
+            <input type="text" id="join-group-id" placeholder="ID ГРУППЫ"><br>
+            <button id="join-group-btn">ПРИСОЕДИНИТЬСЯ</button>
+            <p id="group-error" class="error-text"></p>
+        </div>
     </div>
 
-    <div id="shopSubTabs" class="sub-tabs">
-        <div class="sub-tab active" data-sub="food">Еда</div>
-        <div class="sub-tab" data-sub="weapons">Оружие</div>
-        <div class="sub-tab" data-sub="bestiary">Бестиарий</div>
-        <div class="sub-tab" data-sub="lootboxes">Лутбоксы</div>
+    <!-- Основной терминал (скопирован из предыдущей версии) -->
+    <div id="app-screen" class="screen-container hidden">
+        <div class="terminal">
+            <div class="header">
+                <h1>APOSTOL</h1>
+                <div class="header-controls">
+                    <div class="balance">РК: <span id="balanceDisplay">3</span></div>
+                    <button id="soundToggle" class="sound-btn">🔊</button>
+                    <span id="adminLink" style="cursor:pointer; margin-left:10px;" title="Админ-панель">⚙</span>
+                </div>
+            </div>
+            <div class="main-tabs">
+                <div class="main-tab active" data-tab="shop">Магазин</div>
+                <div class="main-tab" data-tab="inventory">Инвентарь</div>
+            </div>
+            <div id="shopSubTabs" class="sub-tabs">
+                <div class="sub-tab active" data-sub="food">Еда</div>
+                <div class="sub-tab" data-sub="weapons">Оружие</div>
+                <div class="sub-tab" data-sub="bestiary">Бестиарий</div>
+                <div class="sub-tab" data-sub="lootboxes">Лутбоксы</div>
+            </div>
+            <div id="content" class="content"></div>
+        </div>
     </div>
 
-    <div id="content" class="content"></div>
-</div>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
-<!-- Модули -->
-<script src="js/sound.js"></script>
-<script src="js/shop-data.js"></script>
-<script src="js/app.js"></script>
+    <!-- Модули -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/sound.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/group.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/admin.js"></script>
 </body>
 </html>
