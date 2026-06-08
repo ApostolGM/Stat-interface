@@ -7,22 +7,24 @@ let selectedCategory = null;
 let selectedSubcategory = null;
 
 export function renderShopAdmin(group, container) {
+    console.log('renderShopAdmin called', group);
     const shop = group.shop || { categories: {} };
-    const categories = shop.categories;
+    const categories = shop.categories || {};
+
     if (!categories || Object.keys(categories).length === 0) {
-    // Показываем форму создания первой категории
-    let html = '<h3>КАТЕГОРИИ</h3><p>МАГАЗИН ПУСТ. СОЗДАЙТЕ ПЕРВУЮ КАТЕГОРИЮ.</p>';
-    html += `<div style="display:flex; gap:10px; margin-top:12px;"><input type="text" id="newCatName" placeholder="НОВАЯ КАТЕГОРИЯ" style="flex:1;"><button id="addCatBtn">СОЗДАТЬ</button></div>`;
-    container.innerHTML = html;
-    
-    document.getElementById('addCatBtn').onclick = async () => {
-        const name = document.getElementById('newCatName').value.trim();
-        if (!name) return;
-        const newCat = { ...categories, [name]: { subcategories: {} } };
-        await saveShop(group, newCat);
-        log(`КАТЕГОРИЯ "${name}" СОЗДАНА`);
-    };
-    return;
+        let html = '<h3>КАТЕГОРИИ</h3><p>МАГАЗИН ПУСТ. СОЗДАЙТЕ ПЕРВУЮ КАТЕГОРИЮ.</p>';
+        html += `<div style="display:flex; gap:10px; margin-top:12px;"><input type="text" id="newCatName" placeholder="НОВАЯ КАТЕГОРИЯ" style="flex:1;"><button id="addCatBtn">СОЗДАТЬ</button></div>`;
+        container.innerHTML = html;
+        
+        document.getElementById('addCatBtn').onclick = async () => {
+            const name = document.getElementById('newCatName').value.trim();
+            if (!name) return;
+            const newCat = { ...categories, [name]: { subcategories: {} } };
+            await saveShop(group, newCat);
+            log(`КАТЕГОРИЯ "${name}" СОЗДАНА`);
+        };
+        return;
+    }
 
     if (!selectedCategory) {
         renderCategories(container, categories, group);
@@ -83,13 +85,17 @@ function renderSubcategories(container, categories, group) {
     let html = `<button id="backToCat" style="margin-bottom:10px;">← К КАТЕГОРИЯМ</button>`;
     html += `<h3>${selectedCategory} → ПОДКАТЕГОРИИ</h3>`;
     html += '<div style="display:flex; flex-direction:column; gap:6px;">';
-    subNames.forEach(sub => {
-        html += `
-            <div style="display:flex; justify-content:space-between; align-items:center; background:var(--card-bg); padding:10px; border:1px solid var(--border-color); cursor:pointer;" class="selectSubBtn" data-sub="${sub}">
-                <span>📂 ${sub} (${subcats[sub].length} товаров)</span>
-                <button class="deleteSubBtn" data-sub="${sub}" style="font-size:10px; padding:4px 6px; flex:none;">УДАЛИТЬ</button>
-            </div>`;
-    });
+    if (subNames.length === 0) {
+        html += '<p>НЕТ ПОДКАТЕГОРИЙ. СОЗДАЙТЕ ПЕРВУЮ.</p>';
+    } else {
+        subNames.forEach(sub => {
+            html += `
+                <div style="display:flex; justify-content:space-between; align-items:center; background:var(--card-bg); padding:10px; border:1px solid var(--border-color); cursor:pointer;" class="selectSubBtn" data-sub="${sub}">
+                    <span>📂 ${sub} (${subcats[sub].length} товаров)</span>
+                    <button class="deleteSubBtn" data-sub="${sub}" style="font-size:10px; padding:4px 6px; flex:none;">УДАЛИТЬ</button>
+                </div>`;
+        });
+    }
     html += '</div>';
     html += `<div style="display:flex; gap:10px; margin-top:12px;"><input type="text" id="newSubName" placeholder="НОВАЯ ПОДКАТЕГОРИЯ" style="flex:1;"><button id="addSubBtn">СОЗДАТЬ</button></div>`;
     container.innerHTML = html;
@@ -126,14 +132,18 @@ function renderItems(container, categories, group) {
     let html = `<button id="backToSub" style="margin-bottom:10px;">← К ПОДКАТЕГОРИЯМ</button>`;
     html += `<h3>${selectedCategory} → ${selectedSubcategory}</h3>`;
     html += '<div style="display:flex; flex-direction:column; gap:4px;">';
-    items.forEach((item, index) => {
-        html += `
-            <div style="display:flex; justify-content:space-between; align-items:center; background:var(--card-bg); padding:6px 8px; border:1px solid var(--border-color); font-size:11px;">
-                <span>${item.itemId} — ${item.price} РК ${item.hidden ? '(скрыт)' : ''}</span>
-                <button data-index="${index}" class="removeItemBtn">УДАЛИТЬ</button>
-                <button data-index="${index}" class="toggleHiddenBtn">${item.hidden ? 'ПОКАЗАТЬ' : 'СКРЫТЬ'}</button>
-            </div>`;
-    });
+    if (items.length === 0) {
+        html += '<p>НЕТ ТОВАРОВ. ДОБАВЬТЕ ПЕРВЫЙ.</p>';
+    } else {
+        items.forEach((item, index) => {
+            html += `
+                <div style="display:flex; justify-content:space-between; align-items:center; background:var(--card-bg); padding:6px 8px; border:1px solid var(--border-color); font-size:11px;">
+                    <span>${item.itemId} — ${item.price} РК ${item.hidden ? '(скрыт)' : ''}</span>
+                    <button data-index="${index}" class="removeItemBtn">УДАЛИТЬ</button>
+                    <button data-index="${index}" class="toggleHiddenBtn">${item.hidden ? 'ПОКАЗАТЬ' : 'СКРЫТЬ'}</button>
+                </div>`;
+        });
+    }
     html += '</div>';
     html += `
         <div style="display:flex; gap:8px; margin-top:10px; flex-wrap:wrap;">
