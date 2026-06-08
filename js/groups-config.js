@@ -1,3 +1,4 @@
+// groups-config.js
 import { db } from './firebase-config.js';
 import { doc, setDoc, onSnapshot, getDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
@@ -14,7 +15,6 @@ export async function updateGroups(groups) {
     await setDoc(docRef, { groups });
 }
 
-// Обновление отдельной группы (частичное)
 export async function updateGroupData(groupId, data) {
     const docRef = doc(db, "config", "groups");
     const snapshot = await getDoc(docRef);
@@ -23,4 +23,26 @@ export async function updateGroupData(groupId, data) {
         const updatedGroups = allGroups.map(g => g.id === groupId ? { ...g, ...data } : g);
         await setDoc(docRef, { groups: updatedGroups });
     }
+}
+
+// Новая функция: создать группу со всеми полями
+export async function createGroup(name, notes = '') {
+    const newGroup = {
+        id: 'group_' + Date.now(),
+        name,
+        notes,
+        players: [],
+        applications: [],
+        baseInventory: [],
+        bestiary: [],
+        shop: { categories: {} },        // ← важно!
+        lootboxes: [],                   // ← важно!
+        events: null                     // ← важно!
+    };
+    const docRef = doc(db, "config", "groups");
+    const snapshot = await getDoc(docRef);
+    const groups = snapshot.exists() ? (snapshot.data().groups || []) : [];
+    groups.push(newGroup);
+    await setDoc(docRef, { groups });
+    return newGroup;
 }
