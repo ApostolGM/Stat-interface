@@ -8,7 +8,7 @@ let shopCleanup = null;
 export function setShopCleanup(fn) { shopCleanup = fn; }
 
 export function showTab(tab, renderFunctions) {
-    ['shopContent','lootContent','inventoryContent','groupContent','transferContent'].forEach(id => {
+    ['shopContent','lootContent','inventoryContent','groupContent','transferContent','adminContent'].forEach(id => {
         document.getElementById(id).classList.add('hidden');
     });
 
@@ -18,17 +18,11 @@ export function showTab(tab, renderFunctions) {
         case 'inventory': document.getElementById('inventoryContent').classList.remove('hidden'); if(renderFunctions.inventory) renderFunctions.inventory(); break;
         case 'group': document.getElementById('groupContent').classList.remove('hidden'); if(renderFunctions.group) renderFunctions.group(); break;
         case 'transfer': document.getElementById('transferContent').classList.remove('hidden'); if(renderFunctions.transfer) renderFunctions.transfer(); break;
-        case 'admin':
-            document.getElementById('adminOverlay').classList.remove('hidden');
-            document.getElementById('adminPanel').classList.remove('hidden');
-            import('./admin/admin-main.js').then(m => m.openAdminPanel());
-            break;
+        case 'admin': document.getElementById('adminContent').classList.remove('hidden'); if(renderFunctions.admin) renderFunctions.admin(); break;
     }
 }
 
 export function resetAdminOnLogout() {
-    document.getElementById('adminOverlay').classList.add('hidden');
-    document.getElementById('adminPanel').classList.add('hidden');
     if (shopCleanup) shopCleanup();
     shopCleanup = null;
 }
