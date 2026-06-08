@@ -7,11 +7,9 @@ import { renderLoot, cleanupLoot } from './lootbox.js';
 import { renderInventory } from './inventory.js';
 import { renderAdmin, isMaster } from './admin.js';
 import { renderGroup } from './group-view.js';
-import { cleanupGroups } from './groups.js';
-import { doc, getDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
-import { db } from './firebase-config.js';
 
 let currentUserId = null;
+let currentCharacter = null;
 
 const renderFunctions = {
     shop: () => renderShop(currentUserId),
@@ -22,14 +20,31 @@ const renderFunctions = {
 };
 
 function onDataUpdate(data) {
-    console.log('onDataUpdate called', data);
     setTokens(data.tokens);
     setInventory(data.inventory);
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOMContentLoaded');
+function enterTerminal() {
+    document.getElementById('characterScreen').classList.add('hidden');
+    document.getElementById('terminal').classList.remove('hidden');
+    
+    // Определяем стартовую вкладку
+    const adminBtn = document.getElementById('adminTab');
+    if (isMaster(currentUserId)) {
+        if (adminBtn) adminBtn.style.display = 'inline-block';
+        showTab('admin', renderFunctions);
+    } else {
+        if (adminBtn) adminBtn.style.display = 'none';
+        showTab('shop', renderFunctions);
+    }
+    
+    // Отображаем имя персонажа
+    if (currentCharacter) {
+        document.getElementById('charDisplay').innerText = currentCharacter.name;
+    }
+}
 
+document.addEventListener('DOMContentLoaded', () => {
     // Кнопки авторизации
     document.getElementById('signInBtn').addEventListener('click', signIn);
     document.getElementById('signUpBtn').addEventListener('click', signUp);
@@ -37,23 +52,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Выход из терминала
     document.getElementById('signOutTerminalBtn').addEventListener('click', () => {
-        resetAdminOnLogout();
         cleanupShop();
         cleanupLoot();
-        cleanupGroups();
         signOutUser();
     });
 
     // Смена персонажа
-    document.getElementById('changeCharBtn').addEventListener('click', async () => {
+    document.getElementById('changeCharBtn').addEventListener('click', () => {
         document.getElementById('terminal').classList.add('hidden');
-        const { currentUser } = await import('./auth.js');
-        if (currentUser) {
-            const userDoc = await getDoc(doc(db, "users", currentUser.uid));
-            if (userDoc.exists()) {
-                showCharacterScreen({ ...userDoc.data(), uid: currentUser.uid });
-            }
-        }
+        import('./auth.js').then(m => m.showCharacterScreen({ uid: currentUserId }));
     });
 
     // Вкладки терминала
@@ -63,40 +70,29 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('groupTab').addEventListener('click', () => showTab('group', renderFunctions));
     document.getElementById('adminTab').addEventListener('click', () => showTab('admin', renderFunctions));
 
-    // Слушатель выбора персонажа
+    // Слушаем выбор персонажа
     window.addEventListener('characterSelected', (e) => {
-        const char = e.detail;
-        document.getElementById('charDisplay').innerText = char.name;
-        setTokens(0); // Обновим через подписку на пользователя
-        showTab('shop', renderFunctions);
+        currentCharacter = e.detail;
+        currentUserId = currentCharacter.userId;
+        // Подписываемся на данные пользователя (баланс РК)
+        subscribeToUserData(currentUserId, onDataUpdate);
+        initShop(currentUserId);
+        enterTerminal();
     });
 
-   import { isMaster } from './admin.js';
-
-// Внутри setupAuth, где user определён:
-setupAuth((user) => {
-    if (user) {
-        currentUserId = user.uid;
-        subscribeToUserData(user.uid, onDataUpdate);
-        initShop(user.uid);
-        
-        // Показываем или скрываем админку
-        const adminBtn = document.getElementById('adminTab');
-        if (adminBtn) {
-            if (isMaster(currentUserId)) {
-                adminBtn.style.display = 'inline-block';
-                // По умолчанию открываем админку для мастера
-                showTab('admin', renderFunctions);
-            } else {
-                adminBtn.style.display = 'none';
-                // Для игроков — магазин
-                showTab('shop', renderFunctions);
-            }
+    // Запуск авторизации
+    setupAuth((user) => {
+        if (user) {
+            currentUserId = user.uid;
+            // После логина показывается экран персонажей (в auth.js)
+        } else {
+            currentUserId = null;
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('auth').classList.remove('hidden');
         }
-    }
+    });
 });
 
-// Глобальная функция переключения звука
 window.toggleSound = function() {
     const hum = document.getElementById('bgHum');
     const btn = document.getElementById('soundToggle');
