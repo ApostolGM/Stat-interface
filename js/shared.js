@@ -2,12 +2,6 @@
 let currencies = { pink: 0, gray: 0, yellow: 0 };
 let inventory = [];
 
-const RATES = {
-    yellow: { gray: 10, pink: 100 },
-    gray: { pink: 10, yellow: 0.1 },
-    pink: { gray: 0.1, yellow: 0.01 }
-};
-
 export function setCurrencies(val) {
     currencies = val || { pink: 0, gray: 0, yellow: 0 };
     updateDisplay();
