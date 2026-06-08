@@ -1,10 +1,15 @@
 // admin/admin-shop.js
 import { log } from '../shared.js';
 import { updateShopCategories } from '../shop-config.js';
-import { getShopCategories, getAdminMode } from './admin-main.js';
+import { getShopCategories } from './admin-main.js';
 
 let selectedCategory = null;
 let selectedSubcategory = null;
+
+export function resetShopAdmin() {
+    selectedCategory = null;
+    selectedSubcategory = null;
+}
 
 export function renderShopAdmin() {
     const inner = document.getElementById('adminInnerContent');
