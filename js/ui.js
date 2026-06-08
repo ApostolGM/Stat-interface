@@ -1,7 +1,7 @@
 // ui.js
-import { setTokens, setInventory, getTokens, getInventory, log } from './shared.js';
+import { setCurrencies, setInventory, getCurrencies, getInventory, log } from './shared.js';
 
-export { setTokens, setInventory, getTokens, getInventory, log };
+export { setCurrencies, setInventory, getCurrencies, getInventory, log };
 
 let shopCleanup = null;
 export function setShopCleanup(fn) { shopCleanup = fn; }
@@ -11,6 +11,7 @@ export function showTab(tab, renderFunctions) {
     document.getElementById('lootContent').classList.add('hidden');
     document.getElementById('inventoryContent').classList.add('hidden');
     document.getElementById('groupContent').classList.add('hidden');
+    document.getElementById('transferContent').classList.add('hidden');
 
     switch (tab) {
         case 'shop':
@@ -29,8 +30,11 @@ export function showTab(tab, renderFunctions) {
             document.getElementById('groupContent').classList.remove('hidden');
             if (renderFunctions.group) renderFunctions.group();
             break;
+        case 'transfer':
+            document.getElementById('transferContent').classList.remove('hidden');
+            if (renderFunctions.transfer) renderFunctions.transfer();
+            break;
         case 'admin':
-            // Админка теперь открывается боковой панелью
             document.getElementById('adminOverlay').classList.remove('hidden');
             document.getElementById('adminPanel').classList.remove('hidden');
             import('./admin/admin-main.js').then(m => m.renderAdminPanel());
