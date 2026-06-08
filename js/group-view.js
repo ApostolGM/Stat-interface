@@ -1,3 +1,4 @@
+// group-view.js
 import { subscribeToGroups } from './groups-config.js';
 
 export function renderGroup() {
