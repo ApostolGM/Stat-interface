@@ -1,4 +1,4 @@
-// admin-players.js
+// admin/admin-players.js
 import { getCharacterById } from '../helpers.js';
 import { doc, updateDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 import { db } from '../firebase-config.js';
