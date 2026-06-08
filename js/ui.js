@@ -1,10 +1,13 @@
 // ui.js
 import { setTokens, setInventory, getTokens, getInventory, log } from './shared.js';
-import { resetAdmin } from './admin/admin-main.js';
+import { renderAdmin, isMaster } from './admin/admin-main.js';
+
 export { setTokens, setInventory, getTokens, getInventory, log };
 
 let shopCleanup = null;
-export function setShopCleanup(fn) { shopCleanup = fn; }
+export function setShopCleanup(fn) {
+    shopCleanup = fn;
+}
 
 export function showTab(tab, renderFunctions) {
     document.getElementById('shopContent').classList.add('hidden');
@@ -41,6 +44,7 @@ export function showTab(tab, renderFunctions) {
 }
 
 export function resetAdminOnLogout() {
-    resetAdmin();
-    if (shopCleanup) { shopCleanup(); shopCleanup = null; }
+    // Сброс при выходе (опционально)
+    if (shopCleanup) shopCleanup();
+    shopCleanup = null;
 }
