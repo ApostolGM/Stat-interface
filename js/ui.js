@@ -1,6 +1,6 @@
 // ui.js
-import { setCurrencies, setInventory, getCurrencies, getInventory, log } from './shared.js';
-
+import { setCurrencies, setInventory, getCurrencies, getInventory } from './state.js';
+import { log } from './shared.js';
 export { setCurrencies, setInventory, getCurrencies, getInventory, log };
 
 let shopCleanup = null;
