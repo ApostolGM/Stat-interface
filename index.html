@@ -11,22 +11,6 @@
         <source src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=" type="audio/wav">
     </audio>
 
-    <!-- Кнопка открытия админ-панели (видна только мастеру) -->
-    <button id="openAdminBtn" class="admin-open-btn hidden">🔑</button>
-
-    <!-- Оверлей админ-панели -->
-    <div id="adminOverlay" class="admin-overlay hidden"></div>
-
-    <!-- Админ-панель -->
-    <div id="adminPanel" class="admin-panel hidden">
-        <div class="admin-panel-header">
-            <span>🔑 АДМИН-ПАНЕЛЬ</span>
-            <button id="closeAdminPanelBtn">✕</button>
-        </div>
-        <div class="admin-panel-nav" id="adminPanelNav"></div>
-        <div class="admin-panel-content" id="adminPanelContent"></div>
-    </div>
-
     <!-- Загрузка -->
     <div id="loading" class="screen">
         <div class="crt"><h1>ЗАГРУЗКА...</h1></div>
@@ -83,18 +67,30 @@
                 <button id="lootTab">🎲 ЛУТБОКСЫ</button>
                 <button id="invTab">🎒 ИНВЕНТАРЬ</button>
                 <button id="groupTab">👥 ГРУППА</button>
+                <button id="transferTab">💱 ОБМЕН</button>
                 <button id="adminTab" style="display:none;">🔑 АДМИН</button>
             </div>
             <div id="shopContent" class="content"></div>
             <div id="lootContent" class="content hidden"></div>
             <div id="inventoryContent" class="content hidden"></div>
             <div id="groupContent" class="content hidden"></div>
-            <div id="adminContent" class="content hidden"></div>
+            <div id="transferContent" class="content hidden"></div>
             <div class="log" id="logMessage">> СИСТЕМА APOSTOL ГОТОВА.</div>
         </div>
     </div>
 
-    <!-- Переключатель тем -->
+    <!-- Админ-оверлей и панель -->
+    <div id="adminOverlay" class="admin-overlay hidden"></div>
+    <div id="adminPanel" class="admin-panel hidden">
+        <div class="admin-panel-header">
+            <span>🔑 АДМИН-ПАНЕЛЬ</span>
+            <button id="closeAdminPanelBtn">✕</button>
+        </div>
+        <div class="admin-panel-nav" id="adminPanelNav"></div>
+        <div class="admin-panel-content" id="adminPanelContent"></div>
+    </div>
+    <button id="openAdminBtn" class="admin-open-btn hidden">🔑</button>
+
     <script>
         function setTheme(t) {
             document.documentElement.className = 'theme-' + t;
@@ -104,7 +100,6 @@
         }
         (() => setTheme(localStorage.getItem('apostol-theme') || 'green'))();
     </script>
-
     <script src="js/main.js" type="module"></script>
 </body>
 </html>
