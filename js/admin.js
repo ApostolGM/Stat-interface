@@ -4,12 +4,11 @@ import { collection, query, where, getDocs, doc, updateDoc } from "https://www.g
 import { log } from './shared.js';
 import { subscribeToShop, updateShopCategories } from './shop-config.js';
 import { subscribeToLootboxes, updateLootboxes } from './lootbox-config.js';
-import { initGroups, renderGroupsAdmin } from './groups.js';
+import { renderGroupsAdmin, initGroups } from './groups.js';
 
-// UID мастеров (скопируй свои из Firebase Console → Authentication → Users)
+// ⚠️ ЗАМЕНИ НА СВОЙ UID ИЗ КОНСОЛИ FIREBASE
 const MASTER_UIDS = ["4pFBCO9TamP7eX22MpxKdTLQYz63"];
 
-let isAdminUnlocked = false;
 let foundUserId = null;
 let foundUserData = null;
 let shopCategories = {};
@@ -18,24 +17,11 @@ let adminMode = 'players';
 let selectedCategory = null;
 let selectedSubcategory = null;
 
-export async function renderAdmin() {
-    const container = document.getElementById('adminContent');
-    
-    // Получаем текущего пользователя из auth.js
-    const { currentUser } = await import('./auth.js');
-    if (!currentUser || !isMaster(currentUser.uid)) {
-        container.innerHTML = '<p style="color:#FF5555;">ДОСТУП ЗАКРЫТ. ТОЛЬКО ДЛЯ МАСТЕРА.</p>';
-        return;
-    }
-
-    // Дальше обычная логика админки (без изменений)
-    subscribeToShop((categories) => { ... });
-    subscribeToLootboxes((boxes) => { ... });
-    // ... остальной код renderAdmin без изменений
+export function isMaster(uid) {
+    return MASTER_UIDS.includes(uid);
 }
 
 export function resetAdmin() {
-    isAdminUnlocked = false;
     foundUserId = null;
     foundUserData = null;
     adminMode = 'players';
@@ -54,24 +40,12 @@ export async function findUserByLogin(login) {
 
 export async function renderAdmin() {
     const container = document.getElementById('adminContent');
-    if (!isAdminUnlocked) {
-        container.innerHTML = `
-            <p>ВВЕДИТЕ МАСТЕР-ПАРОЛЬ:</p>
-            <input type="password" id="masterPasswordInput" placeholder="ПАРОЛЬ">
-            <button id="submitMasterPassword">ПОДТВЕРДИТЬ</button>
-            <p id="adminError" style="color:#FF5555;"></p>
-        `;
-        export function resetAdmin() {
-    foundUserId = null;
-    foundUserData = null;
-    adminMode = 'players';
-    selectedCategory = null;
-    selectedSubcategory = null;
-}
-            } else {
-                document.getElementById('adminError').innerText = 'НЕВЕРНЫЙ ПАРОЛЬ';
-            }
-        };
+    if (!container) return;
+
+    // Проверка доступа по UID
+    const { currentUser } = await import('./auth.js');
+    if (!currentUser || !isMaster(currentUser.uid)) {
+        container.innerHTML = '<p style="color:#FF5555; text-align:center; padding:20px;">ДОСТУП ЗАКРЫТ. ТОЛЬКО ДЛЯ МАСТЕРА.</p>';
         return;
     }
 
@@ -473,7 +447,7 @@ function updateAdminDisplay(user) {
     inventory.forEach((item, index) => {
         const li = document.createElement('li');
         li.style.cssText = 'padding:5px 0; border-bottom:1px solid var(--card-hover-bg); display:flex; justify-content:space-between; font-size:12px;';
-        li.innerHTML = `<span>${item}</span> <button data-index="${index}" class="removeInvBtn" style="font-size:9px; padding:2px 6px; flex:none;">УДАЛИТЬ</button>`;
+        li.innerHTML = `<span>${typeof item === 'string' ? item : item.name}</span> <button data-index="${index}" class="removeInvBtn" style="font-size:9px; padding:2px 6px; flex:none;">УДАЛИТЬ</button>`;
         invList.appendChild(li);
     });
     document.querySelectorAll('.removeInvBtn').forEach(btn => {
