@@ -12,7 +12,7 @@ export function resetShopAdmin() {
 }
 
 export function renderShopAdmin() {
-    const inner = document.getElementById('adminInnerContent');
+    const inner = document.getElementById('adminPanelContent');
     const shopCategories = getShopCategories();
     if (!shopCategories || Object.keys(shopCategories).length === 0) {
         inner.innerHTML = '<p>МАГАЗИН ПУСТ</p>';
