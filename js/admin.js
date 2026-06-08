@@ -61,11 +61,13 @@ export async function renderAdmin() {
             <button id="submitMasterPassword">ПОДТВЕРДИТЬ</button>
             <p id="adminError" style="color:#FF5555;"></p>
         `;
-        document.getElementById('submitMasterPassword').onclick = () => {
-            const pwd = document.getElementById('masterPasswordInput').value;
-            if (checkMasterPassword(pwd)) {
-                log('ДОСТУП РАЗРЕШЁН. ДОБРО ПОЖАЛОВАТЬ, МАСТЕР.');
-                renderAdmin();
+        export function resetAdmin() {
+    foundUserId = null;
+    foundUserData = null;
+    adminMode = 'players';
+    selectedCategory = null;
+    selectedSubcategory = null;
+}
             } else {
                 document.getElementById('adminError').innerText = 'НЕВЕРНЫЙ ПАРОЛЬ';
             }
