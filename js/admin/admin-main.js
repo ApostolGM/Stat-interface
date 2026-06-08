@@ -4,7 +4,7 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/fi
 import { subscribeToShop } from '../shop-config.js';
 import { subscribeToLootboxes } from '../lootbox-config.js';
 import { renderPlayersAdmin } from './admin-players.js';
-import { renderShopAdmin } from './admin-shop.js';
+import { renderShopAdmin, resetShopAdmin } from './admin-shop.js';
 import { renderLootboxAdmin } from './admin-lootboxes.js';
 import { renderGroupsAdmin, initGroups } from './admin-groups.js';
 
@@ -16,11 +16,7 @@ onAuthStateChanged(auth, (user) => { currentUser = user; });
 let shopCategories = {};
 let lootboxesCache = [];
 let adminMode = 'players';
-// В admin/admin-main.js добавь:
-export function resetAdmin() {
-    // Сброс состояния при выходе
-    import('./admin-shop.js').then(m => m.resetShopAdmin());
-}
+
 export function isMaster(uid) {
     return MASTER_UIDS.includes(uid);
 }
@@ -29,8 +25,11 @@ export function getShopCategories() { return shopCategories; }
 export function getLootboxesCache() { return lootboxesCache; }
 export function getAdminMode() { return adminMode; }
 export function setAdminMode(mode) { adminMode = mode; }
-
 export function getCurrentUser() { return currentUser; }
+
+export function resetAdmin() {
+    resetShopAdmin();
+}
 
 export async function renderAdmin() {
     const container = document.getElementById('adminContent');
