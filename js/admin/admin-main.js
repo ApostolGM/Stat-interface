@@ -25,10 +25,12 @@ export function getShopCategories() { return shopCategories; }
 export function getLootboxesCache() { return lootboxesCache; }
 export function getAdminMode() { return adminMode; }
 export function setAdminMode(mode) { adminMode = mode; }
+
 export function getCurrentUser() { return currentUser; }
 
 export function resetAdmin() {
     resetShopAdmin();
+    adminMode = 'players';
 }
 
 export async function renderAdmin() {
