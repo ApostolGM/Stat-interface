@@ -1,21 +1,16 @@
 // ui.js
 import { setTokens, setInventory, getTokens, getInventory, log } from './shared.js';
-import { renderAdmin, isMaster } from './admin/admin-main.js';
 
 export { setTokens, setInventory, getTokens, getInventory, log };
 
 let shopCleanup = null;
-export function setShopCleanup(fn) {
-    shopCleanup = fn;
-}
+export function setShopCleanup(fn) { shopCleanup = fn; }
 
 export function showTab(tab, renderFunctions) {
     document.getElementById('shopContent').classList.add('hidden');
     document.getElementById('lootContent').classList.add('hidden');
     document.getElementById('inventoryContent').classList.add('hidden');
     document.getElementById('groupContent').classList.add('hidden');
-    const adminContent = document.getElementById('adminContent');
-    if (adminContent) adminContent.classList.add('hidden');
 
     switch (tab) {
         case 'shop':
@@ -35,16 +30,17 @@ export function showTab(tab, renderFunctions) {
             if (renderFunctions.group) renderFunctions.group();
             break;
         case 'admin':
-            if (adminContent) {
-                adminContent.classList.remove('hidden');
-                renderAdmin();
-            }
+            // Админка теперь открывается боковой панелью
+            document.getElementById('adminOverlay').classList.remove('hidden');
+            document.getElementById('adminPanel').classList.remove('hidden');
+            import('./admin/admin-main.js').then(m => m.renderAdminPanel());
             break;
     }
 }
 
 export function resetAdminOnLogout() {
-    // Сброс при выходе (опционально)
+    document.getElementById('adminOverlay').classList.add('hidden');
+    document.getElementById('adminPanel').classList.add('hidden');
     if (shopCleanup) shopCleanup();
     shopCleanup = null;
 }
