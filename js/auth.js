@@ -23,7 +23,10 @@ export async function signUp() {
     try {
         const userCredential = await createUserWithEmailAndPassword(auth, loginToEmail(login), password);
         await setDoc(doc(db, "users", userCredential.user.uid), {
-            login, email: loginToEmail(login), tokens: 5, characterIds: []
+            login,
+            email: loginToEmail(login),
+            currencies: { pink: 5, gray: 0, yellow: 0 },
+            characterIds: []
         });
     } catch (error) { errorEl.innerText = error.message; }
 }
@@ -33,11 +36,14 @@ export async function signIn() {
     const password = document.getElementById('password').value;
     const errorEl = document.getElementById('authError');
     if (!login) { errorEl.innerText = 'ВВЕДИТЕ ЛОГИН'; return; }
-    try { await signInWithEmailAndPassword(auth, loginToEmail(login), password); }
-    catch (error) { errorEl.innerText = error.message; }
+    try {
+        await signInWithEmailAndPassword(auth, loginToEmail(login), password);
+    } catch (error) { errorEl.innerText = error.message; }
 }
 
-export async function signOutUser() { await signOut(auth); }
+export async function signOutUser() {
+    await signOut(auth);
+}
 
 export function setupAuth(onUserChange) {
     onAuthStateChanged(auth, async (user) => {
@@ -65,8 +71,9 @@ export async function showCharacterScreen(userData) {
     document.getElementById('characterScreen').classList.remove('hidden');
     const container = document.getElementById('characterContent');
     const characterIds = userData.characterIds || [];
-    
+
     let html = '<h2>ВАШИ ПЕРСОНАЖИ</h2>';
+
     if (characterIds.length === 0) {
         html += '<p>НЕТ ПЕРСОНАЖЕЙ</p>';
     } else {
@@ -75,14 +82,17 @@ export async function showCharacterScreen(userData) {
             const charDoc = await getDoc(doc(db, "characters", charId));
             if (charDoc.exists()) {
                 const char = charDoc.data();
-                html += `<button class="select-char-btn" data-id="${charId}">${char.name} (${char.groupId ? 'В ГРУППЕ' : 'БЕЗ ГРУППЫ'})</button>`;
+                const groupStatus = char.groupId ? 'В ГРУППЕ' : 'БЕЗ ГРУППЫ';
+                html += `<button class="select-char-btn" data-id="${charId}">${char.name} (${groupStatus})</button>`;
             }
         }
         html += '</div>';
     }
+
     html += '<button id="createApplicationBtn" style="margin-top:15px;">СОЗДАТЬ ЗАЯВКУ</button>';
     container.innerHTML = html;
 
+    // Выбор персонажа
     document.querySelectorAll('.select-char-btn').forEach(btn => {
         btn.onclick = async () => {
             const charDoc = await getDoc(doc(db, "characters", btn.dataset.id));
@@ -97,18 +107,22 @@ export async function showCharacterScreen(userData) {
         };
     });
 
+    // Кнопка создания заявки
     document.getElementById('createApplicationBtn').onclick = () => showApplicationForm(userData);
 
     // Показываем кнопку админ-панели для мастера
     import('./admin/admin-main.js').then(module => {
         if (module.isMaster(userData.uid)) {
-            document.getElementById('masterPanel').style.display = 'block';
-            document.getElementById('enterAdminFromCharBtn').onclick = () => {
-                window.selectedCharacter = null;
-                document.getElementById('characterScreen').classList.add('hidden');
-                document.getElementById('terminal').classList.remove('hidden');
-                window.dispatchEvent(new CustomEvent('characterSelected', { detail: null }));
-            };
+            const masterPanel = document.getElementById('masterPanel');
+            if (masterPanel) {
+                masterPanel.style.display = 'block';
+                document.getElementById('enterAdminFromCharBtn').onclick = () => {
+                    window.selectedCharacter = null;
+                    document.getElementById('characterScreen').classList.add('hidden');
+                    document.getElementById('terminal').classList.remove('hidden');
+                    window.dispatchEvent(new CustomEvent('characterSelected', { detail: null }));
+                };
+            }
         }
     });
 }
@@ -121,39 +135,66 @@ async function showApplicationForm(userData) {
         <select id="groupSelect"><option value="">ВЫБЕРИТЕ ГРУППУ</option></select>
         <button id="submitApplicationBtn">ОТПРАВИТЬ</button>
         <button id="cancelApplicationBtn">ОТМЕНА</button>
+        <p id="appError" style="color:#FF5555; font-size:10px;"></p>
     `;
-    
+
+    // Загружаем список групп
     const { subscribeToGroups } = await import('./groups-config.js');
     subscribeToGroups(groups => {
         const select = document.getElementById('groupSelect');
         if (!select) return;
         select.innerHTML = '<option value="">ВЫБЕРИТЕ ГРУППУ</option>';
-        groups.forEach(g => select.innerHTML += `<option value="${g.id}">${g.name}</option>`);
+        groups.forEach(g => {
+            select.innerHTML += `<option value="${g.id}">${g.name}</option>`;
+        });
     });
 
     document.getElementById('submitApplicationBtn').onclick = async () => {
         const name = document.getElementById('charName').value.trim();
         const groupId = document.getElementById('groupSelect').value;
-        if (!name || !groupId) return;
+        const errorEl = document.getElementById('appError');
+
+        if (!name) { errorEl.innerText = 'ВВЕДИТЕ ИМЯ ПЕРСОНАЖА'; return; }
+        if (!groupId) { errorEl.innerText = 'ВЫБЕРИТЕ ГРУППУ'; return; }
+
         const charId = 'char_' + Date.now();
-        await setDoc(doc(db, "characters", charId), {
-            id: charId, name, userId: userData.uid, groupId: null, inventory: []
-        });
-        await updateDoc(doc(db, "users", userData.uid), {
-            characterIds: [...(userData.characterIds || []), charId]
-        });
-        const { updateGroups } = await import('./groups-config.js');
-        const groups = await new Promise(resolve => {
-            let unsub = subscribeToGroups(g => { resolve(g); unsub(); });
-        });
-        const group = groups.find(g => g.id === groupId);
-        if (group) {
-            group.applications = group.applications || [];
-            group.applications.push({ characterId: charId, characterName: name, userId: userData.uid });
-            await updateGroups(groups);
-            alert('ЗАЯВКА ОТПРАВЛЕНА');
-            showCharacterScreen(userData);
+        try {
+            // Создаём персонажа
+            await setDoc(doc(db, "characters", charId), {
+                id: charId,
+                name,
+                userId: userData.uid,
+                groupId: null,
+                inventory: []
+            });
+
+            // Добавляем персонажа в список пользователя
+            await updateDoc(doc(db, "users", userData.uid), {
+                characterIds: [...(userData.characterIds || []), charId]
+            });
+
+            // Добавляем заявку в группу
+            const { updateGroups } = await import('./groups-config.js');
+            const groups = await new Promise(resolve => {
+                let unsub = subscribeToGroups(g => { resolve(g); unsub(); });
+            });
+
+            const group = groups.find(g => g.id === groupId);
+            if (group) {
+                group.applications = group.applications || [];
+                group.applications.push({
+                    characterId: charId,
+                    characterName: name,
+                    userId: userData.uid
+                });
+                await updateGroups(groups);
+                alert('ЗАЯВКА ОТПРАВЛЕНА! ОЖИДАЙТЕ ПОДТВЕРЖДЕНИЯ.');
+                showCharacterScreen(userData);
+            }
+        } catch (error) {
+            errorEl.innerText = 'ОШИБКА: ' + error.message;
         }
     };
+
     document.getElementById('cancelApplicationBtn').onclick = () => showCharacterScreen(userData);
 }
