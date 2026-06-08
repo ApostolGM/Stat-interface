@@ -10,19 +10,22 @@
     <audio id="bgHum" loop preload="auto">
         <source src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=" type="audio/wav">
     </audio>
-    <!-- Оверлей для админ-панели -->
-<div id="adminOverlay" class="admin-overlay hidden"></div>
 
-<!-- Админ-панель -->
-<div id="adminPanel" class="admin-panel hidden">
-    <div class="admin-panel-header">
-        <span>🔑 АДМИН-ПАНЕЛЬ</span>
-        <button id="closeAdminPanelBtn">✕</button>
+    <!-- Кнопка открытия админ-панели (видна только мастеру) -->
+    <button id="openAdminBtn" class="admin-open-btn hidden">🔑</button>
+
+    <!-- Оверлей админ-панели -->
+    <div id="adminOverlay" class="admin-overlay hidden"></div>
+
+    <!-- Админ-панель -->
+    <div id="adminPanel" class="admin-panel hidden">
+        <div class="admin-panel-header">
+            <span>🔑 АДМИН-ПАНЕЛЬ</span>
+            <button id="closeAdminPanelBtn">✕</button>
+        </div>
+        <div class="admin-panel-nav" id="adminPanelNav"></div>
+        <div class="admin-panel-content" id="adminPanelContent"></div>
     </div>
-    <div class="admin-panel-nav" id="adminPanelNav"></div>
-    <div class="admin-panel-content" id="adminPanelContent"></div>
-</div>
-    
 
     <!-- Загрузка -->
     <div id="loading" class="screen">
@@ -47,15 +50,15 @@
 
     <!-- Экран персонажей -->
     <div id="characterScreen" class="screen hidden">
-    <div class="crt">
-        <h1>APOSTOL v2.0 (Beta)</h1>
-        <div id="characterContent" class="content" style="max-height:400px;"></div>
-        <div id="masterPanel" style="margin-top:15px; display:none;">
-            <button id="enterAdminFromCharBtn" style="width:100%;">🔑 АДМИН-ПАНЕЛЬ</button>
+        <div class="crt">
+            <h1>APOSTOL v2.0 (Beta)</h1>
+            <div id="characterContent" class="content" style="max-height:400px;"></div>
+            <div id="masterPanel" style="margin-top:15px; display:none;">
+                <button id="enterAdminFromCharBtn" style="width:100%;">🔑 АДМИН-ПАНЕЛЬ</button>
+            </div>
+            <button id="signOutFromCharBtn" style="margin-top:10px;">ВЫЙТИ</button>
         </div>
-        <button id="signOutFromCharBtn" style="margin-top:10px;">ВЫЙТИ</button>
     </div>
-</div>
 
     <!-- Терминал -->
     <div id="terminal" class="screen hidden">
@@ -91,6 +94,7 @@
         </div>
     </div>
 
+    <!-- Переключатель тем -->
     <script>
         function setTheme(t) {
             document.documentElement.className = 'theme-' + t;
@@ -100,6 +104,7 @@
         }
         (() => setTheme(localStorage.getItem('apostol-theme') || 'green'))();
     </script>
+
     <script src="js/main.js" type="module"></script>
 </body>
 </html>
