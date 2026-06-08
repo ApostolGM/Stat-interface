@@ -29,7 +29,6 @@ export function renderGroupsAdmin(containerId) {
     const groups = [...groupsCache];
     let html = '<h3>ГРУППЫ ИГРОКОВ</h3>';
 
-    // --- Список групп с заявками ---
     html += '<div style="display:flex; flex-direction:column; gap:10px; max-height:350px; overflow-y:auto; margin-bottom:15px;">';
     if (groups.length === 0) {
         html += '<p style="opacity:0.6;">НЕТ СОЗДАННЫХ ГРУПП</p>';
@@ -63,7 +62,6 @@ export function renderGroupsAdmin(containerId) {
     }
     html += '</div>';
 
-    // --- Форма создания/редактирования группы ---
     html += `
         <div style="border-top:1px solid var(--border-color); padding-top:12px;">
             <h4 id="groupFormTitle">НОВАЯ ГРУППА</h4>
@@ -87,7 +85,6 @@ export function renderGroupsAdmin(containerId) {
     let editingIndex = -1;
     let tempPlayers = [];
 
-    // ========== РЕНДЕР ИГРОКОВ В ФОРМЕ ==========
     function renderPlayers() {
         const list = document.getElementById('groupPlayersList');
         if (!list) return;
@@ -111,7 +108,6 @@ export function renderGroupsAdmin(containerId) {
         });
     }
 
-    // ========== УДАЛЕНИЕ ГРУППЫ ==========
     document.querySelectorAll('.deleteGroupBtn').forEach(btn => {
         btn.onclick = async (e) => {
             e.stopPropagation();
@@ -122,7 +118,6 @@ export function renderGroupsAdmin(containerId) {
         };
     });
 
-    // ========== ПРИНЯТЬ ЗАЯВКУ ==========
     document.querySelectorAll('.acceptAppBtn').forEach(btn => {
         btn.onclick = async (e) => {
             e.stopPropagation();
@@ -145,7 +140,6 @@ export function renderGroupsAdmin(containerId) {
         };
     });
 
-    // ========== ОТКЛОНИТЬ ЗАЯВКУ ==========
     document.querySelectorAll('.rejectAppBtn').forEach(btn => {
         btn.onclick = async (e) => {
             e.stopPropagation();
@@ -161,7 +155,6 @@ export function renderGroupsAdmin(containerId) {
         };
     });
 
-    // ========== ДОБАВИТЬ ИГРОКА В ФОРМУ ==========
     document.getElementById('addPlayerToGroupBtn').onclick = async () => {
         const login = document.getElementById('newPlayerLogin').value.trim().toLowerCase();
         if (!login) return;
@@ -180,7 +173,6 @@ export function renderGroupsAdmin(containerId) {
         renderPlayers();
     };
 
-    // ========== ЗАГРУЗКА ГРУППЫ В ФОРМУ ==========
     function loadGroup(group) {
         document.getElementById('groupName').value = group.name;
         document.getElementById('groupNotes').value = group.notes || '';
@@ -188,7 +180,6 @@ export function renderGroupsAdmin(containerId) {
         renderPlayers();
     }
 
-    // ========== ОЧИСТКА ФОРМЫ ==========
     function clearForm() {
         document.getElementById('groupName').value = '';
         document.getElementById('groupNotes').value = '';
@@ -200,7 +191,6 @@ export function renderGroupsAdmin(containerId) {
         document.getElementById('groupError').innerText = '';
     }
 
-    // ========== ВЫБОР ГРУППЫ ДЛЯ РЕДАКТИРОВАНИЯ ==========
     document.querySelectorAll('.selectGroupBtn').forEach(btn => {
         btn.onclick = (e) => {
             if (e.target.classList.contains('deleteGroupBtn')) return;
@@ -211,10 +201,8 @@ export function renderGroupsAdmin(containerId) {
         };
     });
 
-    // ========== ОТМЕНА РЕДАКТИРОВАНИЯ ==========
     document.getElementById('cancelGroupBtn').onclick = clearForm;
 
-    // ========== СОХРАНЕНИЕ ГРУППЫ ==========
     document.getElementById('saveGroupBtn').onclick = async () => {
         const name = document.getElementById('groupName').value.trim();
         const notes = document.getElementById('groupNotes').value.trim();
@@ -224,13 +212,11 @@ export function renderGroupsAdmin(containerId) {
         }
 
         if (editingIndex >= 0) {
-            // Редактирование существующей группы
             const group = { ...groups[editingIndex], name, notes, players: tempPlayers };
             const newGroups = groups.map((g, i) => i === editingIndex ? group : g);
             await updateGroups(newGroups);
             log(`ГРУППА "${name}" ОБНОВЛЕНА`);
         } else {
-            // Создание новой группы
             const newGroup = await createGroup(name, notes);
             if (tempPlayers.length > 0) {
                 const docRef = doc(db, "config", "groups");
