@@ -1,6 +1,7 @@
 // lootbox.js
 import { updateUserData } from './db.js';
-import { getTokens, getInventory, log } from './shared.js';
+import { getCurrencies, getInventory } from './state.js';
+import { log } from './shared.js';
 import { subscribeToLootboxes } from './lootbox-config.js';
 
 let lootboxes = [];
