@@ -6,7 +6,8 @@ import { subscribeToShop, updateShopCategories } from './shop-config.js';
 import { subscribeToLootboxes, updateLootboxes } from './lootbox-config.js';
 import { initGroups, renderGroupsAdmin } from './groups.js';
 
-const MASTER_PASSWORD = "gephard217";
+// UID мастеров (скопируй свои из Firebase Console → Authentication → Users)
+const MASTER_UIDS = ["4pFBCO9TamP7eX22MpxKdTLQYz63"];
 
 let isAdminUnlocked = false;
 let foundUserId = null;
@@ -17,12 +18,20 @@ let adminMode = 'players';
 let selectedCategory = null;
 let selectedSubcategory = null;
 
-export function checkMasterPassword(password) {
-    if (password === MASTER_PASSWORD) {
-        isAdminUnlocked = true;
-        return true;
+export async function renderAdmin() {
+    const container = document.getElementById('adminContent');
+    
+    // Получаем текущего пользователя из auth.js
+    const { currentUser } = await import('./auth.js');
+    if (!currentUser || !isMaster(currentUser.uid)) {
+        container.innerHTML = '<p style="color:#FF5555;">ДОСТУП ЗАКРЫТ. ТОЛЬКО ДЛЯ МАСТЕРА.</p>';
+        return;
     }
-    return false;
+
+    // Дальше обычная логика админки (без изменений)
+    subscribeToShop((categories) => { ... });
+    subscribeToLootboxes((boxes) => { ... });
+    // ... остальной код renderAdmin без изменений
 }
 
 export function resetAdmin() {
