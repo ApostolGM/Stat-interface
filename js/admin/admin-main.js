@@ -1,3 +1,4 @@
+// admin-main.js
 import { currentUserRole, currentUserGroupIds } from '../auth.js';
 import { subscribeToGroups } from '../groups-config.js';
 import { renderPlayersAdmin } from './admin-players.js';
@@ -30,7 +31,7 @@ function renderGroupSelection() {
     const nav = document.getElementById('adminPanelNav');
     nav.innerHTML = '';
     const content = document.getElementById('adminPanelContent');
-    
+
     let groupsToShow = allGroups;
     if (currentUserRole === 'group_master') {
         groupsToShow = allGroups.filter(g => currentUserGroupIds.includes(g.id));
@@ -81,10 +82,10 @@ function renderGroupAdmin() {
     document.getElementById('backToGroupsBtn').onclick = renderGroupSelection;
 
     const content = document.getElementById('adminPanelContent');
-    if (adminMode === 'players') renderPlayersAdmin(selectedGroupId, content);
-    else if (adminMode === 'shop') renderShopAdmin(selectedGroupId, content);
-    else if (adminMode === 'lootboxes') renderLootboxAdmin(selectedGroupId, content);
-    else if (adminMode === 'events') renderEventsAdmin(selectedGroupId, content);
+    if (adminMode === 'players') renderPlayersAdmin(group, content);
+    else if (adminMode === 'shop') renderShopAdmin(group, content);
+    else if (adminMode === 'lootboxes') renderLootboxAdmin(group, content);
+    else if (adminMode === 'events') renderEventsAdmin(group, content);
 }
 
 function renderGlobalAdmin() {
@@ -105,4 +106,8 @@ function renderGlobalAdmin() {
     if (adminMode === 'tags') renderTagsAdmin(content);
     else if (adminMode === 'items') renderItemsAdmin(content);
     else if (adminMode === 'groups') renderGroupsAdmin('adminPanelContent');
+}
+
+export function getGroupById(id) {
+    return allGroups.find(g => g.id === id);
 }
