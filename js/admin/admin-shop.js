@@ -10,9 +10,19 @@ export function renderShopAdmin(group, container) {
     const shop = group.shop || { categories: {} };
     const categories = shop.categories;
     if (!categories || Object.keys(categories).length === 0) {
-        container.innerHTML = '<p>МАГАЗИН ПУСТ. ДОБАВЬТЕ КАТЕГОРИИ.</p>';
-        return;
-    }
+    // Показываем форму создания первой категории
+    let html = '<h3>КАТЕГОРИИ</h3><p>МАГАЗИН ПУСТ. СОЗДАЙТЕ ПЕРВУЮ КАТЕГОРИЮ.</p>';
+    html += `<div style="display:flex; gap:10px; margin-top:12px;"><input type="text" id="newCatName" placeholder="НОВАЯ КАТЕГОРИЯ" style="flex:1;"><button id="addCatBtn">СОЗДАТЬ</button></div>`;
+    container.innerHTML = html;
+    
+    document.getElementById('addCatBtn').onclick = async () => {
+        const name = document.getElementById('newCatName').value.trim();
+        if (!name) return;
+        const newCat = { ...categories, [name]: { subcategories: {} } };
+        await saveShop(group, newCat);
+        log(`КАТЕГОРИЯ "${name}" СОЗДАНА`);
+    };
+    return;
 
     if (!selectedCategory) {
         renderCategories(container, categories, group);
