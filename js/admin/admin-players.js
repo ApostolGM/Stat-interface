@@ -19,7 +19,7 @@ export async function findUserByLogin(login) {
 }
 
 export function renderPlayersAdmin() {
-    const inner = document.getElementById('adminInnerContent');
+    const inner = document.getElementById('adminPanelContent');
     inner.innerHTML = `
         <div style="display:flex; gap:10px; margin-bottom:10px;">
             <input type="text" id="searchLogin" placeholder="ЛОГИН ИГРОКА" style="flex:1;">
