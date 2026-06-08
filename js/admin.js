@@ -7,7 +7,6 @@ import { subscribeToShop, updateShopCategories } from './shop-config.js';
 import { subscribeToLootboxes, updateLootboxes } from './lootbox-config.js';
 import { renderGroupsAdmin, initGroups } from './groups.js';
 
-// ⚠️ ЗАМЕНИ НА СВОЙ UID ИЗ КОНСОЛИ FIREBASE
 const MASTER_UIDS = ["твой-uid-здесь"];
 
 let currentUser = null;
