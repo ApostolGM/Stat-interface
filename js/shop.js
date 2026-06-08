@@ -15,7 +15,6 @@ export function renderShop(userId) {
         container.innerHTML = '<p>ВЫ НЕ В ГРУППЕ</p>';
         return;
     }
-    // Подписываемся на предметы один раз
     subscribeToItems(items => { allItems = items; });
     subscribeToGroups(groups => {
         const group = groups.find(g => g.id === currentChar.groupId);
