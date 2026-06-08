@@ -4,7 +4,7 @@ import { updateLootboxes } from '../lootbox-config.js';
 import { getLootboxesCache } from './admin-main.js';
 
 export function renderLootboxAdmin() {
-    const inner = document.getElementById('adminInnerContent');
+    const inner = document.getElementById('adminPanelContent');
     const lootboxes = [...getLootboxesCache()];
     
     let html = '<h3>КОНСТРУКТОР ЛУТБОКСОВ</h3>';
