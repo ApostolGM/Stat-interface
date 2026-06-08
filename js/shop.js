@@ -1,6 +1,7 @@
 // shop.js
 import { updateUserData } from './db.js';
-import { getTokens, getInventory, log } from './shared.js';
+import { getCurrencies, getTotalPink, spendPink, getInventory } from './state.js';
+import { log } from './shared.js';
 import { subscribeToShop } from './shop-config.js';
 import { doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 import { db } from './firebase-config.js';
