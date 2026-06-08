@@ -1,3 +1,4 @@
+// inventory.js
 import { getInventory } from './state.js';
 
 export function renderInventory() {
@@ -12,8 +13,9 @@ export function renderInventory() {
     inv.forEach(item => {
         const qty = item.quantity ? ` ×${item.quantity}` : '';
         const dur = item.durability !== undefined ? ` [${item.durability}%]` : '';
+        const img = item.image ? `<img src="${item.image}" style="width:20px;height:20px;vertical-align:middle;"> ` : '';
         html += `<div style="display:flex; justify-content:space-between; font-size:12px; padding:4px 0; border-bottom:1px solid var(--card-hover-bg);">
-            <span>${item.name}${qty}${dur}</span>
+            <span>${img}${item.name}${qty}${dur}</span>
         </div>`;
     });
     html += '</div>';
