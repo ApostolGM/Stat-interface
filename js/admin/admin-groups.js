@@ -1,9 +1,9 @@
 // admin/admin-groups.js
 import { db } from '../firebase-config.js';
-import { doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+import { doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 import { log } from '../shared.js';
-import { subscribeToGroups, updateGroups } from '../groups-config.js';
-import { findUserByLogin } from '../helpers.js';   // <-- исправлено
+import { subscribeToGroups, updateGroups, createGroup } from '../groups-config.js';
+import { findUserByLogin } from '../helpers.js';
 
 let groupsCache = [];
 let unsubscribeGroups = null;
@@ -84,7 +84,34 @@ export function renderGroupsAdmin(containerId) {
     `;
     container.innerHTML = html;
 
-    // ========== ОБРАБОТЧИКИ ==========
+    let editingIndex = -1;
+    let tempPlayers = [];
+
+    // ========== РЕНДЕР ИГРОКОВ В ФОРМЕ ==========
+    function renderPlayers() {
+        const list = document.getElementById('groupPlayersList');
+        if (!list) return;
+        list.innerHTML = '';
+        if (tempPlayers.length === 0) {
+            list.innerHTML = '<p style="font-size:10px;opacity:0.6;">НЕТ ИГРОКОВ</p>';
+            return;
+        }
+        tempPlayers.forEach((player, i) => {
+            list.innerHTML += `
+                <div style="display:flex; justify-content:space-between; align-items:center; font-size:10px; background:var(--card-bg); padding:4px 6px; border:1px solid var(--border-color);">
+                    <span>👤 ${player}</span>
+                    <button data-i="${i}" class="removePlayerBtn" style="font-size:9px; padding:2px 5px; flex:none;">×</button>
+                </div>`;
+        });
+        document.querySelectorAll('.removePlayerBtn').forEach(btn => {
+            btn.onclick = () => {
+                tempPlayers.splice(parseInt(btn.dataset.i), 1);
+                renderPlayers();
+            };
+        });
+    }
+
+    // ========== УДАЛЕНИЕ ГРУППЫ ==========
     document.querySelectorAll('.deleteGroupBtn').forEach(btn => {
         btn.onclick = async (e) => {
             e.stopPropagation();
@@ -95,6 +122,7 @@ export function renderGroupsAdmin(containerId) {
         };
     });
 
+    // ========== ПРИНЯТЬ ЗАЯВКУ ==========
     document.querySelectorAll('.acceptAppBtn').forEach(btn => {
         btn.onclick = async (e) => {
             e.stopPropagation();
@@ -117,6 +145,7 @@ export function renderGroupsAdmin(containerId) {
         };
     });
 
+    // ========== ОТКЛОНИТЬ ЗАЯВКУ ==========
     document.querySelectorAll('.rejectAppBtn').forEach(btn => {
         btn.onclick = async (e) => {
             e.stopPropagation();
@@ -132,5 +161,89 @@ export function renderGroupsAdmin(containerId) {
         };
     });
 
-    // ... остальные функции (сохранение, редактирование) используют findUserByLogin из helpers.js
+    // ========== ДОБАВИТЬ ИГРОКА В ФОРМУ ==========
+    document.getElementById('addPlayerToGroupBtn').onclick = async () => {
+        const login = document.getElementById('newPlayerLogin').value.trim().toLowerCase();
+        if (!login) return;
+        if (tempPlayers.includes(login)) {
+            document.getElementById('groupError').innerText = 'ИГРОК УЖЕ В ГРУППЕ';
+            return;
+        }
+        const user = await findUserByLogin(login);
+        if (!user) {
+            document.getElementById('groupError').innerText = 'ИГРОК НЕ НАЙДЕН';
+            return;
+        }
+        document.getElementById('groupError').innerText = '';
+        tempPlayers.push(login);
+        document.getElementById('newPlayerLogin').value = '';
+        renderPlayers();
+    };
+
+    // ========== ЗАГРУЗКА ГРУППЫ В ФОРМУ ==========
+    function loadGroup(group) {
+        document.getElementById('groupName').value = group.name;
+        document.getElementById('groupNotes').value = group.notes || '';
+        tempPlayers = [...(group.players || [])];
+        renderPlayers();
+    }
+
+    // ========== ОЧИСТКА ФОРМЫ ==========
+    function clearForm() {
+        document.getElementById('groupName').value = '';
+        document.getElementById('groupNotes').value = '';
+        tempPlayers = [];
+        renderPlayers();
+        editingIndex = -1;
+        document.getElementById('groupFormTitle').innerText = 'НОВАЯ ГРУППА';
+        document.getElementById('cancelGroupBtn').style.display = 'none';
+        document.getElementById('groupError').innerText = '';
+    }
+
+    // ========== ВЫБОР ГРУППЫ ДЛЯ РЕДАКТИРОВАНИЯ ==========
+    document.querySelectorAll('.selectGroupBtn').forEach(btn => {
+        btn.onclick = (e) => {
+            if (e.target.classList.contains('deleteGroupBtn')) return;
+            editingIndex = parseInt(btn.dataset.index);
+            loadGroup(groups[editingIndex]);
+            document.getElementById('groupFormTitle').innerText = 'РЕДАКТИРОВАНИЕ';
+            document.getElementById('cancelGroupBtn').style.display = 'inline-block';
+        };
+    });
+
+    // ========== ОТМЕНА РЕДАКТИРОВАНИЯ ==========
+    document.getElementById('cancelGroupBtn').onclick = clearForm;
+
+    // ========== СОХРАНЕНИЕ ГРУППЫ ==========
+    document.getElementById('saveGroupBtn').onclick = async () => {
+        const name = document.getElementById('groupName').value.trim();
+        const notes = document.getElementById('groupNotes').value.trim();
+        if (!name) {
+            document.getElementById('groupError').innerText = 'ВВЕДИТЕ НАЗВАНИЕ';
+            return;
+        }
+
+        if (editingIndex >= 0) {
+            // Редактирование существующей группы
+            const group = { ...groups[editingIndex], name, notes, players: tempPlayers };
+            const newGroups = groups.map((g, i) => i === editingIndex ? group : g);
+            await updateGroups(newGroups);
+            log(`ГРУППА "${name}" ОБНОВЛЕНА`);
+        } else {
+            // Создание новой группы
+            const newGroup = await createGroup(name, notes);
+            if (tempPlayers.length > 0) {
+                const docRef = doc(db, "config", "groups");
+                const snapshot = await getDoc(docRef);
+                const allGroups = snapshot.data().groups || [];
+                const updatedGroups = allGroups.map(g => g.id === newGroup.id ? { ...g, players: tempPlayers } : g);
+                await setDoc(docRef, { groups: updatedGroups });
+            }
+            log(`ГРУППА "${name}" СОЗДАНА`);
+        }
+        clearForm();
+        renderGroupsAdmin(containerId);
+    };
+
+    renderPlayers();
 }
