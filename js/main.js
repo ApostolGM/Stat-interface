@@ -5,11 +5,11 @@ import { setTokens, setInventory, showTab, log, resetAdminOnLogout } from './ui.
 import { renderShop, initShop, cleanupShop } from './shop.js';
 import { renderLoot, cleanupLoot } from './lootbox.js';
 import { renderInventory } from './inventory.js';
-import { renderAdmin, isMaster } from './admin.js';
 import { renderGroup } from './group-view.js';
+import { renderAdmin, isMaster } from './admin.js';
+import { cleanupGroups } from './groups.js';
 
 let currentUserId = null;
-let currentCharacter = null;
 
 const renderFunctions = {
     shop: () => renderShop(currentUserId),
@@ -24,26 +24,6 @@ function onDataUpdate(data) {
     setInventory(data.inventory);
 }
 
-function enterTerminal() {
-    document.getElementById('characterScreen').classList.add('hidden');
-    document.getElementById('terminal').classList.remove('hidden');
-    
-    // Определяем стартовую вкладку
-    const adminBtn = document.getElementById('adminTab');
-    if (isMaster(currentUserId)) {
-        if (adminBtn) adminBtn.style.display = 'inline-block';
-        showTab('admin', renderFunctions);
-    } else {
-        if (adminBtn) adminBtn.style.display = 'none';
-        showTab('shop', renderFunctions);
-    }
-    
-    // Отображаем имя персонажа
-    if (currentCharacter) {
-        document.getElementById('charDisplay').innerText = currentCharacter.name;
-    }
-}
-
 document.addEventListener('DOMContentLoaded', () => {
     // Кнопки авторизации
     document.getElementById('signInBtn').addEventListener('click', signIn);
@@ -54,6 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('signOutTerminalBtn').addEventListener('click', () => {
         cleanupShop();
         cleanupLoot();
+        cleanupGroups();
         signOutUser();
     });
 
@@ -70,21 +51,35 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('groupTab').addEventListener('click', () => showTab('group', renderFunctions));
     document.getElementById('adminTab').addEventListener('click', () => showTab('admin', renderFunctions));
 
-    // Слушаем выбор персонажа
+    // Обработчик выбора персонажа
     window.addEventListener('characterSelected', (e) => {
-        currentCharacter = e.detail;
-        currentUserId = currentCharacter.userId;
-        // Подписываемся на данные пользователя (баланс РК)
-        subscribeToUserData(currentUserId, onDataUpdate);
-        initShop(currentUserId);
-        enterTerminal();
+        const char = e.detail;
+        if (char === null) {
+            // Мастерский вход без персонажа — сразу админка
+            showTab('admin', renderFunctions);
+        } else {
+            // Обычный вход с персонажем — открываем магазин
+            showTab('shop', renderFunctions);
+        }
     });
 
-    // Запуск авторизации
+    // Инициализация авторизации
     setupAuth((user) => {
         if (user) {
             currentUserId = user.uid;
-            // После логина показывается экран персонажей (в auth.js)
+            subscribeToUserData(user.uid, onDataUpdate);
+            initShop(user.uid);
+
+            // Настройка видимости кнопки АДМИН в терминале
+            const adminBtn = document.getElementById('adminTab');
+            if (adminBtn) {
+                if (isMaster(currentUserId)) {
+                    adminBtn.style.display = 'inline-block';
+                } else {
+                    adminBtn.style.display = 'none';
+                }
+            }
+            // Не вызываем showTab здесь — ждём выбора персонажа
         } else {
             currentUserId = null;
             document.getElementById('loading').classList.add('hidden');
@@ -93,6 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+// Глобальная функция переключения звука
 window.toggleSound = function() {
     const hum = document.getElementById('bgHum');
     const btn = document.getElementById('soundToggle');
