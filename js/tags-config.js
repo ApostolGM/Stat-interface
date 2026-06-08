@@ -1,13 +1,11 @@
-// tags-config.js
 import { db } from './firebase-config.js';
 import { doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
 export function subscribeToTags(callback) {
     const docRef = doc(db, "config", "tags");
     return onSnapshot(docRef, (docSnap) => {
-        if (docSnap.exists()) {
-            callback(docSnap.data().tags || []);
-        } else {
+        if (docSnap.exists()) callback(docSnap.data().tags || []);
+        else {
             const defaultTags = [
                 { id: "weapon", name: "Оружие", color: "#FF4444" },
                 { id: "armor", name: "Броня", color: "#4444FF" },
