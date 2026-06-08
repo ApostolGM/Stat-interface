@@ -1,3 +1,4 @@
+// auth.js
 import { auth, db } from './firebase-config.js';
 import { doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 import {
@@ -107,7 +108,6 @@ export async function showCharacterScreen(userData) {
 
     document.getElementById('createApplicationBtn').onclick = () => showApplicationForm(userData);
 
-    // Админ-кнопка для не-игроков
     if (currentUserRole !== 'player') {
         document.getElementById('masterPanel').style.display = 'block';
         document.getElementById('enterAdminFromCharBtn').onclick = () => {
