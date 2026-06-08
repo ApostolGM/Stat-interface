@@ -10,6 +10,19 @@
     <audio id="bgHum" loop preload="auto">
         <source src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=" type="audio/wav">
     </audio>
+    <!-- Оверлей для админ-панели -->
+<div id="adminOverlay" class="admin-overlay hidden"></div>
+
+<!-- Админ-панель -->
+<div id="adminPanel" class="admin-panel hidden">
+    <div class="admin-panel-header">
+        <span>🔑 АДМИН-ПАНЕЛЬ</span>
+        <button id="closeAdminPanelBtn">✕</button>
+    </div>
+    <div class="admin-panel-nav" id="adminPanelNav"></div>
+    <div class="admin-panel-content" id="adminPanelContent"></div>
+</div>
+    
 
     <!-- Загрузка -->
     <div id="loading" class="screen">
