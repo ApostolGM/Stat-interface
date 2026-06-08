@@ -71,25 +71,29 @@ document.addEventListener('DOMContentLoaded', () => {
         showTab('shop', renderFunctions);
     });
 
-    // Запуск авторизации
-    setupAuth((user) => {
-        console.log('setupAuth callback, user:', user);
-        if (user) {
-            currentUserId = user.uid;
-            subscribeToUserData(user.uid, onDataUpdate);
-            initShop(user.uid);
-            
-            // Показываем/скрываем кнопку АДМИН в зависимости от UID
-            const adminTab = document.getElementById('adminTab');
-            if (adminTab) {
-                adminTab.style.display = isMaster(user.uid) ? 'inline-block' : 'none';
+   import { isMaster } from './admin.js';
+
+// Внутри setupAuth, где user определён:
+setupAuth((user) => {
+    if (user) {
+        currentUserId = user.uid;
+        subscribeToUserData(user.uid, onDataUpdate);
+        initShop(user.uid);
+        
+        // Показываем или скрываем админку
+        const adminBtn = document.getElementById('adminTab');
+        if (adminBtn) {
+            if (isMaster(currentUserId)) {
+                adminBtn.style.display = 'inline-block';
+                // По умолчанию открываем админку для мастера
+                showTab('admin', renderFunctions);
+            } else {
+                adminBtn.style.display = 'none';
+                // Для игроков — магазин
+                showTab('shop', renderFunctions);
             }
-        } else {
-            currentUserId = null;
-            document.getElementById('loading').classList.add('hidden');
-            document.getElementById('auth').classList.remove('hidden');
         }
-    });
+    }
 });
 
 // Глобальная функция переключения звука
