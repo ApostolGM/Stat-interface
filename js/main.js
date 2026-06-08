@@ -1,3 +1,4 @@
+// main.js
 import { setupAuth, signIn, signUp, signOutUser, showCharacterScreen } from './auth.js';
 import { subscribeToUserData } from './db.js';
 import { showTab, resetAdminOnLogout } from './ui.js';
@@ -6,7 +7,6 @@ import { renderLoot } from './lootbox.js';
 import { renderInventory } from './inventory.js';
 import { renderGroup } from './group-view.js';
 import { renderTransfer } from './transfer.js';
-import { openAdminPanel, initAdmin } from './admin/admin-main.js';
 
 let currentUserId = null;
 
@@ -34,21 +34,21 @@ document.addEventListener('DOMContentLoaded', () => {
         import('./auth.js').then(m => m.showCharacterScreen({ uid: currentUserId }));
     });
 
-    ['shopTab','lootTab','invTab','groupTab','transferTab','adminTab'].forEach(id => {
-        document.getElementById(id).addEventListener('click', () => showTab(id.replace('Tab',''), renderFunctions));
-    });
+    document.getElementById('shopTab').addEventListener('click', () => showTab('shop', renderFunctions));
+    document.getElementById('lootTab').addEventListener('click', () => showTab('loot', renderFunctions));
+    document.getElementById('invTab').addEventListener('click', () => showTab('inventory', renderFunctions));
+    document.getElementById('groupTab').addEventListener('click', () => showTab('group', renderFunctions));
+    document.getElementById('transferTab').addEventListener('click', () => showTab('transfer', renderFunctions));
+    document.getElementById('adminTab').addEventListener('click', () => showTab('admin', renderFunctions));
 
-    window.addEventListener('characterSelected', (e) => {
-        const char = e.detail;
-        if (char) showTab('shop', renderFunctions);
-    });
-
-    window.addEventListener('openAdmin', () => {
+    // Кнопка 🔑 в правом верхнем углу
+    document.getElementById('openAdminBtn').addEventListener('click', () => {
         document.getElementById('adminOverlay').classList.remove('hidden');
         document.getElementById('adminPanel').classList.remove('hidden');
-        openAdminPanel();
+        import('./admin/admin-main.js').then(m => m.openAdminPanel());
     });
 
+    // Закрытие админ-панели
     document.getElementById('closeAdminPanelBtn').addEventListener('click', () => {
         document.getElementById('adminOverlay').classList.add('hidden');
         document.getElementById('adminPanel').classList.add('hidden');
@@ -58,18 +58,33 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('adminPanel').classList.add('hidden');
     });
 
+    // Событие выбора персонажа
+    window.addEventListener('characterSelected', (e) => {
+        const char = e.detail;
+        if (char) showTab('shop', renderFunctions);
+    });
+
+    // Событие открытия админки с экрана персонажей
+    window.addEventListener('openAdmin', () => {
+        document.getElementById('adminOverlay').classList.remove('hidden');
+        document.getElementById('adminPanel').classList.remove('hidden');
+        import('./admin/admin-main.js').then(m => m.openAdminPanel());
+    });
+
+    // Инициализация авторизации
     setupAuth((user) => {
         if (user) {
             currentUserId = user.uid;
             subscribeToUserData(user.uid, () => {});
-            const adminBtn = document.getElementById('adminTab');
+            
             import('./auth.js').then(auth => {
                 if (auth.currentUserRole !== 'player') {
-                    adminBtn.style.display = 'inline-block';
+                    document.getElementById('adminTab').style.display = 'inline-block';
                     document.getElementById('openAdminBtn').classList.remove('hidden');
-                    initAdmin();
+                    import('./admin/admin-main.js').then(m => m.initAdmin());
                 } else {
-                    adminBtn.style.display = 'none';
+                    document.getElementById('adminTab').style.display = 'none';
+                    document.getElementById('openAdminBtn').classList.add('hidden');
                 }
             });
         } else {
