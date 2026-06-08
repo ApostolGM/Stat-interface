@@ -10,7 +10,7 @@ import { renderLootboxAdmin } from './admin-lootboxes.js';
 import { renderGroupsAdmin, initGroups } from './admin-groups.js';
 import { renderTagsAdmin } from './admin-tags.js';
 
-const MASTER_UIDS = ["твой-uid-здесь"];
+const MASTER_UIDS = ["kvXdTRC38GYOCN0gUk2RRV6q7In1","4pFBCO9TamP7eX22MpxKdTLQYz63"];
 
 let currentUser = null;
 onAuthStateChanged(auth, (user) => { currentUser = user; });
