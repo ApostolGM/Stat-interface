@@ -57,6 +57,7 @@ function updateDisplay() {
     display.innerText = parts.join(' · ') + 'К';
 }
 
+// shared.js — только функция логирования
 export function log(text) {
     const logEl = document.getElementById('logMessage');
     if (logEl) {
