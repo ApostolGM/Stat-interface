@@ -228,7 +228,7 @@ h1 {
     z-index: 20;
 }
 
-h3 {
+h3, h4 {
     color: var(--text-color);
     text-shadow: 0 0 8px var(--text-glow);
     font-family: 'Press Start 2P', 'Courier New', monospace;
@@ -236,6 +236,10 @@ h3 {
     margin: 10px 0;
     position: relative;
     z-index: 20;
+}
+
+h4 {
+    font-size: 11px;
 }
 
 p {
@@ -246,7 +250,7 @@ p {
 }
 
 /* ===== ПОЛЯ ВВОДА ===== */
-input {
+input, textarea, select {
     width: 100%;
     padding: 12px;
     margin-bottom: 10px;
@@ -264,12 +268,28 @@ input {
     z-index: 20;
 }
 
-input:focus {
+textarea {
+    text-align: left;
+    resize: vertical;
+}
+
+select {
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+select option {
+    background: var(--content-bg);
+    color: var(--text-color);
+}
+
+input:focus, textarea:focus, select:focus {
     border-color: var(--text-color);
     box-shadow: 0 0 15px rgba(255, 255, 255, 0.1), inset 0 0 15px rgba(0, 0, 0, 0.3);
 }
 
-input::placeholder {
+input::placeholder, textarea::placeholder {
     color: var(--text-color);
     opacity: 0.35;
 }
@@ -599,36 +619,12 @@ button:disabled {
     -webkit-backdrop-filter: blur(5px);
 }
 
-/* ===== АДАПТИВНОСТЬ ===== */
-@media (max-width: 768px) {
-    .crt {
-        padding: 15px;
-    }
-    
-    h1 {
-        font-size: 16px;
-    }
-    
-    button {
-        font-size: 9px;
-        padding: 8px 12px;
-    }
-    
-    .item-card {
-        width: calc(50% - 8px);
-        font-size: 8px;
-    }
-    
-    .balance {
-        font-size: 12px;
-    }
-}
 /* ===== АДМИН-ПАНЕЛЬ ===== */
 .admin-open-btn {
     position: fixed;
     top: 15px;
     right: 15px;
-    z-index: 100;
+    z-index: 89;
     background: var(--button-bg);
     color: var(--text-color);
     border: 1px solid var(--border-color);
@@ -648,6 +644,12 @@ button:disabled {
 .admin-open-btn:hover {
     background: var(--button-hover-bg);
     box-shadow: 0 0 15px var(--text-glow);
+}
+
+/* Скрываем кнопку открытия, когда панель или оверлей видны */
+.admin-panel:not(.hidden) ~ .admin-open-btn,
+.admin-overlay:not(.hidden) ~ .admin-open-btn {
+    display: none;
 }
 
 .admin-overlay {
@@ -747,7 +749,30 @@ button:disabled {
     border-radius: 3px;
 }
 
+/* ===== АДАПТИВНОСТЬ ===== */
 @media (max-width: 768px) {
+    .crt {
+        padding: 15px;
+    }
+    
+    h1 {
+        font-size: 16px;
+    }
+    
+    button {
+        font-size: 9px;
+        padding: 8px 12px;
+    }
+    
+    .item-card {
+        width: calc(50% - 8px);
+        font-size: 8px;
+    }
+    
+    .balance {
+        font-size: 12px;
+    }
+    
     .admin-panel {
         width: 100%;
     }
