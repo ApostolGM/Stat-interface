@@ -4,10 +4,7 @@ import { subscribeToTags, updateTags } from '../tags-config.js';
 
 let tagsCache = [];
 
-export function renderTagsAdmin() {
-    const inner = document.getElementById('adminPanelContent');
-    if (!inner) return;
-    
+export function renderTagsAdmin(container) {
     const tags = [...tagsCache];
     
     let html = '<h3>УПРАВЛЕНИЕ ТЭГАМИ</h3>';
@@ -30,7 +27,6 @@ export function renderTagsAdmin() {
     }
     html += '</div>';
     
-    // Форма создания
     html += `
         <div style="border-top:1px solid var(--border-color); padding-top:15px;">
             <h4>НОВЫЙ ТЭГ</h4>
@@ -53,7 +49,6 @@ export function renderTagsAdmin() {
         </div>
     `;
     
-    // Пресеты тэгов для быстрого добавления
     html += `
         <div style="margin-top:15px; border-top:1px solid var(--border-color); padding-top:15px;">
             <h4>БЫСТРЫЕ ПРЕСЕТЫ</h4>
@@ -68,9 +63,8 @@ export function renderTagsAdmin() {
         </div>
     `;
     
-    inner.innerHTML = html;
+    container.innerHTML = html;
     
-    // Удаление тэга
     document.querySelectorAll('.deleteTagBtn').forEach(btn => {
         btn.onclick = async () => {
             const newTags = tagsCache.filter(t => t.id !== btn.dataset.id);
@@ -79,7 +73,6 @@ export function renderTagsAdmin() {
         };
     });
     
-    // Создание тэга
     document.getElementById('addTagBtn').onclick = async () => {
         const id = document.getElementById('newTagId').value.trim().toLowerCase();
         const name = document.getElementById('newTagName').value.trim();
@@ -99,7 +92,6 @@ export function renderTagsAdmin() {
         errorEl.innerText = '';
     };
     
-    // Быстрые пресеты
     document.querySelectorAll('.presetTagBtn').forEach(btn => {
         btn.onclick = async () => {
             const id = btn.dataset.id;
@@ -118,7 +110,6 @@ export function renderTagsAdmin() {
     });
 }
 
-// Список быстрых пресетов
 function getPresets() {
     return [
         { id: "weapon", name: "Оружие", color: "#FF4444" },
@@ -136,7 +127,6 @@ function getPresets() {
     ];
 }
 
-// Подписка на обновления тэгов
 subscribeToTags(tags => {
     tagsCache = tags;
 });
