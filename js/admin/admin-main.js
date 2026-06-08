@@ -10,7 +10,7 @@ import { renderItemsAdmin } from './admin-items.js';
 import { renderEventsAdmin } from './admin-events.js';
 
 let allGroups = [];
-let selectedGroupId = null; // null = глобальный режим
+let selectedGroupId = null;
 let adminMode = 'players';
 
 export function initAdmin() {
@@ -39,9 +39,13 @@ function renderGroupSelection() {
 
     let html = '<h3>ВЫБЕРИТЕ ГРУППУ</h3>';
     html += '<div style="display:flex; flex-direction:column; gap:8px;">';
-    groupsToShow.forEach(g => {
-        html += `<button class="selectGroupForAdminBtn" data-group-id="${g.id}">${g.name}</button>`;
-    });
+    if (groupsToShow.length === 0) {
+        html += '<p>НЕТ ДОСТУПНЫХ ГРУПП</p>';
+    } else {
+        groupsToShow.forEach(g => {
+            html += `<button class="selectGroupForAdminBtn" data-group-id="${g.id}">${g.name}</button>`;
+        });
+    }
     if (currentUserRole === 'master') {
         html += '<button id="globalModeBtn" style="margin-top:10px;">🌐 ГЛОБАЛЬНЫЕ НАСТРОЙКИ</button>';
     }
@@ -54,8 +58,9 @@ function renderGroupSelection() {
             renderGroupAdmin();
         };
     });
-    if (currentUserRole === 'master') {
-        document.getElementById('globalModeBtn').onclick = () => {
+    const globalBtn = document.getElementById('globalModeBtn');
+    if (globalBtn) {
+        globalBtn.onclick = () => {
             selectedGroupId = null;
             adminMode = 'tags';
             renderGlobalAdmin();
@@ -69,17 +74,17 @@ function renderGroupAdmin() {
     document.querySelector('.admin-panel-header span').innerText = `🔑 ${group.name}`;
     const nav = document.getElementById('adminPanelNav');
     nav.innerHTML = `
-        <button id="apPlayers" class="${adminMode==='players'?'active':''}">ИГРОКИ</button>
-        <button id="apShop" class="${adminMode==='shop'?'active':''}">МАГАЗИН</button>
-        <button id="apLoot" class="${adminMode==='lootboxes'?'active':''}">ЛУТБОКСЫ</button>
-        <button id="apEvents" class="${adminMode==='events'?'active':''}">СОБЫТИЯ</button>
+        <button id="apPlayers" style="${adminMode==='players'?'background:var(--button-hover-bg);color:var(--button-hover-text);':''}">ИГРОКИ</button>
+        <button id="apShop" style="${adminMode==='shop'?'background:var(--button-hover-bg);color:var(--button-hover-text);':''}">МАГАЗИН</button>
+        <button id="apLoot" style="${adminMode==='lootboxes'?'background:var(--button-hover-bg);color:var(--button-hover-text);':''}">ЛУТБОКСЫ</button>
+        <button id="apEvents" style="${adminMode==='events'?'background:var(--button-hover-bg);color:var(--button-hover-text);':''}">СОБЫТИЯ</button>
         <button id="backToGroupsBtn">← ГРУППЫ</button>
     `;
     document.getElementById('apPlayers').onclick = () => { adminMode='players'; renderGroupAdmin(); };
     document.getElementById('apShop').onclick = () => { adminMode='shop'; renderGroupAdmin(); };
     document.getElementById('apLoot').onclick = () => { adminMode='lootboxes'; renderGroupAdmin(); };
     document.getElementById('apEvents').onclick = () => { adminMode='events'; renderGroupAdmin(); };
-    document.getElementById('backToGroupsBtn').onclick = renderGroupSelection;
+    document.getElementById('backToGroupsBtn').onclick = () => { selectedGroupId = null; renderGroupSelection(); };
 
     const content = document.getElementById('adminPanelContent');
     if (adminMode === 'players') renderPlayersAdmin(group, content);
@@ -92,15 +97,15 @@ function renderGlobalAdmin() {
     document.querySelector('.admin-panel-header span').innerText = '🔑 ГЛОБАЛЬНО';
     const nav = document.getElementById('adminPanelNav');
     nav.innerHTML = `
-        <button id="apTags" class="${adminMode==='tags'?'active':''}">ТЭГИ</button>
-        <button id="apItems" class="${adminMode==='items'?'active':''}">ПРЕДМЕТЫ</button>
-        <button id="apGroups" class="${adminMode==='groups'?'active':''}">ГРУППЫ</button>
+        <button id="apTags" style="${adminMode==='tags'?'background:var(--button-hover-bg);color:var(--button-hover-text);':''}">ТЭГИ</button>
+        <button id="apItems" style="${adminMode==='items'?'background:var(--button-hover-bg);color:var(--button-hover-text);':''}">ПРЕДМЕТЫ</button>
+        <button id="apGroups" style="${adminMode==='groups'?'background:var(--button-hover-bg);color:var(--button-hover-text);':''}">ГРУППЫ</button>
         <button id="backToGroupsBtn">← ВЫБОР ГРУППЫ</button>
     `;
     document.getElementById('apTags').onclick = () => { adminMode='tags'; renderGlobalAdmin(); };
     document.getElementById('apItems').onclick = () => { adminMode='items'; renderGlobalAdmin(); };
     document.getElementById('apGroups').onclick = () => { adminMode='groups'; renderGlobalAdmin(); };
-    document.getElementById('backToGroupsBtn').onclick = renderGroupSelection;
+    document.getElementById('backToGroupsBtn').onclick = () => { selectedGroupId = null; renderGroupSelection(); };
 
     const content = document.getElementById('adminPanelContent');
     if (adminMode === 'tags') renderTagsAdmin(content);
