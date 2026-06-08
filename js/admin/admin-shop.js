@@ -116,27 +116,48 @@ function renderItems(inner, cats) {
     const items = cats[selectedCategory].subcategories[selectedSubcategory] || [];
     let html = `<button id="backToSub" style="margin-bottom:10px;">← К ПОДКАТЕГОРИЯМ</button>`;
     html += `<h3>${selectedCategory} → ${selectedSubcategory}</h3>`;
-    html += '<div style="display:flex; flex-direction:column; gap:4px;">';
-    items.forEach((item, index) => {
-        html += `
-            <div style="display:flex; justify-content:space-between; align-items:center; background:var(--card-bg); padding:6px 8px; border:1px solid var(--border-color); font-size:11px;">
-                <span>${item.image ? `<img src="${item.image}" style="width:20px;height:20px;vertical-align:middle;"> ` : ''}${item.name} — ${item.price} РК</span>
-                <span style="font-size:9px; opacity:0.7;">${(item.tags || []).join(', ')}</span>
-                <button data-index="${index}" class="removeItemBtn">УДАЛИТЬ</button>
-            </div>`;
-    });
-    html += '</div>';
+    
+    // Список существующих товаров
+    if (items.length > 0) {
+        html += '<div style="display:flex; flex-direction:column; gap:4px; margin-bottom:10px;">';
+        items.forEach((item, index) => {
+            const imgTag = item.image 
+                ? `<img src="${item.image}" style="width:24px;height:24px;vertical-align:middle;margin-right:4px;object-fit:contain;">` 
+                : '';
+            html += `
+                <div style="display:flex; justify-content:space-between; align-items:center; background:var(--card-bg); padding:6px 8px; border:1px solid var(--border-color); font-size:11px;">
+                    <span>${imgTag}${item.name} — ${item.price} РК</span>
+                    <span style="font-size:9px; opacity:0.7;">${(item.tags || []).join(', ')}</span>
+                    <button data-index="${index}" class="removeItemBtn">УДАЛИТЬ</button>
+                </div>`;
+        });
+        html += '</div>';
+    } else {
+        html += '<p style="font-size:11px; opacity:0.6;">НЕТ ТОВАРОВ</p>';
+    }
+
+    // Форма добавления
     html += `
-        <div style="display:flex; gap:8px; margin-top:10px; flex-wrap:wrap;">
-            <input type="text" id="newItemName" placeholder="НАЗВАНИЕ" style="flex:1; min-width:120px;">
-            <input type="text" id="newItemImage" placeholder="URL КАРТИНКИ" style="flex:1; min-width:120px;">
-            <input type="number" id="newItemPrice" placeholder="ЦЕНА" style="width:70px;">
-            <input type="text" id="newItemTags" placeholder="ТЕГИ (через запятую)" style="flex:1; min-width:120px;">
-            <button id="addItemBtn">ДОБАВИТЬ</button>
+        <div style="border-top:1px solid var(--border-color); padding-top:10px;">
+            <h4>ДОБАВИТЬ ТОВАР</h4>
+            <div style="display:flex; gap:8px; margin-bottom:6px; flex-wrap:wrap;">
+                <input type="text" id="newItemName" placeholder="НАЗВАНИЕ" style="flex:1; min-width:120px;">
+                <div style="display:flex; gap:4px; align-items:center; flex:2; min-width:220px;">
+                    <input type="text" id="newItemImage" placeholder="URL или Base64 картинки" style="flex:1;">
+                    <input type="file" id="newItemImageFile" accept="image/*" style="display:none;">
+                    <button id="uploadImageBtn" style="font-size:16px; padding:8px 12px; flex:none;" title="ЗАГРУЗИТЬ С КОМПЬЮТЕРА">📁</button>
+                </div>
+            </div>
+            <div style="display:flex; gap:8px; margin-bottom:6px; flex-wrap:wrap;">
+                <input type="number" id="newItemPrice" placeholder="ЦЕНА В РК" style="width:100px;">
+                <input type="text" id="newItemTags" placeholder="ТЕГИ (через запятую)" style="flex:1; min-width:150px;">
+                <button id="addItemBtn">ДОБАВИТЬ</button>
+            </div>
+            <div id="imagePreview" style="margin-top:6px;"></div>
         </div>`;
     inner.innerHTML = html;
 
-    document.getElementById('backToSub').onclick = () => { selectedSubcategory = null; renderShopAdmin(); };
+    // Удаление товара
     document.querySelectorAll('.removeItemBtn').forEach(btn => {
         btn.onclick = async () => {
             const index = parseInt(btn.dataset.index);
@@ -148,21 +169,68 @@ function renderItems(inner, cats) {
             log('ТОВАР УДАЛЁН');
         };
     });
+
+    // Загрузка картинки
+    document.getElementById('uploadImageBtn').onclick = () => {
+        document.getElementById('newItemImageFile').click();
+    };
+
+    document.getElementById('newItemImageFile').onchange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        if (file.size > 500 * 1024) {
+            log('ОШИБКА: ФАЙЛ СЛИШКОМ БОЛЬШОЙ (МАКС 500 КБ)');
+            return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            document.getElementById('newItemImage').value = ev.target.result;
+            document.getElementById('imagePreview').innerHTML = 
+                `<img src="${ev.target.result}" style="max-width:100px; max-height:100px; border:1px solid var(--border-color);">`;
+            log('КАРТИНКА ЗАГРУЖЕНА');
+        };
+        reader.readAsDataURL(file);
+    };
+
+    // Кнопка "Назад"
+    document.getElementById('backToSub').onclick = () => { 
+        selectedSubcategory = null; 
+        renderShopAdmin(); 
+    };
+
+    // Добавление товара
     document.getElementById('addItemBtn').onclick = async () => {
         const name = document.getElementById('newItemName').value.trim();
         const image = document.getElementById('newItemImage').value.trim();
         const price = parseInt(document.getElementById('newItemPrice').value);
         const tags = document.getElementById('newItemTags').value.split(',').map(t => t.trim()).filter(t => t);
-        if (!name || isNaN(price)) return;
-        const newItem = { id: Date.now().toString(), name, image, price, tags };
+        
+        if (!name || isNaN(price)) {
+            log('ОШИБКА: ЗАПОЛНИТЕ НАЗВАНИЕ И ЦЕНУ');
+            return;
+        }
+        
+        const newItem = { 
+            id: Date.now().toString(), 
+            name, 
+            image, 
+            price, 
+            tags 
+        };
+        
         const newItems = [...items, newItem];
         const newCat = { ...cats };
         newCat[selectedCategory].subcategories[selectedSubcategory] = newItems;
         await updateShopCategories(newCat);
         log(`ТОВАР "${name}" ДОБАВЛЕН`);
+        
+        // Очистка полей
         document.getElementById('newItemName').value = '';
         document.getElementById('newItemImage').value = '';
         document.getElementById('newItemPrice').value = '';
         document.getElementById('newItemTags').value = '';
+        document.getElementById('imagePreview').innerHTML = '';
     };
 }
