@@ -1,7 +1,6 @@
 // ui.js
 import { setTokens, setInventory, getTokens, getInventory, log } from './shared.js';
-import { resetAdmin, renderAdmin } from './admin.js';
-
+import { resetAdmin } from './admin/admin-main.js';
 export { setTokens, setInventory, getTokens, getInventory, log };
 
 let shopCleanup = null;
