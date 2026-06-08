@@ -45,7 +45,6 @@ async function openLootbox(boxId, lootboxes, char) {
 
     document.getElementById('lootResult').innerHTML = '<span class="blink">ОТКРЫТИЕ...</span>';
     setTimeout(async () => {
-        // Выбор предмета по шансам
         const totalChance = box.items.reduce((s, i) => s + i.chance, 0);
         let roll = Math.random() * totalChance;
         let chosenItem = box.items[0];
@@ -56,10 +55,8 @@ async function openLootbox(boxId, lootboxes, char) {
         const itemData = allItems.find(i => i.id === chosenItem.itemId);
         if (!itemData) return;
 
-        // Списание валюты
         const newCurrencies = { ...currencies };
         let remaining = box.price;
-        // упрощённое списание
         if (newCurrencies.yellow) { const s = Math.min(newCurrencies.yellow, Math.floor(remaining/100)); newCurrencies.yellow -= s; remaining -= s*100; }
         if (newCurrencies.gray) { const s = Math.min(newCurrencies.gray, Math.floor(remaining/10)); newCurrencies.gray -= s; remaining -= s*10; }
         newCurrencies.pink -= remaining;
