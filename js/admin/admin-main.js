@@ -8,7 +8,7 @@ import { renderShopAdmin, resetShopAdmin } from './admin-shop.js';
 import { renderLootboxAdmin } from './admin-lootboxes.js';
 import { renderGroupsAdmin, initGroups } from './admin-groups.js';
 
-const MASTER_UIDS = ["твой-uid-здесь"];
+const MASTER_UIDS = ["4pFBCO9TamP7eX22MpxKdTLQYz63"];
 
 let currentUser = null;
 onAuthStateChanged(auth, (user) => { currentUser = user; });
