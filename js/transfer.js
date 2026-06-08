@@ -1,3 +1,4 @@
+// transfer.js
 import { db } from './firebase-config.js';
 import { doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 import { getCurrencies, getInventory } from './state.js';
@@ -29,7 +30,6 @@ function renderTransferUI(container, group) {
     html += '<select id="transferTarget"><option value="">ВЫБЕРИТЕ ПЕРСОНАЖА</option>';
     group.players.forEach(id => { if (id !== currentChar.id) html += `<option value="${id}">${id}</option>`; });
     html += '</select>';
-    // предметы
     html += '<h4>ПРЕДМЕТЫ</h4><div id="transferItems" style="max-height:150px; overflow-y:auto; margin-bottom:10px;">';
     inventory.forEach((item, i) => {
         html += `<div style="display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px solid var(--card-hover-bg);">
@@ -39,7 +39,6 @@ function renderTransferUI(container, group) {
         </div>`;
     });
     html += '</div>';
-    // валюта
     html += `<div>Р: ${currencies.pink || 0} С: ${currencies.gray || 0} Ж: ${currencies.yellow || 0}</div>
         <input type="number" id="transferPink" placeholder="Р" style="width:60px;">
         <input type="number" id="transferGray" placeholder="С" style="width:60px;">
