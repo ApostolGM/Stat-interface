@@ -1,3 +1,4 @@
+// ui.js
 import { setCurrencies, setInventory, getCurrencies, getInventory } from './state.js';
 import { log } from './shared.js';
 
