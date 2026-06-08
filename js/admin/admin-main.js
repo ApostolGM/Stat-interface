@@ -1,6 +1,7 @@
 // admin/admin-main.js
 import { currentUserRole, currentUserGroupIds } from '../auth.js';
 import { subscribeToGroups } from '../groups-config.js';
+import { subscribeToTags } from '../tags-config.js';
 import { renderPlayersAdmin } from './admin-players.js';
 import { renderShopAdmin } from './admin-shop.js';
 import { renderLootboxAdmin } from './admin-lootboxes.js';
@@ -10,6 +11,7 @@ import { renderItemsAdmin } from './admin-items.js';
 import { renderEventsAdmin } from './admin-events.js';
 
 let allGroups = [];
+let tagsCache = [];
 let selectedGroupId = null;
 let adminMode = 'players';
 
@@ -19,6 +21,9 @@ export function initAdmin() {
         if (selectedGroupId && !groups.find(g => g.id === selectedGroupId)) {
             selectedGroupId = null;
         }
+    });
+    subscribeToTags(tags => {
+        tagsCache = tags;
     });
 }
 
@@ -113,4 +118,8 @@ function renderGlobalAdmin() {
 
 export function getGroupById(id) {
     return allGroups.find(g => g.id === id);
+}
+
+export function getTagsCache() {
+    return tagsCache;
 }
