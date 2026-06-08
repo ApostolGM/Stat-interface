@@ -5,7 +5,7 @@ import { subscribeToTags, updateTags } from '../tags-config.js';
 let tagsCache = [];
 
 export function renderTagsAdmin() {
-    const inner = document.getElementById('adminInnerContent');
+    const inner = document.getElementById('adminPanelContent');
     const tags = [...tagsCache];
     
     let html = '<h3>УПРАВЛЕНИЕ ТЭГАМИ</h3>';
