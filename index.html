@@ -60,12 +60,12 @@
                 <button id="signOutTerminalBtn" style="font-size:8px; padding:4px 6px;">ВЫХОД</button>
             </div>
             <div class="nav">
-    <button id="shopTab">🏪 МАГАЗИН</button>
-    <button id="lootTab">🎲 ЛУТБОКСЫ</button>
-    <button id="invTab">🎒 ИНВЕНТАРЬ</button>
-    <button id="groupTab">👥 ГРУППА</button>
-    <button id="adminTab" style="display:none;">🔑 АДМИН</button>
-</div>
+                <button id="shopTab">🏪 МАГАЗИН</button>
+                <button id="lootTab">🎲 ЛУТБОКСЫ</button>
+                <button id="invTab">🎒 ИНВЕНТАРЬ</button>
+                <button id="groupTab">👥 ГРУППА</button>
+                <button id="adminTab" style="display:none;">🔑 АДМИН</button>
+            </div>
             <div id="shopContent" class="content"></div>
             <div id="lootContent" class="content hidden"></div>
             <div id="inventoryContent" class="content hidden"></div>
@@ -75,18 +75,15 @@
         </div>
     </div>
 
-    <!-- Переключатель тем -->
     <script>
         function setTheme(t) {
             document.documentElement.className = 'theme-' + t;
             localStorage.setItem('apostol-theme', t);
             document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
-            const btn = document.querySelector('.theme-' + t + '-btn');
-            if (btn) btn.classList.add('active');
+            document.querySelector('.theme-' + t + '-btn')?.classList.add('active');
         }
         (() => setTheme(localStorage.getItem('apostol-theme') || 'green'))();
     </script>
-
     <script src="js/main.js" type="module"></script>
 </body>
 </html>
