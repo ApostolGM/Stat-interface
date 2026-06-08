@@ -29,12 +29,19 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('signUpBtn').addEventListener('click', signUp);
     document.getElementById('signOutFromCharBtn').addEventListener('click', signOutUser);
 
-    document.getElementById('signOutTerminalBtn').addEventListener('click', () => {
-        cleanupShop();
-        cleanupLoot();
-        cleanupGroups();
-        signOutUser();
-    });
+    // Выход из терминала
+document.getElementById('signOutTerminalBtn').addEventListener('click', async () => {
+    cleanupShop();
+    cleanupLoot();
+    cleanupGroups();
+    resetAdminOnLogout();
+    await signOutUser();
+});
+
+// Выход с экрана персонажей
+document.getElementById('signOutFromCharBtn').addEventListener('click', async () => {
+    await signOutUser();
+});
 
     document.getElementById('changeCharBtn').addEventListener('click', () => {
         document.getElementById('terminal').classList.add('hidden');
