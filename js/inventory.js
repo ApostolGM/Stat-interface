@@ -1,5 +1,5 @@
 // inventory.js
-import { getInventory } from './ui.js';
+import { getInventory } from './state.js';
 
 export function renderInventory() {
     const inv = getInventory();
