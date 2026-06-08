@@ -14,7 +14,7 @@ import { renderItemsAdmin } from './admin-items.js';
 import { renderEventsAdmin } from './admin-events.js';
 
 // ⚠️ ЗАМЕНИ НА СВОЙ UID ИЗ КОНСОЛИ FIREBASE
-const MASTER_UIDS = ["твой-uid-здесь"];
+const MASTER_UIDS = ["kvXdTRC38GYOCN0gUk2RRV6q7In1"];
 
 let currentUser = null;
 onAuthStateChanged(auth, (user) => { currentUser = user; });
