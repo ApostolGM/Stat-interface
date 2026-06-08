@@ -1,11 +1,13 @@
+// auth.js
 import { auth, db } from './firebase-config.js';
-import { doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+import { doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 import {
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
     signOut,
     onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+import { subscribeToGroups, updateGroups } from './groups-config.js';
 
 const FAKE_DOMAIN = "@gephard.local";
 
@@ -22,7 +24,10 @@ export async function signUp() {
     try {
         const userCredential = await createUserWithEmailAndPassword(auth, loginToEmail(login), password);
         await setDoc(doc(db, "users", userCredential.user.uid), {
-            login, email: loginToEmail(login), tokens: 5, characterIds: []
+            login,
+            email: loginToEmail(login),
+            tokens: 5,
+            characterIds: []
         });
     } catch (error) { errorEl.innerText = error.message; }
 }
@@ -32,22 +37,29 @@ export async function signIn() {
     const password = document.getElementById('password').value;
     const errorEl = document.getElementById('authError');
     if (!login) { errorEl.innerText = 'ВВЕДИТЕ ЛОГИН'; return; }
-    try { await signInWithEmailAndPassword(auth, loginToEmail(login), password); }
-    catch (error) { errorEl.innerText = error.message; }
+    try {
+        await signInWithEmailAndPassword(auth, loginToEmail(login), password);
+    } catch (error) { errorEl.innerText = error.message; }
 }
 
-export async function signOutUser() { await signOut(auth); }
+export async function signOutUser() {
+    await signOut(auth);
+}
 
 export function setupAuth(onUserChange) {
     onAuthStateChanged(auth, async (user) => {
         document.getElementById('loading').classList.add('hidden');
         if (user) {
             currentUser = user;
+            document.getElementById('auth').classList.add('hidden');
+            document.getElementById('userInfo')?.classList.add('hidden');
             const userDoc = await getDoc(doc(db, "users", user.uid));
             if (userDoc.exists()) {
                 const data = userDoc.data();
                 onUserChange({ ...data, uid: user.uid });
                 showCharacterScreen({ ...data, uid: user.uid });
+            } else {
+                onUserChange(null);
             }
         } else {
             currentUser = null;
@@ -62,10 +74,13 @@ export function setupAuth(onUserChange) {
 export async function showCharacterScreen(userData) {
     document.getElementById('auth').classList.add('hidden');
     document.getElementById('characterScreen').classList.remove('hidden');
+    document.getElementById('terminal').classList.add('hidden');
+    
     const container = document.getElementById('characterContent');
     const characterIds = userData.characterIds || [];
     
     let html = '<h2>ВАШИ ПЕРСОНАЖИ</h2>';
+    
     if (characterIds.length === 0) {
         html += '<p>НЕТ ПЕРСОНАЖЕЙ</p>';
     } else {
@@ -79,9 +94,11 @@ export async function showCharacterScreen(userData) {
         }
         html += '</div>';
     }
+    
     html += '<button id="createApplicationBtn" style="margin-top:15px;">СОЗДАТЬ ЗАЯВКУ</button>';
     container.innerHTML = html;
 
+    // Обработчики выбора персонажа
     document.querySelectorAll('.select-char-btn').forEach(btn => {
         btn.onclick = async () => {
             const charDoc = await getDoc(doc(db, "characters", btn.dataset.id));
@@ -96,7 +113,25 @@ export async function showCharacterScreen(userData) {
         };
     });
 
+    // Кнопка создания заявки
     document.getElementById('createApplicationBtn').onclick = () => showApplicationForm(userData);
+
+    // Показываем мастер-панель, если пользователь — мастер
+    const { isMaster } = await import('./admin.js');
+    const masterPanel = document.getElementById('masterPanel');
+    const enterAdminBtn = document.getElementById('enterAdminFromCharBtn');
+    
+    if (isMaster(userData.uid)) {
+        masterPanel.style.display = 'block';
+        enterAdminBtn.onclick = () => {
+            window.selectedCharacter = null;
+            document.getElementById('characterScreen').classList.add('hidden');
+            document.getElementById('terminal').classList.remove('hidden');
+            window.dispatchEvent(new CustomEvent('characterSelected', { detail: null }));
+        };
+    } else {
+        masterPanel.style.display = 'none';
+    }
 }
 
 async function showApplicationForm(userData) {
@@ -109,7 +144,7 @@ async function showApplicationForm(userData) {
         <button id="cancelApplicationBtn">ОТМЕНА</button>
     `;
     
-    const { subscribeToGroups } = await import('./groups-config.js');
+    // Загружаем список групп
     subscribeToGroups(groups => {
         const select = document.getElementById('groupSelect');
         if (!select) return;
@@ -121,25 +156,37 @@ async function showApplicationForm(userData) {
         const name = document.getElementById('charName').value.trim();
         const groupId = document.getElementById('groupSelect').value;
         if (!name || !groupId) return;
+        
         const charId = 'char_' + Date.now();
         await setDoc(doc(db, "characters", charId), {
-            id: charId, name, userId: userData.uid, groupId: null, inventory: []
+            id: charId,
+            name,
+            userId: userData.uid,
+            groupId: null,
+            inventory: []
         });
+        
         await updateDoc(doc(db, "users", userData.uid), {
             characterIds: [...(userData.characterIds || []), charId]
         });
-        const { updateGroups } = await import('./groups-config.js');
+        
+        // Добавляем заявку в группу
         const groups = await new Promise(resolve => {
             let unsub = subscribeToGroups(g => { resolve(g); unsub(); });
         });
         const group = groups.find(g => g.id === groupId);
         if (group) {
             group.applications = group.applications || [];
-            group.applications.push({ characterId: charId, characterName: name, userId: userData.uid });
+            group.applications.push({
+                characterId: charId,
+                characterName: name,
+                userId: userData.uid
+            });
             await updateGroups(groups);
             alert('ЗАЯВКА ОТПРАВЛЕНА');
             showCharacterScreen(userData);
         }
     };
+    
     document.getElementById('cancelApplicationBtn').onclick = () => showCharacterScreen(userData);
 }
